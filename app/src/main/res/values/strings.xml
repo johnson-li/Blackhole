@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Blackhole</string>
+    <string name="switch_icon_name">switch icon</string>
+    <string name="vpn_started">RUNNING</string>
+    <string name="vpn_starting">STARTING</string>
+    <string name="vpn_stopped">STOPPED</string>
+    <string name="notification_vpn_connected">connected</string>
+    <string name="notification_vpn_connecting">connection</string>
 </resources>
