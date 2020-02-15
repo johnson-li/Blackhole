@@ -2,10 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.xuebingli.blackhole">
 
-    <uses-sdk
-        android:minSdkVersion="26"
-        android:targetSdkVersion="28" />
-
     <uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission-sdk-23 android:name="android.permission.INTERNET" />
 
@@ -23,6 +19,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".NetworkUtilsActivity" android:label="@string/network_utils_activity_title"/>
+        <activity android:name=".PingActivity" android:label="@string/ping_activity_title"/>
+        <activity android:name=".TracerouteActivity" android:label="@string/traceroute_activity_title"/>
         <service
             android:name=".BlackHoleVpnService"
             android:permission="android.permission.BIND_VPN_SERVICE">

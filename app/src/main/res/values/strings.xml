@@ -6,4 +6,10 @@
     <string name="vpn_stopped">STOPPED</string>
     <string name="notification_vpn_connected">connected</string>
     <string name="notification_vpn_connecting">connection</string>
+    <string name="network_utils_button">Network Utils</string>
+    <string name="network_utils_activity_title">Network Utils</string>
+    <string name="network_utils_item_title">Ping</string>
+    <string name="network_utils_item_description">Ping description</string>
+    <string name="ping_activity_title">Ping</string>
+    <string name="traceroute_activity_title">Traceroute</string>
 </resources>

@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 
@@ -113,5 +114,9 @@ class MainActivity : AppCompatActivity() {
             }
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
+    }
+
+    fun openNetworkUtils(view: View) {
+        startActivity(Intent(this, NetworkUtilsActivity::class.java))
     }
 }
