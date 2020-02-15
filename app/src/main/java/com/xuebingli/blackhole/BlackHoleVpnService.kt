@@ -1,12 +1,15 @@
 package com.xuebingli.blackhole
 
 import android.app.*
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.VpnService
 import android.os.Binder
 import android.os.IBinder
 import android.os.ParcelFileDescriptor
+import android.util.Log
 import androidx.core.util.Pair
 import java.util.concurrent.atomic.AtomicReference
 
@@ -15,11 +18,18 @@ class BlackHoleVpnService : VpnService() {
     companion object {
         const val ACTION_CONNECT = "connect"
         const val ACTION_DISCONNECT = "disconnect"
+        const val ACTION_STARTING_SERVICE = "start service"
+        const val ACTION_STARTING_ACTIVITY = "start activity"
         const val NOTIFICATION_CHANNEL_ID = "BlackholeVPN"
     }
 
     private val binder = LocalBinder()
     private lateinit var configureIntent: PendingIntent
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.d("johnson", "received message in service: ${intent?.action}")
+        }
+    }
     private val connectingThread = object : AtomicReference<Thread>() {
         fun set2(newValue: Thread?) {
             val oldThread = getAndSet(newValue)
@@ -43,6 +53,12 @@ class BlackHoleVpnService : VpnService() {
             Intent(this, MainActivity::class.java),
             PendingIntent.FLAG_UPDATE_CURRENT
         )
+        registerReceiver(receiver, IntentFilter(ACTION_STARTING_SERVICE))
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(receiver)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -71,14 +87,23 @@ class BlackHoleVpnService : VpnService() {
         connection.onEstablishListener = {
             connectingThread.compareAndSet(thread, null)
             ongoingConnection.set2(Connection(thread, it))
+            notifyActivity()
         }
         connectingThread.get().start()
+    }
+
+    private fun notifyActivity() {
+        Intent().apply {
+            action = ACTION_STARTING_ACTIVITY
+            sendBroadcast(this)
+        }
     }
 
     private fun disconnect() {
         connectingThread.set2(null)
         ongoingConnection.set2(null)
         stopForeground(true)
+        notifyActivity()
     }
 
     private fun updateForegroundNotification(message: String) {
@@ -106,7 +131,7 @@ class BlackHoleVpnService : VpnService() {
         return binder
     }
 
-    inner class LocalBinder: Binder() {
+    inner class LocalBinder : Binder() {
         fun getService(): BlackHoleVpnService = this@BlackHoleVpnService
     }
 }

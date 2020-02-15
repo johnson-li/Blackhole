@@ -1,10 +1,7 @@
 package com.xuebingli.blackhole
 
 import android.app.Activity
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
+import android.content.*
 import android.net.VpnService
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -22,6 +19,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var switchButton: ImageView
     private lateinit var switchText: TextView
     private var vpnService: BlackHoleVpnService? = null
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.d("johnson", "received message in activity: ${intent?.action}")
+            isVpnRunning()
+        }
+    }
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
@@ -41,6 +44,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(receiver)
+    }
+
     override fun onResume() {
         super.onResume()
         isVpnRunning()
@@ -54,6 +62,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        registerReceiver(receiver, IntentFilter(BlackHoleVpnService.ACTION_STARTING_ACTIVITY))
 
         switchButton = findViewById(R.id.switch_button)
         switchText = findViewById(R.id.switch_text)
@@ -94,6 +103,7 @@ class MainActivity : AppCompatActivity() {
         when (requestCode) {
             VPN_SERVICE_REQUEST_CODE -> {
                 if (resultCode == Activity.RESULT_OK) {
+                    switchText.setText(R.string.vpn_starting)
                     startService(
                         Intent(this, BlackHoleVpnService::class.java).setAction(
                             BlackHoleVpnService.ACTION_CONNECT
