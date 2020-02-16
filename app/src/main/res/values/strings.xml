@@ -16,4 +16,5 @@
     <string name="ping_action">Ping</string>
     <string name="ping_tab_result_raw">Raw result</string>
     <string name="ping_tab_result_parsed">Parsed result</string>
+    <string name="default_ping_target">1.1.1.1</string>
 </resources>
