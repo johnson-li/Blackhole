@@ -12,4 +12,8 @@
     <string name="network_utils_item_description">Ping description</string>
     <string name="ping_activity_title">Ping</string>
     <string name="traceroute_activity_title">Traceroute</string>
+    <string name="ping_ip_address">Target IP address</string>
+    <string name="ping_action">Ping</string>
+    <string name="ping_tab_result_raw">Raw result</string>
+    <string name="ping_tab_result_parsed">Parsed result</string>
 </resources>
