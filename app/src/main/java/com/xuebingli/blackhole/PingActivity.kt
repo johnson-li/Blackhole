@@ -60,6 +60,7 @@ class PingActivity : BaseActivity(true) {
                 Toast.makeText(this, R.string.toast_invalid_ip, Toast.LENGTH_SHORT).show()
                 return
             }
+//            val command = "su -c 'ping -I wlan0 $ip'"
             val command = "ping $ip"
             val process = Runtime.getRuntime().exec(command)
             val output = DataOutputStream(process.outputStream)
