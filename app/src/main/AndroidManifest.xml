@@ -23,7 +23,7 @@
         <activity android:name=".PingActivity" android:label="@string/ping_activity_title"/>
         <activity android:name=".TracerouteActivity" android:label="@string/traceroute_activity_title"/>
         <service
-            android:name=".BlackHoleVpnService"
+            android:name=".services.BlackHoleVpnService"
             android:permission="android.permission.BIND_VPN_SERVICE">
             <intent-filter>
                 <action android:name="android.net.VpnService" />

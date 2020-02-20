@@ -1,4 +1,4 @@
-package com.xuebingli.blackhole
+package com.xuebingli.blackhole.services
 
 import android.app.*
 import android.content.BroadcastReceiver
@@ -11,6 +11,9 @@ import android.os.IBinder
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import androidx.core.util.Pair
+import com.xuebingli.blackhole.BlackHoleVpnConnection
+import com.xuebingli.blackhole.MainActivity
+import com.xuebingli.blackhole.R
 import java.util.concurrent.atomic.AtomicReference
 
 class BlackHoleVpnService : VpnService() {
@@ -81,12 +84,18 @@ class BlackHoleVpnService : VpnService() {
 
     private fun connect() {
         updateForegroundNotification(getString(R.string.notification_vpn_connecting))
-        val connection = BlackHoleVpnConnection(configureIntent, this)
+        val connection =
+            BlackHoleVpnConnection(configureIntent, this)
         val thread = Thread(connection, "BlackholeVpnThread")
         connectingThread.set2(thread)
         connection.onEstablishListener = {
             connectingThread.compareAndSet(thread, null)
-            ongoingConnection.set2(Connection(thread, it))
+            ongoingConnection.set2(
+                Connection(
+                    thread,
+                    it
+                )
+            )
             notifyActivity()
         }
         connectingThread.get().start()
@@ -94,7 +103,8 @@ class BlackHoleVpnService : VpnService() {
 
     private fun notifyActivity() {
         Intent().apply {
-            action = ACTION_STARTING_ACTIVITY
+            action =
+                ACTION_STARTING_ACTIVITY
             sendBroadcast(this)
         }
     }

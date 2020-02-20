@@ -1,17 +1,28 @@
 package com.xuebingli.blackhole.results
 
+import android.content.Context
 import android.os.Bundle
+import android.text.method.ScrollingMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.xuebingli.blackhole.PingActivity
 import com.xuebingli.blackhole.R
 
 class RawResultFragment : ResultFragment() {
-    companion object {
-        val name = "Raw Result"
+    private lateinit var rawResultText: TextView
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        activity!!.getPreferences(Context.MODE_PRIVATE)
+            .registerOnSharedPreferenceChangeListener { sharedPreferences, key ->
+                if (key == PingActivity.PING_RESULT_PREF_KEY) {
+                    rawResultText.text = sharedPreferences.getString(key, "")
+                }
+            }
     }
-    lateinit var rawResultText: TextView
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -19,6 +30,7 @@ class RawResultFragment : ResultFragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_raw_result, container, false)
         rawResultText = view.findViewById(R.id.raw_result_text)
+        rawResultText.movementMethod = ScrollingMovementMethod()
         return view
     }
 
