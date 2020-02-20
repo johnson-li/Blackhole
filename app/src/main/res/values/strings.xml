@@ -14,8 +14,9 @@
     <string name="traceroute_activity_title">Traceroute</string>
     <string name="ping_ip_address">Target IP address</string>
     <string name="ping_action">Ping</string>
-    <string name="ping_tab_result_raw">Raw result</string>
+    <string name="ping_tab_result_raw">No content</string>
     <string name="ping_tab_result_parsed">Parsed result</string>
     <string name="default_ping_target">1.1.1.1</string>
     <string name="button_stop">Stop</string>
+    <string name="toast_invalid_ip">The IP address is illegal</string>
 </resources>

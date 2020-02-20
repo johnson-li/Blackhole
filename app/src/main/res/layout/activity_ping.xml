@@ -37,8 +37,11 @@
             android:orientation="horizontal">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/ip_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:digits="0123456789."
+                android:inputType="numberDecimal"
                 android:text="@string/default_ping_target" />
         </com.google.android.material.textfield.TextInputLayout>
     </RelativeLayout>

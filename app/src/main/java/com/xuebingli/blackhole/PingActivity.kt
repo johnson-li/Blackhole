@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -12,6 +13,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.android.material.textfield.TextInputEditText
 import com.xuebingli.blackhole.results.PingParsedResultFragment
 import com.xuebingli.blackhole.results.RawResultFragment
 import com.xuebingli.blackhole.results.ResultFragmentPair
@@ -31,6 +33,7 @@ class PingActivity : BaseActivity(true) {
 
     private lateinit var tab: TabLayout
     private lateinit var pager: ViewPager2
+    private lateinit var ipInput: TextInputEditText
     private lateinit var pingButton: MaterialButton
     private lateinit var sharedPref: SharedPreferences
     private val pingResultsAdapter = PingResultsAdapter(this)
@@ -40,6 +43,7 @@ class PingActivity : BaseActivity(true) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ping)
         sharedPref = getPreferences(Context.MODE_PRIVATE)
+        ipInput = findViewById(R.id.ip_input)
         pingButton = findViewById(R.id.ping_action)
         tab = findViewById(R.id.result_tab)
         pager = findViewById(R.id.result_page)
@@ -51,7 +55,12 @@ class PingActivity : BaseActivity(true) {
 
     fun pingAction(view: View) {
         if (pingThread == null) {
-            val command = "ping 1.1.1.1"
+            val ip = ipInput.text
+            if (!isValidIpAddress(ip.toString())) {
+                Toast.makeText(this, R.string.toast_invalid_ip, Toast.LENGTH_SHORT).show()
+                return
+            }
+            val command = "ping $ip"
             val process = Runtime.getRuntime().exec(command)
             val output = DataOutputStream(process.outputStream)
             val input = DataInputStream(process.inputStream)
@@ -59,6 +68,7 @@ class PingActivity : BaseActivity(true) {
             val inputBuffer = StringBuffer(1024)
             pingThread = Thread {
                 try {
+                    sharedPref.edit().putString(PING_RESULT_PREF_KEY, "").apply()
                     val buffer = ByteBuffer.allocate(Short.MAX_VALUE.toInt())
                     while (process.isAlive && !Thread.currentThread().isInterrupted) {
                         val length = input.read(buffer.array())
