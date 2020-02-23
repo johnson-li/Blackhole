@@ -1,11 +1,16 @@
 package com.xuebingli.blackhole
 
+import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -17,8 +22,10 @@ import com.google.android.material.textfield.TextInputEditText
 import com.xuebingli.blackhole.results.PingParsedResultFragment
 import com.xuebingli.blackhole.results.RawResultFragment
 import com.xuebingli.blackhole.results.ResultFragmentPair
+import com.xuebingli.blackhole.utils.getInterfaces
 import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.lang.Exception
 import java.nio.ByteBuffer
 
 val fragments = arrayOf(
@@ -29,6 +36,7 @@ val fragments = arrayOf(
 class PingActivity : BaseActivity(true) {
     companion object {
         val PING_RESULT_PREF_KEY = "ping_result"
+        val INTERFACE_PREF_KEY = "interface"
     }
 
     private lateinit var tab: TabLayout
@@ -38,6 +46,22 @@ class PingActivity : BaseActivity(true) {
     private lateinit var sharedPref: SharedPreferences
     private val pingResultsAdapter = PingResultsAdapter(this)
     private var pingThread: Thread? = null
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.menu_ping_activity, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        return when (item!!.itemId) {
+            R.id.set_interface -> {
+                InterfacePicker().show(supportFragmentManager, "interface picker")
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,8 +84,9 @@ class PingActivity : BaseActivity(true) {
                 Toast.makeText(this, R.string.toast_invalid_ip, Toast.LENGTH_SHORT).show()
                 return
             }
-//            val command = "su -c 'ping -I wlan0 $ip'"
-            val command = "ping $ip"
+            val interfaceName = sharedPref.getString(INTERFACE_PREF_KEY, "wlan0")
+            val command = "su -c ping -I $interfaceName $ip"
+            Log.d("johnson", command)
             val process = Runtime.getRuntime().exec(command)
             val output = DataOutputStream(process.outputStream)
             val input = DataInputStream(process.inputStream)
@@ -71,18 +96,27 @@ class PingActivity : BaseActivity(true) {
                 try {
                     sharedPref.edit().putString(PING_RESULT_PREF_KEY, "").apply()
                     val buffer = ByteBuffer.allocate(Short.MAX_VALUE.toInt())
-                    while (process.isAlive && !Thread.currentThread().isInterrupted) {
-                        val length = input.read(buffer.array())
+                    do {
+                        var length = input.read(buffer.array())
                         if (length > 0) {
                             val data = String(buffer.array(), 0, length)
                             inputBuffer.append(data)
                         }
                         sharedPref.edit()
                             .putString(PING_RESULT_PREF_KEY, inputBuffer.toString()).apply()
-                    }
+                        buffer.clear()
+//                        length = error.read(buffer.array())
+//                        if (length > 0) {
+//                            val data = String(buffer.array(), 0, length)
+//                            Log.e("johnson", data)
+//                        }
+//                        buffer.clear()
+                    } while (process.isAlive && !Thread.currentThread().isInterrupted)
+                } catch (e: Exception) {
+                    Log.e("johnson", Log.getStackTraceString(e))
                 } finally {
-                    process.destroy()
                     Log.d("johnson", "ping thread interrupted")
+                    process.destroy()
                 }
             }
             pingThread!!.start()
@@ -112,3 +146,20 @@ class PingResultsAdapter(fragment: FragmentActivity) : FragmentStateAdapter(frag
     }
 }
 
+class InterfacePicker : DialogFragment() {
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val sharedPref = activity!!.getPreferences(Context.MODE_PRIVATE)
+        val builder = AlertDialog.Builder(activity!!)
+        val interfaces = getInterfaces()
+        builder.setTitle(R.string.dialog_set_interface_title).setItems(interfaces) { _, which ->
+            val name = interfaces[which]
+            sharedPref.edit().putString(PingActivity.INTERFACE_PREF_KEY, name).apply()
+            Toast.makeText(
+                context,
+                getString(R.string.toast_set_interface, name),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        return builder.create()
+    }
+}

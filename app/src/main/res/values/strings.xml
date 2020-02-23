@@ -19,4 +19,7 @@
     <string name="default_ping_target">1.1.1.1</string>
     <string name="button_stop">Stop</string>
     <string name="toast_invalid_ip">The IP address is illegal</string>
+    <string name="menu_set_interface">Interface</string>
+    <string name="dialog_set_interface_title">Pick interface</string>
+    <string name="toast_set_interface">Set interface: %1$s</string>
 </resources>
