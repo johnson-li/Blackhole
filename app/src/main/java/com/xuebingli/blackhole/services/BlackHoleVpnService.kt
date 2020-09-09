@@ -12,7 +12,7 @@ import android.os.ParcelFileDescriptor
 import android.util.Log
 import androidx.core.util.Pair
 import com.xuebingli.blackhole.BlackHoleVpnConnection
-import com.xuebingli.blackhole.MainActivity
+import com.xuebingli.blackhole.activities.MainActivity
 import com.xuebingli.blackhole.R
 import java.util.concurrent.atomic.AtomicReference
 

@@ -6,22 +6,40 @@
     <uses-permission-sdk-23 android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".NetworkUtilsActivity" android:label="@string/network_utils_activity_title"/>
-        <activity android:name=".PingActivity" android:label="@string/ping_activity_title"/>
-        <activity android:name=".TracerouteActivity" android:label="@string/traceroute_activity_title"/>
+        <activity
+            android:name=".activities.NetworkUtilsActivity"
+            android:label="@string/network_utils_activity_title" />
+        <activity
+            android:name=".activities.PingActivity"
+            android:label="@string/ping_activity_title" />
+        <activity
+            android:name=".activities.TracerouteActivity"
+            android:label="@string/traceroute_activity_title" />
+        <activity
+            android:name=".activities.IperfActivity"
+            android:label="@string/iperf_activity_title" />
+        <activity
+            android:name=".activities.PourActivity"
+            android:label="@string/pour_activity_title" />
+        <activity
+            android:name=".activities.SinkActivity"
+            android:label="@string/sink_activity_title" />
+
         <service
             android:name=".services.BlackHoleVpnService"
             android:permission="android.permission.BIND_VPN_SERVICE">

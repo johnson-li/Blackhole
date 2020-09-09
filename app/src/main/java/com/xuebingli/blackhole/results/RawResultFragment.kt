@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.xuebingli.blackhole.PingActivity
+import com.xuebingli.blackhole.activities.PingActivity
 import com.xuebingli.blackhole.R
 
 class RawResultFragment : ResultFragment() {

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/set_interface"
+        android:title="@string/menu_set_interface"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/set_pour_mode"
+        android:title="@string/menu_set_pour_mode"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/set_bitrate"
+        android:title="@string/menu_set_bitrate"
+        app:showAsAction="never" />
+</menu>

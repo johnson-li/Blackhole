@@ -1,6 +1,5 @@
-package com.xuebingli.blackhole
+package com.xuebingli.blackhole.activities
 
-import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -9,8 +8,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -19,24 +16,25 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.textfield.TextInputEditText
-import com.xuebingli.blackhole.results.PingParsedResultFragment
+import com.xuebingli.blackhole.R
+import com.xuebingli.blackhole.utils.isValidIpAddress
+import com.xuebingli.blackhole.picker.InterfacePicker
+import com.xuebingli.blackhole.results.IperfParsedResultFragment
 import com.xuebingli.blackhole.results.RawResultFragment
 import com.xuebingli.blackhole.results.ResultFragmentPair
-import com.xuebingli.blackhole.utils.getInterfaces
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.lang.Exception
 import java.nio.ByteBuffer
 
 val fragments = arrayOf(
-    ResultFragmentPair("Raw Result") { RawResultFragment() },
-    ResultFragmentPair("Parsed Result") { PingParsedResultFragment() }
+    ResultFragmentPair("Parsed Result") { IperfParsedResultFragment() },
+    ResultFragmentPair("Raw Result") { RawResultFragment() }
 )
 
 class PingActivity : BaseActivity(true) {
     companion object {
-        val PING_RESULT_PREF_KEY = "ping_result"
-        val INTERFACE_PREF_KEY = "interface"
+        const val PING_RESULT_PREF_KEY = "ping_result"
+        const val INTERFACE_PREF_KEY = "interface"
     }
 
     private lateinit var tab: TabLayout
@@ -44,7 +42,8 @@ class PingActivity : BaseActivity(true) {
     private lateinit var ipInput: TextInputEditText
     private lateinit var pingButton: MaterialButton
     private lateinit var sharedPref: SharedPreferences
-    private val pingResultsAdapter = PingResultsAdapter(this)
+    private val pingResultsAdapter =
+        PingResultsAdapter(this)
     private var pingThread: Thread? = null
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -53,10 +52,11 @@ class PingActivity : BaseActivity(true) {
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        return when (item!!.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
             R.id.set_interface -> {
-                InterfacePicker().show(supportFragmentManager, "interface picker")
+                InterfacePicker()
+                    .show(supportFragmentManager, "interface picker")
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -81,7 +81,8 @@ class PingActivity : BaseActivity(true) {
         if (pingThread == null) {
             val ip = ipInput.text
             if (!isValidIpAddress(ip.toString())) {
-                Toast.makeText(this, R.string.toast_invalid_ip, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    R.string.toast_invalid_ip, Toast.LENGTH_SHORT).show()
                 return
             }
             val interfaceName = sharedPref.getString(INTERFACE_PREF_KEY, "wlan0")
@@ -143,23 +144,5 @@ class PingResultsAdapter(fragment: FragmentActivity) : FragmentStateAdapter(frag
 
     override fun createFragment(position: Int): Fragment {
         return fragments[position].createInstance()
-    }
-}
-
-class InterfacePicker : DialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val sharedPref = activity!!.getPreferences(Context.MODE_PRIVATE)
-        val builder = AlertDialog.Builder(activity!!)
-        val interfaces = getInterfaces()
-        builder.setTitle(R.string.dialog_set_interface_title).setItems(interfaces) { _, which ->
-            val name = interfaces[which]
-            sharedPref.edit().putString(PingActivity.INTERFACE_PREF_KEY, name).apply()
-            Toast.makeText(
-                context,
-                getString(R.string.toast_set_interface, name),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-        return builder.create()
     }
 }

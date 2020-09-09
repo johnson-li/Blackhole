@@ -1,4 +1,4 @@
-package com.xuebingli.blackhole
+package com.xuebingli.blackhole.activities
 
 import android.app.Activity
 import android.content.*
@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import com.xuebingli.blackhole.R
 import com.xuebingli.blackhole.services.BlackHoleVpnService
 
 class MainActivity : AppCompatActivity() {
@@ -96,7 +97,9 @@ class MainActivity : AppCompatActivity() {
             if (intent == null) {
                 onActivityResult(VPN_SERVICE_REQUEST_CODE, Activity.RESULT_OK, null)
             } else {
-                startActivityForResult(intent, VPN_SERVICE_REQUEST_CODE)
+                startActivityForResult(intent,
+                    VPN_SERVICE_REQUEST_CODE
+                )
             }
         }
     }

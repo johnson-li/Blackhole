@@ -79,7 +79,7 @@ class BlackHoleVpnConnection(
                 .setConfigureIntent(configureIntent)
         synchronized(vpnService) {
             val iface = builder.establish()
-            onEstablishListener(iface)
+            onEstablishListener(iface!!)
             return iface
         }
     }

@@ -1,7 +1,7 @@
-package com.xuebingli.blackhole
+package com.xuebingli.blackhole.activities
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import com.xuebingli.blackhole.R
 
 class TracerouteActivity: BaseActivity(true) {
     override fun onCreate(savedInstanceState: Bundle?) {

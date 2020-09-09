@@ -1,4 +1,4 @@
-package com.xuebingli.blackhole
+package com.xuebingli.blackhole.utils
 
 import android.util.Patterns
 
