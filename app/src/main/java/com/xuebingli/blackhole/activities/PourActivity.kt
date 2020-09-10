@@ -1,5 +1,6 @@
 package com.xuebingli.blackhole.activities
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -9,7 +10,13 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.edit
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.textfield.TextInputEditText
 import com.google.gson.Gson
 import com.xuebingli.blackhole.R
@@ -21,6 +28,7 @@ import com.xuebingli.blackhole.picker.PourModePicker
 import com.xuebingli.blackhole.restful.ControlMessage
 import com.xuebingli.blackhole.restful.Request
 import com.xuebingli.blackhole.restful.RequestType
+import com.xuebingli.blackhole.results.*
 import com.xuebingli.blackhole.utils.ConfigUtils
 import com.xuebingli.blackhole.utils.Preferences.Companion.POUR_BITRATE_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.POUR_MODE_KEY
@@ -30,10 +38,13 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class PourActivity : BaseActivity(true) {
+    private lateinit var tab: TabLayout
+    private lateinit var pager: ViewPager2
     private lateinit var sharedPref: SharedPreferences
     private lateinit var ipInput: TextInputEditText
     private lateinit var actionButton: MaterialButton
-    private val reports = ArrayList<PacketReport>()
+    val reports = ArrayList<PacketReport>()
+    private val adapter = PacketReportAdapter(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,10 +52,18 @@ class PourActivity : BaseActivity(true) {
         sharedPref = getPreferences(Context.MODE_PRIVATE)
         ipInput = findViewById(R.id.ip_input)
         actionButton = findViewById(R.id.udp_action)
+        tab = findViewById(R.id.result_tab)
+        pager = findViewById(R.id.result_page)
+        pager.adapter = adapter
+        TabLayoutMediator(tab, pager) { tab, position ->
+            tab.text = adapter.packetReportFragments[position].first
+        }.attach()
         ipInput.setText(ConfigUtils(this).getTargetIP())
         reports.clear()
     }
 
+    @SuppressLint("SimpleDateFormat")
+    @ExperimentalUnsignedTypes
     fun pourAction(view: View) {
         val bitrate = ConfigUtils(this).getPourBitrate()
         val packetSize = ConfigUtils(this).getPacketSize()
@@ -68,7 +87,14 @@ class PourActivity : BaseActivity(true) {
                         if (has_error) {
                             Toast.makeText(this, "Error occurred!", Toast.LENGTH_SHORT).show()
                         }
-                        packet_report?.also { p -> reports.add(p) }
+                        packet_report?.also { p ->
+                            reports.add(p)
+                            for (fragment in supportFragmentManager.fragments) {
+                                if (fragment is PacketReportListFragment) {
+                                    fragment.onReportsInserted(reports.size - 1)
+                                }
+                            }
+                        }
                     }.also { d -> disposables.add(d) }
                 }
             }.also { d -> disposables.add(d) }
@@ -110,5 +136,20 @@ class PourActivity : BaseActivity(true) {
 
     override fun onSupportNavigateUp(): Boolean {
         return super.onSupportNavigateUp()
+    }
+}
+
+class PacketReportAdapter(fragment: FragmentActivity) : FragmentStateAdapter(fragment) {
+    val packetReportFragments = arrayOf(
+        ResultFragmentPair("List") { PacketReportListFragment() },
+        ResultFragmentPair("Diagram") { PacketReportDiagramFragment() }
+    )
+
+    override fun getItemCount(): Int {
+        return packetReportFragments.size
+    }
+
+    override fun createFragment(position: Int): Fragment {
+        return packetReportFragments[position].createInstance()
     }
 }

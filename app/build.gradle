@@ -21,12 +21,12 @@ android {
         minSdkVersion 26
         targetSdkVersion 30
         versionCode 1
-        versionName "1.0"
+        versionName "0.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // Default configs
-//        buildConfigField "String", "TARGET_IP", '"195.148.127.108"'
-        buildConfigField "String", "TARGET_IP", '"192.168.1.129"'
+        buildConfigField "String", "TARGET_IP", '"195.148.127.108"'
+//        buildConfigField "String", "TARGET_IP", '"192.168.1.129"'
         buildConfigField "int", "TARGET_PORT", "8080"
         buildConfigField "String", "SINK_MODE", '"TCP"'
         buildConfigField "String", "POUR_MODE", '"TCP"'
