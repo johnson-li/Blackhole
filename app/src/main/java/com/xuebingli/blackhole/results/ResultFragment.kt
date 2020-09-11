@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment
 
 open class ResultFragment : Fragment() {
     open fun onDataInserted(index: Int) {}
+
+    open fun onDataReset() {}
 }
 
 class ResultFragmentPair(first: String, second: () -> ResultFragment) :

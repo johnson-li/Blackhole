@@ -5,4 +5,6 @@
     <color name="colorAccent">#D81B60</color>
     <color name="terminalBackground">#000000</color>
     <color name="terminalText">#ffffff</color>
+
+    <color name="cellDivider">#000000</color>
 </resources>

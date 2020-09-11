@@ -14,6 +14,7 @@
     <string name="iperf_activity_title">Iperf</string>
     <string name="pour_activity_title">Pour</string>
     <string name="sink_activity_title">Sink</string>
+    <string name="sync_activity_title">Sync</string>
     <string name="traceroute_activity_title">Traceroute</string>
     <string name="ping_ip_address">Target IP address</string>
     <string name="iperf_ip_address">Target IP address</string>
@@ -32,16 +33,32 @@
     <string name="menu_set_sink_mode">Sink Mode</string>
     <string name="menu_set_pour_mode">Pour Mode</string>
     <string name="menu_set_bitrate">Bitrate</string>
+    <string name="menu_set_duration">Duration</string>
     <string name="dialog_set_interface_title">Pick interface</string>
     <string name="dialog_set_sink_mode_title">Set sink mode</string>
     <string name="dialog_set_pour_mode_title">Set pour mode</string>
     <string name="dialog_set_pour_bitrate_title">Set pour bitrate</string>
     <string name="dialog_set_sink_bitrate_title">Set sink bitrate</string>
+    <string name="dialog_set_duration_title">Set duration</string>
     <string name="toast_set_interface">Set interface: %1$s</string>
     <string name="toast_set_udp_mode">Set UDP mode: %1$s</string>
     <string name="toast_set_pour_bitrate">Set pour bitrate: %1$d bps</string>
     <string name="toast_set_sink_bitrate">Set sink bitrate: %1$d bps</string>
+    <string name="toast_set_duration">Set duration: %1$d s</string>
+    <string name="toast_udp_pour_finished">UDP pour finished, export to disk</string>
     <string name="sink_button">Sink</string>
     <string name="pour_button">Pour</string>
     <string name="empty">EMPTY</string>
+    <string name="no_data">No Data</string>
+
+    <string name="statics_title">Statics</string>
+    <string name="statics_metric">Metric</string>
+    <string name="statics_latency">Latency</string>
+    <string name="statics_bandwidth">Bandwidth</string>
+    <string name="statics_current">Current</string>
+    <string name="statics_average">Average</string>
+    <string name="statics_median">Median</string>
+    <string name="statics_mbps">%1$.1f mbps</string>
+    <string name="statics_kbps">%1$.1f kbps</string>
+    <string name="statics_ms">%1$d ms</string>
 </resources>

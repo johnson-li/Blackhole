@@ -27,7 +27,10 @@ open class BaseActivity(private val displayHomeAsUp: Boolean) : AppCompatActivit
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedPreferences = applicationContext.getSharedPreferences(Preferences.PREFERENCE_NAME, Context.MODE_PRIVATE)
+        sharedPreferences = applicationContext.getSharedPreferences(
+            Preferences.PREFERENCE_NAME,
+            Context.MODE_PRIVATE
+        )
         supportActionBar?.setDisplayHomeAsUpEnabled(displayHomeAsUp)
     }
 
@@ -37,7 +40,11 @@ open class BaseActivity(private val displayHomeAsUp: Boolean) : AppCompatActivit
     }
 
     fun <T> subscribe(single: Single<T>, onSuccess: (T) -> Unit): Disposable {
-        return subscribe(single, {
+        return subscribe(single, onSuccess, {})
+    }
+
+    fun <T> subscribe(single: Single<T>, onSuccess: (T) -> Unit, onFail: () -> Unit): Disposable {
+        return subscribe0(single, {
             if (it is Response) {
                 if (it.status == Status.SUCCESS) {
                     onSuccess(it)
@@ -59,10 +66,11 @@ open class BaseActivity(private val displayHomeAsUp: Boolean) : AppCompatActivit
                     Log.e("johnson", it.message, it)
                 }
             }
+            onFail()
         })
     }
 
-    fun <T> subscribe(
+    private fun <T> subscribe0(
         single: Single<T>,
         onSuccess: (T) -> Unit,
         onError: (Throwable) -> Unit

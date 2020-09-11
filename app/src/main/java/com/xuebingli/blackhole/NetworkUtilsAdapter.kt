@@ -49,6 +49,9 @@ class NetworkUtilsAdapter : RecyclerView.Adapter<NetworkUtilsItemViewHolder>() {
             NetworkUtil.SINK -> {
                 context.startActivity(Intent(context, SinkActivity::class.java))
             }
+            NetworkUtil.SYNC -> {
+                context.startActivity(Intent(context, SyncActivity::class.java))
+            }
         }
     }
 }
@@ -61,7 +64,8 @@ class NetworkUtilsItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 enum class NetworkUtil(val utilName: String, val utilDescription: String) {
     PING("Ping", "Test the end-to-end latency"),
     TRACEROUTE("Traceroute", "Test the route path"),
-    IPERF("Iperf", "Test the end-to-end bandwidth"),
+    IPERF("iPerf", "Test the end-to-end bandwidth"),
     SINK("Sink", "Test the uplink bandwidth and latency"),
     POUR("Pour", "Test the downlink bandwidth and latency"),
+    SYNC("Sync", "Synchronize the clock between the UE and the remote server"),
 }

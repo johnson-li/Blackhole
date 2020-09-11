@@ -1,14 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <LinearLayout
+        android:id="@+id/statics"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/CellStyle"
+            android:text="@string/statics_title"
+            android:textStyle="bold" />
+
+        <ImageView style="@style/HorizontalCellDivider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/CellStyle"
+                android:text="" />
+
+            <TextView
+                style="@style/CellStyle"
+                android:text="@string/statics_current" />
+
+            <TextView
+                style="@style/CellStyle"
+                android:text="@string/statics_average" />
+
+            <TextView
+                style="@style/CellStyle"
+                android:text="@string/statics_median" />
+        </LinearLayout>
+
+        <ImageView style="@style/HorizontalCellDivider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/CellStyle"
+                android:text="@string/statics_latency" />
+
+            <TextView
+                android:id="@+id/latency_current"
+                style="@style/CellStyle"
+                tools:text="1.2 ms" />
+
+            <TextView
+                android:id="@+id/latency_average"
+                style="@style/CellStyle"
+                tools:text="1.5 ms" />
+
+            <TextView
+                android:id="@+id/latency_median"
+                style="@style/CellStyle"
+                tools:text="1.7 ms" />
+        </LinearLayout>
+
+        <ImageView style="@style/HorizontalCellDivider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/CellStyle"
+                android:text="@string/statics_bandwidth" />
+
+            <TextView
+                android:id="@+id/bandwidth_current"
+                style="@style/CellStyle"
+                tools:text="1.2 mbps" />
+
+            <TextView
+                android:id="@+id/bandwidth_average"
+                style="@style/CellStyle"
+                tools:text="1.5 mbps" />
+
+            <TextView
+                android:id="@+id/bandwidth_median"
+                style="@style/CellStyle"
+                tools:text="1.7 mbps" />
+        </LinearLayout>
+    </LinearLayout>
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/chart"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_above="@id/statics"
+        android:layout_marginTop="16dp"
+        android:elevation="10dp" />
+
+</RelativeLayout>

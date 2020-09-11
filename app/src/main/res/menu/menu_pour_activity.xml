@@ -13,4 +13,8 @@
         android:id="@+id/set_bitrate"
         android:title="@string/menu_set_bitrate"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/set_duration"
+        android:title="@string/menu_set_duration"
+        app:showAsAction="never" />
 </menu>

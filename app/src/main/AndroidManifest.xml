@@ -39,6 +39,9 @@
         <activity
             android:name=".activities.SinkActivity"
             android:label="@string/sink_activity_title" />
+        <activity
+            android:name=".activities.SyncActivity"
+            android:label="@string/sync_activity_title" />
 
         <service
             android:name=".services.BlackHoleVpnService"

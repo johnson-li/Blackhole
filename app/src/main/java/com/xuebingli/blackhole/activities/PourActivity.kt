@@ -23,6 +23,7 @@ import com.xuebingli.blackhole.R
 import com.xuebingli.blackhole.network.PacketReport
 import com.xuebingli.blackhole.network.UdpClient
 import com.xuebingli.blackhole.picker.BitratePicker
+import com.xuebingli.blackhole.picker.DurationPicker
 import com.xuebingli.blackhole.picker.InterfacePicker
 import com.xuebingli.blackhole.picker.PourModePicker
 import com.xuebingli.blackhole.restful.ControlMessage
@@ -30,6 +31,7 @@ import com.xuebingli.blackhole.restful.Request
 import com.xuebingli.blackhole.restful.RequestType
 import com.xuebingli.blackhole.results.*
 import com.xuebingli.blackhole.utils.ConfigUtils
+import com.xuebingli.blackhole.utils.Preferences.Companion.DURATION_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.POUR_BITRATE_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.POUR_MODE_KEY
 import java.io.File
@@ -40,20 +42,20 @@ import kotlin.collections.ArrayList
 class PourActivity : BaseActivity(true) {
     private lateinit var tab: TabLayout
     private lateinit var pager: ViewPager2
-    private lateinit var sharedPref: SharedPreferences
     private lateinit var ipInput: TextInputEditText
     private lateinit var actionButton: MaterialButton
     val reports = ArrayList<PacketReport>()
     private val adapter = PacketReportAdapter(this)
+    private var pouring = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pour)
-        sharedPref = getPreferences(Context.MODE_PRIVATE)
         ipInput = findViewById(R.id.ip_input)
         actionButton = findViewById(R.id.udp_action)
         tab = findViewById(R.id.result_tab)
         pager = findViewById(R.id.result_page)
+        pager.offscreenPageLimit = 2
         pager.adapter = adapter
         TabLayoutMediator(tab, pager) { tab, position ->
             tab.text = adapter.packetReportFragments[position].first
@@ -65,12 +67,27 @@ class PourActivity : BaseActivity(true) {
     @SuppressLint("SimpleDateFormat")
     @ExperimentalUnsignedTypes
     fun pourAction(view: View) {
+        if (pouring) {
+            return
+//            disposables.clear()
+//            pouring = true
+//            actionButton.setText(R.string.pour_button)
+        }
+        pouring = true
+        actionButton.setText(R.string.button_stop)
+        reports.clear()
+        for (fragment in supportFragmentManager.fragments) {
+            if (fragment is ResultFragment) {
+                fragment.onDataReset()
+            }
+        }
+
         val bitrate = ConfigUtils(this).getPourBitrate()
         val packetSize = ConfigUtils(this).getPacketSize()
         val duration = ConfigUtils(this).getDuration()
         val id = UUID.randomUUID().toString()
         serverApi.request(ControlMessage(id, Request(RequestType.UDP_POUR, bitrate))).also {
-            subscribe(it) { response ->
+            subscribe(it, { response ->
                 val ip = ConfigUtils(this).getTargetIP()
                 val port = response.port!!
                 UdpClient(id, ip, port, bitrate, packetSize, duration).also { client ->
@@ -80,9 +97,14 @@ class PourActivity : BaseActivity(true) {
                                 ConfigUtils(this).getDataDir(),
                                 "udp_pour_${SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(Date())}.json"
                             )
-                            Log.d("johnson", "UDP pour finished, export to ${file.absoluteFile}")
-//                            file.createNewFile()
+                            Toast.makeText(
+                                this,
+                                getString(R.string.toast_udp_pour_finished),
+                                Toast.LENGTH_SHORT
+                            ).show()
                             file.writeText(Gson().toJson(reports))
+                            pouring = false
+                            actionButton.setText(R.string.pour_button)
                         }
                         if (has_error) {
                             Toast.makeText(this, "Error occurred!", Toast.LENGTH_SHORT).show()
@@ -97,7 +119,10 @@ class PourActivity : BaseActivity(true) {
                         }
                     }.also { d -> disposables.add(d) }
                 }
-            }.also { d -> disposables.add(d) }
+            }, {
+                pouring = false
+                actionButton.setText(R.string.pour_button)
+            }).also { d -> disposables.add(d) }
         }
     }
 
@@ -116,7 +141,7 @@ class PourActivity : BaseActivity(true) {
             }
             R.id.set_pour_mode -> {
                 PourModePicker {
-                    sharedPref.edit(true) {
+                    sharedPreferences.edit(true) {
                         putString(POUR_MODE_KEY, it.name)
                     }
                 }.show(supportFragmentManager, "Pour mode picker")
@@ -124,10 +149,18 @@ class PourActivity : BaseActivity(true) {
             }
             R.id.set_bitrate -> {
                 BitratePicker {
-                    sharedPref.edit(true) {
+                    sharedPreferences.edit(true) {
                         putInt(POUR_BITRATE_KEY, it)
                     }
                 }.show(supportFragmentManager, "Bitrate picker")
+                true
+            }
+            R.id.set_duration -> {
+                DurationPicker {
+                    sharedPreferences.edit(true) {
+                        putInt(DURATION_KEY, it)
+                    }
+                }.show(supportFragmentManager, "Duration picker")
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -141,8 +174,8 @@ class PourActivity : BaseActivity(true) {
 
 class PacketReportAdapter(fragment: FragmentActivity) : FragmentStateAdapter(fragment) {
     val packetReportFragments = arrayOf(
-        ResultFragmentPair("List") { PacketReportListFragment() },
-        ResultFragmentPair("Diagram") { PacketReportDiagramFragment() }
+        ResultFragmentPair("Diagram") { PacketReportDiagramFragment() },
+        ResultFragmentPair("List") { PacketReportListFragment() }
     )
 
     override fun getItemCount(): Int {

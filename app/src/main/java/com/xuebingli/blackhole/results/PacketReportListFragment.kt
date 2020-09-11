@@ -34,4 +34,8 @@ class PacketReportListFragment : ResultFragment() {
     override fun onDataInserted(index: Int) {
         adapter.notifyItemInserted(index)
     }
+
+    override fun onDataReset() {
+        adapter.notifyDataSetChanged()
+    }
 }
