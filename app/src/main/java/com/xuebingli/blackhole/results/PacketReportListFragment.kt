@@ -1,7 +1,6 @@
 package com.xuebingli.blackhole.results
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,8 +12,8 @@ import com.xuebingli.blackhole.activities.PourActivity
 import com.xuebingli.blackhole.ui.PacketReportAdapter
 
 class PacketReportListFragment : ResultFragment() {
-    lateinit var reportsContainer: RecyclerView
-    lateinit var adapter: PacketReportAdapter
+    private lateinit var reportsContainer: RecyclerView
+    private lateinit var adapter: PacketReportAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,7 +31,7 @@ class PacketReportListFragment : ResultFragment() {
         return view
     }
 
-    fun onReportsInserted(index: Int) {
+    override fun onDataInserted(index: Int) {
         adapter.notifyItemInserted(index)
     }
 }

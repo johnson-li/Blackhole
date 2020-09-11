@@ -90,8 +90,8 @@ class PourActivity : BaseActivity(true) {
                         packet_report?.also { p ->
                             reports.add(p)
                             for (fragment in supportFragmentManager.fragments) {
-                                if (fragment is PacketReportListFragment) {
-                                    fragment.onReportsInserted(reports.size - 1)
+                                if (fragment is ResultFragment) {
+                                    fragment.onDataInserted(reports.size - 1)
                                 }
                             }
                         }
