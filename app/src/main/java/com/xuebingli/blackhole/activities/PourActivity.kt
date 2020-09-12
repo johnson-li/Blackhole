@@ -1,10 +1,7 @@
 package com.xuebingli.blackhole.activities
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -20,17 +17,18 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.textfield.TextInputEditText
 import com.google.gson.Gson
 import com.xuebingli.blackhole.R
+import com.xuebingli.blackhole.dialog.*
 import com.xuebingli.blackhole.network.PacketReport
 import com.xuebingli.blackhole.network.UdpClient
-import com.xuebingli.blackhole.picker.BitratePicker
-import com.xuebingli.blackhole.picker.DurationPicker
-import com.xuebingli.blackhole.picker.InterfacePicker
-import com.xuebingli.blackhole.picker.PourModePicker
 import com.xuebingli.blackhole.restful.ControlMessage
 import com.xuebingli.blackhole.restful.Request
 import com.xuebingli.blackhole.restful.RequestType
-import com.xuebingli.blackhole.results.*
+import com.xuebingli.blackhole.results.PacketReportDiagramFragment
+import com.xuebingli.blackhole.results.PacketReportListFragment
+import com.xuebingli.blackhole.results.ResultFragment
+import com.xuebingli.blackhole.results.ResultFragmentPair
 import com.xuebingli.blackhole.utils.ConfigUtils
+import com.xuebingli.blackhole.utils.Constants.Companion.LOG_TIME_FORMAT
 import com.xuebingli.blackhole.utils.Preferences.Companion.DURATION_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.POUR_BITRATE_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.POUR_MODE_KEY
@@ -95,7 +93,7 @@ class PourActivity : BaseActivity(true) {
                         if (is_last) {
                             val file = File(
                                 ConfigUtils(this).getDataDir(),
-                                "udp_pour_${SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(Date())}.json"
+                                "udp_pour_${LOG_TIME_FORMAT.format(Date())}.json"
                             )
                             Toast.makeText(
                                 this,
@@ -161,6 +159,25 @@ class PourActivity : BaseActivity(true) {
                         putInt(DURATION_KEY, it)
                     }
                 }.show(supportFragmentManager, "Duration picker")
+                true
+            }
+            R.id.clear_data -> {
+                ClearDataDialog {
+                    ConfigUtils(this).getDataDir().listFiles()?.forEach {
+                        if (it.isFile) {
+                            it.delete()
+                        }
+                    }
+                }.show(supportFragmentManager, "Clear data dialog")
+                true
+            }
+            R.id.reset -> {
+                reports.clear()
+                for (fragment in supportFragmentManager.fragments) {
+                    if (fragment is ResultFragment) {
+                        fragment.onDataReset()
+                    }
+                }
                 true
             }
             else -> super.onOptionsItemSelected(item)

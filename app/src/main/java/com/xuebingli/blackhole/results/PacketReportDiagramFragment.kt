@@ -43,6 +43,7 @@ class PacketReportDiagramFragment : ResultFragment() {
         chart.clear()
         chart.setDrawGridBackground(false)
         chart.axisLeft.axisMinimum = 0f
+        chart.axisRight.axisMinimum = 0f
         chart.setNoDataText(requireContext().getString(R.string.no_data))
         chart.setTouchEnabled(false)
         chart.description.text = ""
@@ -85,6 +86,7 @@ class PacketReportDiagramFragment : ResultFragment() {
             if (data > maxBandwidth) {
                 maxBandwidth = data
                 chart.axisLeft.axisMaximum = maxBandwidth * 1.5f
+                chart.axisRight.axisMaximum = maxBandwidth * 1.5f
             }
             lineData.addEntry(Entry(j.toFloat() / 1000 * measurementGranularity, data), 0)
             chart.notifyDataSetChanged()
@@ -97,6 +99,16 @@ class PacketReportDiagramFragment : ResultFragment() {
     }
 
     override fun onDataReset() {
-        initLineChart()
+//        initLineChart()
+//        chart.data.clearValues()
+//        chart.clear()
+//        dataset = LineDataSet(entries, "packet_report_diagram")
+//            .apply { axisDependency = YAxis.AxisDependency.LEFT }
+//        lineData = LineData(dataset)
+//        chart.data = lineData
+//        chart.notifyDataSetChanged()
+//        chart.invalidate()
+//        chart.clearValues()
+//        chart.clear()
     }
 }

@@ -1,4 +1,4 @@
-package com.xuebingli.blackhole.picker
+package com.xuebingli.blackhole.dialog
 
 import android.app.Dialog
 import android.content.Context

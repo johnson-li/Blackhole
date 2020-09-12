@@ -2,7 +2,9 @@ package com.xuebingli.blackhole.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.xuebingli.blackhole.BuildConfig
+import com.xuebingli.blackhole.utils.Preferences.Companion.CLOCK_DRIFT_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.DURATION_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.PACKET_SIZE_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.POUR_BITRATE_KEY
@@ -14,6 +16,15 @@ import com.xuebingli.blackhole.utils.Preferences.Companion.TARGET_IP_KEY
 import java.io.File
 
 class ConfigUtils(private val context: Context) {
+    var clockDrift: Long
+        get() {
+            return getSharedPreferences().getLong(CLOCK_DRIFT_KEY, 0)
+        }
+        set(value) {
+            getSharedPreferences().edit(true) { putLong(CLOCK_DRIFT_KEY, value) }
+        }
+
+
     private fun getSharedPreferences(): SharedPreferences {
         return context.applicationContext
             .getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
@@ -22,6 +33,10 @@ class ConfigUtils(private val context: Context) {
     fun getTargetIP(): String {
         val targetIP = getSharedPreferences().getString(TARGET_IP_KEY, null)
         return targetIP ?: BuildConfig.TARGET_IP
+    }
+
+    fun getSyncPort(): Int {
+        return 3434
     }
 
     fun getTargetPort(): Int {

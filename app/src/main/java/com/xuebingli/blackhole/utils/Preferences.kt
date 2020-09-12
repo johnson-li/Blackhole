@@ -11,5 +11,6 @@ class Preferences {
         const val POUR_BITRATE_KEY = "pour bitrate"
         const val PACKET_SIZE_KEY = "packet size"
         const val DURATION_KEY = "duration"
+        const val CLOCK_DRIFT_KEY = "clock drift"
     }
 }

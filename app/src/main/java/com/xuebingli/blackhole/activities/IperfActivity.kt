@@ -17,7 +17,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.textfield.TextInputEditText
 import com.xuebingli.blackhole.R
-import com.xuebingli.blackhole.picker.InterfacePicker
+import com.xuebingli.blackhole.dialog.InterfacePicker
 import com.xuebingli.blackhole.utils.isValidIpAddress
 import java.io.DataInputStream
 import java.io.DataOutputStream

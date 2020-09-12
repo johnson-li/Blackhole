@@ -1,6 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <ImageView
+        android:id="@+id/syncButton"
+        android:layout_width="256dp"
+        android:layout_height="256dp"
+        android:contentDescription="Sync Button"
+        android:foreground="?android:selectableItemBackgroundBorderless"
+        android:onClick="syncAction"
+        android:padding="8dp"
+        android:src="@drawable/ic_baseline_sync_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/clock"
+        android:textSize="32sp"
+        app:layout_constraintBottom_toBottomOf="@id/syncButton"
+        app:layout_constraintEnd_toEndOf="@id/syncButton"
+        app:layout_constraintStart_toStartOf="@id/syncButton"
+        app:layout_constraintTop_toTopOf="@id/syncButton" />
+
+    <TextView
+        android:id="@+id/clockDrift"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:textSize="28sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/syncButton"
+        tools:text="Clock drift: 123 ms" />
+
+    <TextView
+        android:id="@+id/confidence"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="28sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/clockDrift"
+        tools:text="Confidence: 4 ms" />
 </androidx.constraintlayout.widget.ConstraintLayout>

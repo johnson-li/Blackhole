@@ -34,18 +34,22 @@
     <string name="menu_set_pour_mode">Pour Mode</string>
     <string name="menu_set_bitrate">Bitrate</string>
     <string name="menu_set_duration">Duration</string>
+    <string name="menu_clear_data">Clear Data</string>
     <string name="dialog_set_interface_title">Pick interface</string>
     <string name="dialog_set_sink_mode_title">Set sink mode</string>
     <string name="dialog_set_pour_mode_title">Set pour mode</string>
     <string name="dialog_set_pour_bitrate_title">Set pour bitrate</string>
     <string name="dialog_set_sink_bitrate_title">Set sink bitrate</string>
     <string name="dialog_set_duration_title">Set duration</string>
+    <string name="dialog_clear_data_title">Confirm</string>
+    <string name="dialog_clear_data_message">Are you sure to delete all data?</string>
     <string name="toast_set_interface">Set interface: %1$s</string>
     <string name="toast_set_udp_mode">Set UDP mode: %1$s</string>
     <string name="toast_set_pour_bitrate">Set pour bitrate: %1$d bps</string>
     <string name="toast_set_sink_bitrate">Set sink bitrate: %1$d bps</string>
     <string name="toast_set_duration">Set duration: %1$d s</string>
     <string name="toast_udp_pour_finished">UDP pour finished, export to disk</string>
+    <string name="toast_sync_error">Failed to connect to %1$s:%2$d</string>
     <string name="sink_button">Sink</string>
     <string name="pour_button">Pour</string>
     <string name="empty">EMPTY</string>
@@ -61,4 +65,8 @@
     <string name="statics_mbps">%1$.1f mbps</string>
     <string name="statics_kbps">%1$.1f kbps</string>
     <string name="statics_ms">%1$d ms</string>
+
+    <string name="clock">Clock</string>
+    <string name="sync_activity_clock_drift">Clock drift: %1$d ms</string>
+    <string name="sync_activity_clock_confidence">Confidence: %1$d ms</string>
 </resources>

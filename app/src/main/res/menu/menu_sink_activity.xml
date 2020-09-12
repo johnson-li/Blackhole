@@ -5,7 +5,8 @@
         android:id="@+id/set_interface"
         android:title="@string/menu_set_interface"
         app:showAsAction="never" />
-    <item android:id="@+id/set_sink_mode"
+    <item
+        android:id="@+id/set_sink_mode"
         android:title="@string/menu_set_sink_mode"
-        app:showAsAction="never"/>
+        app:showAsAction="never" />
 </menu>

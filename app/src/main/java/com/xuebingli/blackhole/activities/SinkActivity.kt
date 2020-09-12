@@ -11,8 +11,8 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.xuebingli.blackhole.R
 import com.xuebingli.blackhole.network.UdpClient
-import com.xuebingli.blackhole.picker.InterfacePicker
-import com.xuebingli.blackhole.picker.SinkModePicker
+import com.xuebingli.blackhole.dialog.InterfacePicker
+import com.xuebingli.blackhole.dialog.SinkModePicker
 import com.xuebingli.blackhole.restful.ControlMessage
 import com.xuebingli.blackhole.restful.Request
 import com.xuebingli.blackhole.restful.RequestType
