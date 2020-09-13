@@ -1,19 +1,19 @@
 package com.xuebingli.blackhole.results
 
 import android.os.Bundle
-import android.util.Log
+import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.xuebingli.blackhole.R
 import com.xuebingli.blackhole.activities.PourActivity
+import com.xuebingli.blackhole.utils.ConfigUtils
 import com.xuebingli.blackhole.utils.Constants
 
 class PacketReportDiagramFragment : ResultFragment() {
@@ -27,9 +27,12 @@ class PacketReportDiagramFragment : ResultFragment() {
     private lateinit var currentBandwidth: TextView
     private lateinit var averageBandwidth: TextView
     private lateinit var medianBandwidth: TextView
+    private lateinit var averagePacketLoss: TextView
+    private var clockDrift = 0L
     private var dataSizes = ArrayList<Float>(120)
     private var startTimestamp = 0L
     private var totalDataSize = 0
+    private var totalDataLatency = 0L
     private var maxBandwidth = 0f
     private val measurementGranularity = 500 // In milliseconds
 
@@ -67,6 +70,8 @@ class PacketReportDiagramFragment : ResultFragment() {
         currentBandwidth = view.findViewById(R.id.bandwidth_current)
         averageBandwidth = view.findViewById(R.id.bandwidth_average)
         medianBandwidth = view.findViewById(R.id.bandwidth_median)
+        averagePacketLoss = view.findViewById(R.id.packet_loss_average)
+        clockDrift = ConfigUtils(requireContext()).clockDrift
         initLineChart()
         return view
     }
@@ -75,11 +80,15 @@ class PacketReportDiagramFragment : ResultFragment() {
         val report = (activity as PourActivity).reports[index]
         totalDataSize += report.size
         if (index == 0) {
-            startTimestamp = report.timestamp
+            startTimestamp = report.localTimestamp
         }
-        val timestamp = report.timestamp - startTimestamp
+        val timestamp = report.localTimestamp - startTimestamp
         val i = (timestamp / measurementGranularity).toInt()
         dataSizes[i] += report.size.toFloat() * Constants.BYTE_BITS / Constants.M
+        val latency = report.localTimestamp - report.remoteTimestamp - clockDrift
+        totalDataLatency += latency
+        val bw = totalDataSize.toDouble() * 8 /
+                (SystemClock.elapsedRealtime() - startTimestamp) * 1000 / Constants.M
         if (i > entries.size) {
             val j = entries.size
             val data = dataSizes[j] * 1000 / measurementGranularity
@@ -91,11 +100,15 @@ class PacketReportDiagramFragment : ResultFragment() {
             lineData.addEntry(Entry(j.toFloat() / 1000 * measurementGranularity, data), 0)
             chart.notifyDataSetChanged()
             chart.invalidate()
-            currentBandwidth.text = requireContext().getString(R.string.statics_mbps, data)
+            currentBandwidth.text = getString(R.string.statics_mbps, data)
+            averagePacketLoss.text = getString(
+                R.string.statics_percent,
+                100f * (report.sequence - index) / (report.sequence + 1)
+            )
+            averageBandwidth.text = getString(R.string.statics_mbps, bw)
+            currentLatency.text = getString(R.string.statics_ms, latency)
+            averageLatency.text = getString(R.string.statics_ms, totalDataLatency / (index + 1))
         }
-        val bd =
-            totalDataSize.toDouble() * 8 / (System.currentTimeMillis() - startTimestamp) * 1000 / Constants.M
-        averageBandwidth.text = requireContext().getString(R.string.statics_mbps, bd)
     }
 
     override fun onDataReset() {

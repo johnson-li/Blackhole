@@ -41,13 +41,13 @@ class TcpClient(
         }
         val path = File(dataDir, "sync_${LOG_TIME_FORMAT.format(Date())}.json")
         var drift = 0L
-        var confidence = 0L
+        var confidence = 0f
         var minVariance = Long.MAX_VALUE
         for (i in 1 until count) {
             val conf = localTs[i] - localTs[i - 1]
             if (conf < minVariance) {
                 minVariance = conf
-                confidence = conf / 2
+                confidence = conf / 2f
                 drift = (localTs[i] + localTs[i - 1]) / 2 - remoteTs[i - 1]
             }
         }
@@ -72,5 +72,5 @@ class SyncResult(
     val localTs: List<Long>,
     val remoteTs: List<Long>,
     val clockDrift: Long,
-    val confidence: Long
+    val confidence: Float
 )

@@ -23,7 +23,7 @@ class PacketReportAdapter(private val packetReports: List<PacketReport>) :
 
     override fun onBindViewHolder(holder: PacketReportViewHolder, position: Int) {
         val packetReport = packetReports[position]
-        holder.time.text = packetReport.timestamp.toString()
+        holder.time.text = packetReport.localTimestamp.toString()
         holder.size.text = packetReport.size.toString()
     }
 }

@@ -1,5 +1,6 @@
 package com.xuebingli.blackhole.network
 
+import android.os.SystemClock
 import android.util.Log
 import com.google.gson.Gson
 import com.xuebingli.blackhole.restful.PourRequest
@@ -40,12 +41,20 @@ class UdpClient(
             if (packet.length == 1 && packet.data[0] == 'T'.toByte()) {
                 break
             }
-            var index = 0
+            var sequence = 0
             for (i in 0..3) {
-                index = (index shl 8) + packet.data[i].toUByte().toInt()
+                sequence = (sequence shl 8) + packet.data[i].toUByte().toInt()
             }
-            it.onNext(PacketReport(index, packet.length, System.currentTimeMillis()))
-//            Log.d("johnson", "[#$index] received ${packet.length} bytes")
+            var remoteTimestamp = 0L
+            for (i in 4..11) {
+                remoteTimestamp = (remoteTimestamp shl 8) + packet.data[i].toUByte().toInt()
+            }
+            it.onNext(
+                PacketReport(
+                    sequence, packet.length,
+                    SystemClock.elapsedRealtime(), remoteTimestamp
+                )
+            )
         }
         it.onComplete()
     })
@@ -61,10 +70,10 @@ class UdpClient(
         id.encodeToByteArray().copyInto(buf, 0, 0, idBytes)
         val socket = DatagramSocket()
         val address = InetAddress.getByName(ip)
-        val startTs = System.currentTimeMillis()
-        while (!it.isDisposed && System.currentTimeMillis() - startTs < duration * 1000) {
+        val startTs = SystemClock.elapsedRealtime()
+        while (!it.isDisposed && SystemClock.elapsedRealtime() - startTs < duration * 1000) {
             val wait = buf.size.toLong() * 8 * counter * 1000 / bitrate -
-                    (System.currentTimeMillis() - startTs)
+                    (SystemClock.elapsedRealtime() - startTs)
             if (wait > 0) {
                 try {
                     Thread.sleep(wait)
@@ -77,7 +86,7 @@ class UdpClient(
             buf[idBytes + 2] = (counter shr 8).toByte()
             buf[idBytes + 3] = (counter shr 0).toByte()
             socket.send(DatagramPacket(buf, buf.size, address, port))
-            it.onNext(PacketReport(counter, buf.size, System.currentTimeMillis()))
+            it.onNext(PacketReport(counter, buf.size, SystemClock.elapsedRealtime(), -1))
             counter++
         }
         it.onComplete()
@@ -114,7 +123,8 @@ class UdpClient(
 }
 
 data class PacketReport(
-    val index: Int,
+    val sequence: Int,
     val size: Int,
-    val timestamp: Long
+    val localTimestamp: Long,
+    val remoteTimestamp: Long
 )

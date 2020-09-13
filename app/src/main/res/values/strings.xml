@@ -59,14 +59,17 @@
     <string name="statics_metric">Metric</string>
     <string name="statics_latency">Latency</string>
     <string name="statics_bandwidth">Bandwidth</string>
+    <string name="statics_packet_loss">Packet Loss</string>
     <string name="statics_current">Current</string>
     <string name="statics_average">Average</string>
     <string name="statics_median">Median</string>
     <string name="statics_mbps">%1$.1f mbps</string>
     <string name="statics_kbps">%1$.1f kbps</string>
     <string name="statics_ms">%1$d ms</string>
+    <string name="statics_percent">%1$.2f%%</string>
 
     <string name="clock">Clock</string>
     <string name="sync_activity_clock_drift">Clock drift: %1$d ms</string>
-    <string name="sync_activity_clock_confidence">Confidence: %1$d ms</string>
+    <string name="sync_activity_clock_confidence">Confidence: %1$.1f ms</string>
+    <string name="no_value">/</string>
 </resources>

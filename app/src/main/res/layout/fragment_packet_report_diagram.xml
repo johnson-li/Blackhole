@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -92,7 +91,34 @@
             <TextView
                 android:id="@+id/bandwidth_median"
                 style="@style/CellStyle"
-                tools:text="1.7 mbps" />
+                android:text="@string/no_value" />
+        </LinearLayout>
+
+        <ImageView style="@style/HorizontalCellDivider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/CellStyle"
+                android:text="@string/statics_packet_loss" />
+
+            <TextView
+                android:id="@+id/packet_loss_current"
+                style="@style/CellStyle"
+                android:text="@string/no_value" />
+
+            <TextView
+                android:id="@+id/packet_loss_average"
+                style="@style/CellStyle"
+                tools:text="12%" />
+
+            <TextView
+                android:id="@+id/packet_loss_median"
+                style="@style/CellStyle"
+                android:text="@string/no_value" />
         </LinearLayout>
     </LinearLayout>
 

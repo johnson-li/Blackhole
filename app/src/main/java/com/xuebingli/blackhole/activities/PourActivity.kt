@@ -33,7 +33,6 @@ import com.xuebingli.blackhole.utils.Preferences.Companion.DURATION_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.POUR_BITRATE_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.POUR_MODE_KEY
 import java.io.File
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -191,8 +190,8 @@ class PourActivity : BaseActivity(true) {
 
 class PacketReportAdapter(fragment: FragmentActivity) : FragmentStateAdapter(fragment) {
     val packetReportFragments = arrayOf(
-        ResultFragmentPair("Diagram") { PacketReportDiagramFragment() },
-        ResultFragmentPair("List") { PacketReportListFragment() }
+        ResultFragmentPair("Diagram") { PacketReportDiagramFragment() }
+//        ResultFragmentPair("List") { PacketReportListFragment() }
     )
 
     override fun getItemCount(): Int {
