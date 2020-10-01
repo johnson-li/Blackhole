@@ -24,7 +24,6 @@ import com.xuebingli.blackhole.restful.ControlMessage
 import com.xuebingli.blackhole.restful.Request
 import com.xuebingli.blackhole.restful.RequestType
 import com.xuebingli.blackhole.results.PacketReportDiagramFragment
-import com.xuebingli.blackhole.results.PacketReportListFragment
 import com.xuebingli.blackhole.results.ResultFragment
 import com.xuebingli.blackhole.results.ResultFragmentPair
 import com.xuebingli.blackhole.utils.ConfigUtils

@@ -7,8 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.xuebingli.blackhole.activities.PingActivity
 import com.xuebingli.blackhole.R
+import com.xuebingli.blackhole.activities.PingActivity
 
 class RawResultFragment : ResultFragment() {
     private lateinit var rawResultText: TextView

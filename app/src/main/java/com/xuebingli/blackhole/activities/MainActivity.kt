@@ -3,15 +3,16 @@ package com.xuebingli.blackhole.activities
 import android.app.Activity
 import android.content.*
 import android.net.VpnService
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import com.xuebingli.blackhole.R
 import com.xuebingli.blackhole.services.BlackHoleVpnService
+import com.xuebingli.blackhole.services.ForegroundService
 
 class MainActivity : AppCompatActivity() {
 
@@ -71,10 +72,11 @@ class MainActivity : AppCompatActivity() {
         switchText = findViewById(R.id.switch_text)
 
         switchButton.setOnClickListener { toggleVpnSwitch() }
+
+        ForegroundService.updateForegroundService(this)
     }
 
     private fun isVpnRunning(): Boolean {
-        Log.d("johnson", "vpn service: $vpnService")
         val running = vpnService?.isConnected() ?: false
         switchButton.setImageResource(if (running) R.drawable.switch_off else R.drawable.switch_on)
         switchText.setText(if (running) R.string.vpn_started else R.string.vpn_stopped)
@@ -97,7 +99,8 @@ class MainActivity : AppCompatActivity() {
             if (intent == null) {
                 onActivityResult(VPN_SERVICE_REQUEST_CODE, Activity.RESULT_OK, null)
             } else {
-                startActivityForResult(intent,
+                startActivityForResult(
+                    intent,
                     VPN_SERVICE_REQUEST_CODE
                 )
             }

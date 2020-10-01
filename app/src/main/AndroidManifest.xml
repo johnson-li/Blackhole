@@ -2,8 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.xuebingli.blackhole">
 
-    <uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <uses-permission-sdk-23 android:name="android.permission.INTERNET" />
+
 
     <application
         android:name=".MyApplication"
@@ -42,6 +45,9 @@
         <activity
             android:name=".activities.SyncActivity"
             android:label="@string/sync_activity_title" />
+        <activity
+            android:name=".activities.BackgroundActivity"
+            android:label="@string/background_activity_title" />
 
         <service
             android:name=".services.BlackHoleVpnService"
@@ -50,6 +56,9 @@
                 <action android:name="android.net.VpnService" />
             </intent-filter>
         </service>
+        <service
+            android:name=".services.ForegroundService"
+            android:foregroundServiceType="location" />
     </application>
 
 </manifest>

@@ -25,7 +25,7 @@ class ConfigUtils(private val context: Context) {
         }
 
 
-    private fun getSharedPreferences(): SharedPreferences {
+    fun getSharedPreferences(): SharedPreferences {
         return context.applicationContext
             .getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
     }

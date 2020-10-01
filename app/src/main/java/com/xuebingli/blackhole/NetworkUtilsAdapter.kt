@@ -52,6 +52,9 @@ class NetworkUtilsAdapter : RecyclerView.Adapter<NetworkUtilsItemViewHolder>() {
             NetworkUtil.SYNC -> {
                 context.startActivity(Intent(context, SyncActivity::class.java))
             }
+            NetworkUtil.BACKGROUND -> {
+                context.startActivity(Intent(context, BackgroundActivity::class.java))
+            }
         }
     }
 }
@@ -68,4 +71,5 @@ enum class NetworkUtil(val utilName: String, val utilDescription: String) {
     SINK("Sink", "Test the uplink bandwidth and latency"),
     POUR("Pour", "Test the downlink bandwidth and latency"),
     SYNC("Sync", "Synchronize the clock between the UE and the remote server"),
+    BACKGROUND("Background", "Background services including location, signal strength"),
 }
