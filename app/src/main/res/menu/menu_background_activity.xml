@@ -13,4 +13,8 @@
         android:id="@+id/stop_all"
         android:title="@string/menu_stop_all"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/clear_data"
+        android:title="@string/menu_clear_data"
+        app:showAsAction="never" />
 </menu>

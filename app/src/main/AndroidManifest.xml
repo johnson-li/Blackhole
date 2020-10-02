@@ -2,11 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.xuebingli.blackhole">
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
+    <uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission-sdk-23 android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission-sdk-23 android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission-sdk-23 android:name="android.permission.INTERNET" />
-
 
     <application
         android:name=".MyApplication"

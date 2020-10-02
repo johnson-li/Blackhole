@@ -15,5 +15,6 @@ class Preferences {
         const val CLOCK_DRIFT_KEY = "clock drift"
         const val SERVICE_LOCATION = "location service"
         const val SERVICE_CELL_INFO = "cell info"
+        const val SUBSCRIPTION_INFO = "subscription info"
     }
 }

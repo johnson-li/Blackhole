@@ -1,7 +1,9 @@
 package com.xuebingli.blackhole.ui
 
+import android.Manifest
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,31 +40,43 @@ class BackgroundServiceAdapter(
         holder.switch.isChecked = sharedPreferences.getBoolean(service.prefKey, false)
         holder.description.text = service.getDescription(context)
         holder.switch.setOnCheckedChangeListener { _, isChecked ->
-            if (service == BackgroundService.LOCATION && isChecked) {
-                if (AndroidPermissionUtils(context).requestLocationPermission()) {
-                    sharedPreferences.edit(true) {
-                        putBoolean(service.prefKey, isChecked)
+            if (isChecked) {
+                service.permission?.let {
+                    if (AndroidPermissionUtils(context).requestPermission(it)) {
+                        sharedPreferences.edit(true) {
+                            putBoolean(service.prefKey, isChecked)
+                        }
+                        ForegroundService.updateForegroundService(context)
+                    } else {
+                        holder.switch.isChecked = false
                     }
-                } else {
-                    holder.switch.isChecked = false
+                    return@setOnCheckedChangeListener
                 }
-            } else {
-                sharedPreferences.edit(true) {
-                    putBoolean(service.prefKey, isChecked)
-                }
+            }
+            sharedPreferences.edit(true) {
+                putBoolean(service.prefKey, isChecked)
             }
             ForegroundService.updateForegroundService(context)
         }
     }
 
-    fun locationPermissionGranted() {
-        sharedPreferences.edit(true) {
-            putBoolean(BackgroundService.LOCATION.prefKey, true)
-        }
-        services.forEachIndexed { index, backgroundService ->
-            if (backgroundService == BackgroundService.LOCATION) {
-                notifyItemChanged(index)
-                ForegroundService.updateForegroundService(context)
+    fun permissionGranted(permission: String) {
+        BackgroundService.values().filter {
+            it.permission == permission
+        }.also {
+            if (it.isNotEmpty()) {
+                val service = it[0]
+                sharedPreferences.edit(true) {
+                    putBoolean(service.prefKey, true)
+                }
+                services.forEachIndexed { index, backgroundService ->
+                    if (backgroundService == service) {
+                        notifyItemChanged(index)
+                        ForegroundService.updateForegroundService(context)
+                    }
+                }
+            } else {
+                Log.e("johnson", "Unsupported permission: $permission")
             }
         }
     }
@@ -84,10 +98,27 @@ class BackgroundServiceViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 enum class BackgroundService(
     private val nameResId: Int,
     private val descResId: Int,
-    val prefKey: String
+    val prefKey: String,
+    val permission: String? = null
 ) {
-    LOCATION(R.string.location, R.string.location_desc, Preferences.SERVICE_LOCATION),
-    RSSI(R.string.cell_info, R.string.cell_info_desc, Preferences.SERVICE_CELL_INFO);
+    LOCATION(
+        R.string.location,
+        R.string.location_desc,
+        Preferences.SERVICE_LOCATION,
+        Manifest.permission.ACCESS_FINE_LOCATION
+    ),
+    CELL_INFO(
+        R.string.cell_info,
+        R.string.cell_info_desc,
+        Preferences.SERVICE_CELL_INFO,
+        Manifest.permission.ACCESS_FINE_LOCATION
+    ),
+    SUBSCRIPTION_INFO(
+        R.string.subscription_info,
+        R.string.subscription_info_desc,
+        Preferences.SUBSCRIPTION_INFO,
+        Manifest.permission.READ_PHONE_STATE
+    );
 
     fun getName(context: Context): String {
         return context.getString(nameResId)

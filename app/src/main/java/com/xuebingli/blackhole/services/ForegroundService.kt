@@ -11,6 +11,8 @@ import android.location.LocationManager
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
+import android.telephony.CellInfo
+import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -20,8 +22,7 @@ import com.google.android.gms.location.*
 import com.google.gson.Gson
 import com.xuebingli.blackhole.R
 import com.xuebingli.blackhole.activities.BackgroundActivity
-import com.xuebingli.blackhole.models.CellularInfo
-import com.xuebingli.blackhole.models.GpsLocation
+import com.xuebingli.blackhole.models.*
 import com.xuebingli.blackhole.ui.BackgroundService
 import com.xuebingli.blackhole.utils.ConfigUtils
 import com.xuebingli.blackhole.utils.Constants
@@ -32,6 +33,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.File
 import java.text.DateFormat
 import java.util.*
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class ForegroundService : Service() {
@@ -69,9 +71,12 @@ class ForegroundService : Service() {
     private lateinit var periodObservable: Observable<MeasurementResult>
     private lateinit var client: FusedLocationProviderClient
     private lateinit var telephonyManager: TelephonyManager
+    private lateinit var subscriptionManager: SubscriptionManager
     private val disposables = CompositeDisposable()
     private val logFileName = "measurement_${Constants.LOG_TIME_FORMAT.format(Date())}.txt"
     private var locationEnabled = false
+    private var cellInfoEnabled = false
+    private var subscriptionInfoEnabled = false
     private var frequency = 100 // in milliseconds
     private var latestLocation: GpsLocation? = null
     private var locationCallback = object : LocationCallback() {
@@ -88,6 +93,8 @@ class ForegroundService : Service() {
     override fun onCreate() {
         super.onCreate()
         telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        subscriptionManager =
+            getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
         client = LocationServices.getFusedLocationProviderClient(this)
         sharedPreferences = ConfigUtils(this).getSharedPreferences()
         channel =
@@ -103,10 +110,34 @@ class ForegroundService : Service() {
     private fun updateParameters(): Boolean {
         locationEnabled =
             sharedPreferences.getBoolean(BackgroundService.LOCATION.prefKey, locationEnabled)
+        cellInfoEnabled =
+            sharedPreferences.getBoolean(BackgroundService.CELL_INFO.prefKey, cellInfoEnabled)
+        subscriptionInfoEnabled = sharedPreferences.getBoolean(
+            BackgroundService.SUBSCRIPTION_INFO.prefKey,
+            subscriptionInfoEnabled
+        )
         val frequencyNew = sharedPreferences.getInt(Preferences.FREQUENCY_KEY, frequency)
         val frequencyUpdated = frequencyNew == frequency
         frequency = frequencyNew
         return frequencyUpdated
+    }
+
+    private fun getCellularInfo(): List<CellInfoModel> {
+        telephonyManager.requestCellInfoUpdate(
+            Executors.newCachedThreadPool(),
+            object : TelephonyManager.CellInfoCallback() {
+                override fun onCellInfo(cellInfo: MutableList<CellInfo>) {
+                }
+            })
+        return telephonyManager.allCellInfo.map {
+            getCellInfoModel(it)
+        }
+    }
+
+    private fun getSubscriptionInfo(): List<SubscriptionInfoModel> {
+        return subscriptionManager.activeSubscriptionInfoList.map {
+            getSubscriptionInfoModel(it)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
@@ -119,7 +150,8 @@ class ForegroundService : Service() {
                         it.onNext(
                             MeasurementResult(
                                 location = if (locationEnabled) latestLocation else null,
-                                cellularInfo = CellularInfo(telephonyManager)
+                                cellInfoList = if (cellInfoEnabled) getCellularInfo() else null,
+                                subscriptionInfoList = if (cellInfoEnabled) getSubscriptionInfo() else null
                             )
                         )
                     }
@@ -163,7 +195,7 @@ class ForegroundService : Service() {
             .setContentText(
                 getString(
                     R.string.background_notification_text,
-                    enabledServices.joinToString()
+                    enabledServices.joinToString { it.toLowerCase(Locale.getDefault()) }
                 )
             )
             .setPriority(NotificationManager.IMPORTANCE_MIN)
@@ -178,8 +210,7 @@ class ForegroundService : Service() {
 
     private fun requestLocation() {
         val request = LocationRequest().apply {
-            interval = 10
-            fastestInterval = 5
+            interval = 5
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
         val permission =
@@ -206,5 +237,6 @@ data class MeasurementResult(
     val timeStamp: Long = System.currentTimeMillis(),
     val dateTime: String = DateFormat.getDateTimeInstance().format(Date()),
     val location: GpsLocation? = null,
-    val cellularInfo: CellularInfo? = null
+    val cellInfoList: List<CellInfoModel>? = null,
+    val subscriptionInfoList: List<SubscriptionInfoModel>? = null
 )

@@ -48,7 +48,8 @@
     <string name="dialog_set_duration_title">Set duration</string>
     <string name="dialog_clear_data_title">Confirm</string>
     <string name="dialog_clear_data_message">Are you sure to delete all data?</string>
-    <string name="dialog_location_permission">Access to the location service is required to log GPS</string>
+    <string name="dialog_location_permission">Access to the location service is required to log GPS info</string>
+    <string name="dialog_phone_state_permission">Access to the phone state is required to log radio info</string>
     <string name="toast_set_interface">Set interface: %1$s</string>
     <string name="toast_set_udp_mode">Set UDP mode: %1$s</string>
     <string name="toast_set_pour_bitrate">Set pour bitrate: %1$d bps</string>
@@ -57,7 +58,8 @@
     <string name="toast_set_frequency">Set frequency: %1$d ms</string>
     <string name="toast_udp_pour_finished">UDP pour finished, export to disk</string>
     <string name="toast_sync_error">Failed to connect to %1$s:%2$d</string>
-    <string name="toast_location_denied">Location permission denied. It is essential for GPS data collecting</string>
+    <string name="toast_location_denied">Location permission denied. It is essential for collecting GPS info</string>
+    <string name="toast_phone_state_denied">Read phone state permission denied. It is essential for collecting radio info</string>
     <string name="sink_button">Sink</string>
     <string name="pour_button">Pour</string>
     <string name="empty">EMPTY</string>
@@ -85,8 +87,11 @@
     <string name="location_desc">Record GPS location</string>
     <string name="cell_info">Cell Info</string>
     <string name="cell_info_desc">Record physical-layer radio info including cell id, signal strength, etc.</string>
+    <string name="subscription_info">Subscription Info</string>
+    <string name="subscription_info_desc">Record subscription info to differentiate multiple SIM cards</string>
 
     <string name="background_notification_title">Background Services</string>
     <string name="background_notification_text">Collecting %1$s</string>
 
+    <string name="error">ERROR</string>
 </resources>

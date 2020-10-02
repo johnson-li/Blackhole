@@ -16,7 +16,7 @@ import com.xuebingli.blackhole.ui.BackgroundService
 import com.xuebingli.blackhole.ui.BackgroundServiceAdapter
 import com.xuebingli.blackhole.utils.AndroidPermissionUtils
 
-class BackgroundActivity : BaseActivity(false) {
+class BackgroundActivity : BaseActivity(true) {
     private lateinit var reportsContainer: RecyclerView
     private lateinit var adapter: BackgroundServiceAdapter
 
@@ -68,21 +68,36 @@ class BackgroundActivity : BaseActivity(false) {
         }
     }
 
+    private fun onPermissionUpdated(
+        permissions: Array<String>,
+        grantResults: IntArray,
+        targetPermission: String
+    ) {
+        if (AndroidPermissionUtils(this).permissionGranted(
+                permissions,
+                grantResults,
+                targetPermission
+            )
+        ) {
+            adapter.permissionGranted(targetPermission)
+        } else {
+            Toast.makeText(this, R.string.toast_location_denied, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String>, grantResults: IntArray
     ) {
         when (requestCode) {
             AndroidPermissionUtils.LOCATION_PERMISSION_REQUEST_CODE -> {
-                if (AndroidPermissionUtils(this).permissionGranted(
-                        permissions,
-                        grantResults,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    )
-                ) {
-                    adapter.locationPermissionGranted()
-                } else {
-                    Toast.makeText(this, R.string.toast_location_denied, Toast.LENGTH_SHORT).show()
-                }
+                onPermissionUpdated(
+                    permissions,
+                    grantResults,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            }
+            AndroidPermissionUtils.PHONE_STATE_PERMISSION_REQUEST_CODE -> {
+                onPermissionUpdated(permissions, grantResults, Manifest.permission.READ_PHONE_STATE)
             }
             else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }

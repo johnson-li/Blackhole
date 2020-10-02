@@ -17,7 +17,10 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.textfield.TextInputEditText
 import com.google.gson.Gson
 import com.xuebingli.blackhole.R
-import com.xuebingli.blackhole.dialog.*
+import com.xuebingli.blackhole.dialog.BitratePicker
+import com.xuebingli.blackhole.dialog.DurationPicker
+import com.xuebingli.blackhole.dialog.InterfacePicker
+import com.xuebingli.blackhole.dialog.PourModePicker
 import com.xuebingli.blackhole.network.PacketReport
 import com.xuebingli.blackhole.network.UdpClient
 import com.xuebingli.blackhole.restful.ControlMessage
@@ -157,16 +160,6 @@ class PourActivity : BaseActivity(true) {
                         putInt(DURATION_KEY, it)
                     }
                 }.show(supportFragmentManager, "Duration picker")
-                true
-            }
-            R.id.clear_data -> {
-                ClearDataDialog {
-                    ConfigUtils(this).getDataDir().listFiles()?.forEach {
-                        if (it.isFile) {
-                            it.delete()
-                        }
-                    }
-                }.show(supportFragmentManager, "Clear data dialog")
                 true
             }
             R.id.reset -> {

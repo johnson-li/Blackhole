@@ -4,13 +4,17 @@ import android.content.*
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.xuebingli.blackhole.MyApplication
+import com.xuebingli.blackhole.R
+import com.xuebingli.blackhole.dialog.ClearDataDialog
 import com.xuebingli.blackhole.restful.Response
 import com.xuebingli.blackhole.restful.ServerApi
 import com.xuebingli.blackhole.restful.Status
 import com.xuebingli.blackhole.services.ForegroundService
+import com.xuebingli.blackhole.utils.ConfigUtils
 import com.xuebingli.blackhole.utils.Preferences
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
@@ -58,6 +62,22 @@ open class BaseActivity(
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.clear_data -> {
+                ClearDataDialog {
+                    ConfigUtils(this).getDataDir().listFiles()?.forEach {
+                        if (it.isFile) {
+                            it.delete()
+                        }
+                    }
+                }.show(supportFragmentManager, "Clear data dialog")
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     fun <T> subscribe(single: Single<T>, onSuccess: (T) -> Unit): Disposable {

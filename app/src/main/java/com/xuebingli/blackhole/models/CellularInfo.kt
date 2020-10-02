@@ -4,7 +4,19 @@ import android.os.Build
 import android.telephony.*
 import android.util.Log
 
+fun getSubscriptionInfoModel(subscriptionInfo: SubscriptionInfo): SubscriptionInfoModel {
+    return subscriptionInfo.run {
+        SubscriptionInfoModel(
+            subscriptionId = subscriptionId,
+            iccId = iccId
+        )
+    }
+}
+
 fun getCellInfoModel(cellInfo: CellInfo): CellInfoModel {
+    if (cellInfo.isRegistered) {
+        Log.d("johnson", cellInfo.toString())
+    }
     return when (cellInfo) {
         is CellInfoNr -> {
             CellInfoModel(
@@ -94,19 +106,30 @@ fun getCellInfoModel(cellInfo: CellInfo): CellInfoModel {
                 timestamp = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) cellInfo.timestampMillis else null
             )
         }
+        is CellInfoWcdma -> {
+            CellInfoModel(
+                cellInfoType = CellInfoType.WCDMA,
+                connectionStatus = getCellInfoConnectionStatus(cellInfo.cellConnectionStatus),
+                identity = cellInfo.cellIdentity.run {
+                    CellInfoCellIdentity(CellInfoType.WCDMA)
+                },
+                signalStrength = (cellInfo.cellSignalStrength as CellSignalStrengthWcdma).run {
+                    CellInfoSignalStrength(
+                        rssi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) dbm else null,
+                        level = level,
+                        ecno = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) ecNo else null
+                    )
+                },
+                isRegistered = cellInfo.isRegistered,
+                timestamp = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) cellInfo.timestampMillis else null
+            )
+        }
         else -> {
             Log.w("johnson", "Ignore cell info of type ${cellInfo.javaClass.name}")
             CellInfoModel()
         }
     }
 }
-
-data class CellularInfo constructor(
-    @Transient val telephonyManager: TelephonyManager,
-    val cellInfoList: List<CellInfoModel> = telephonyManager.allCellInfo.map {
-        getCellInfoModel(it)
-    }
-)
 
 data class CellInfoCellIdentity(
     val cellInfoType: CellInfoType? = null,
@@ -127,6 +150,7 @@ data class CellInfoCellIdentity(
 data class CellInfoSignalStrength(
     val cellInfoType: CellInfoType? = null,
     val level: Int? = null,
+    val ecno: Int? = null,
 
     // for LTE
     val rssi: Int? = null,
@@ -147,6 +171,11 @@ data class CellInfoSignalStrength(
     val ssSinr: Int? = null
 )
 
+data class SubscriptionInfoModel(
+    val subscriptionId: Int? = null,
+    val iccId: String? = null // ICCID is the identifier of the actual SIM card itself – i.e. an identifier for the SIM chip
+)
+
 data class CellInfoModel(
     val cellInfoType: CellInfoType? = null,
     val connectionStatus: CellInfoConnectionStatus? = null,
@@ -157,7 +186,7 @@ data class CellInfoModel(
 )
 
 enum class CellInfoType {
-    NR, LTE, GSM, OTHER
+    NR, LTE, GSM, WCDMA, OTHER
 }
 
 fun getCellInfoConnectionStatus(value: Int): CellInfoConnectionStatus {
