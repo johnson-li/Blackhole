@@ -9,4 +9,16 @@
         android:id="@+id/set_sink_mode"
         android:title="@string/menu_set_sink_mode"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/set_bitrate"
+        android:title="@string/menu_set_bitrate"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/set_duration"
+        android:title="@string/menu_set_duration"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/clear_data"
+        android:title="@string/menu_clear_data"
+        app:showAsAction="never" />
 </menu>

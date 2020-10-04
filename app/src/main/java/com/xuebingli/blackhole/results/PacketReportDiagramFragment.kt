@@ -13,6 +13,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.xuebingli.blackhole.R
 import com.xuebingli.blackhole.activities.PourActivity
+import com.xuebingli.blackhole.activities.SinkPourActivity
 import com.xuebingli.blackhole.utils.ConfigUtils
 import com.xuebingli.blackhole.utils.Constants
 
@@ -77,7 +78,7 @@ class PacketReportDiagramFragment : ResultFragment() {
     }
 
     override fun onDataInserted(index: Int) {
-        val report = (activity as PourActivity).reports[index]
+        val report = (activity as SinkPourActivity).reports[index]
         totalDataSize += report.size
         if (index == 0) {
             startTimestamp = report.localTimestamp

@@ -7,9 +7,10 @@ import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import com.xuebingli.blackhole.MyApplication
 import com.xuebingli.blackhole.R
-import com.xuebingli.blackhole.dialog.ClearDataDialog
+import com.xuebingli.blackhole.dialog.*
 import com.xuebingli.blackhole.restful.Response
 import com.xuebingli.blackhole.restful.ServerApi
 import com.xuebingli.blackhole.restful.Status
@@ -74,6 +75,43 @@ open class BaseActivity(
                         }
                     }
                 }.show(supportFragmentManager, "Clear data dialog")
+                true
+            }
+            R.id.set_interface -> {
+                InterfacePicker()
+                    .show(supportFragmentManager, "interface picker")
+                true
+            }
+            R.id.set_pour_mode -> {
+                PourModePicker {
+                    sharedPreferences.edit(true) {
+                        putString(Preferences.POUR_MODE_KEY, it.name)
+                    }
+                }.show(supportFragmentManager, "Pour mode picker")
+                true
+            }
+            R.id.set_sink_mode -> {
+                SinkModePicker {
+                    sharedPreferences.edit(true) {
+                        putString(Preferences.SINK_MODE_KEY, it.name)
+                    }
+                }.show(supportFragmentManager, "Sink mode picker")
+                true
+            }
+            R.id.set_bitrate -> {
+                BitratePicker {
+                    sharedPreferences.edit(true) {
+                        putInt(Preferences.POUR_BITRATE_KEY, it)
+                    }
+                }.show(supportFragmentManager, "Bitrate picker")
+                true
+            }
+            R.id.set_duration -> {
+                DurationPicker {
+                    sharedPreferences.edit(true) {
+                        putInt(Preferences.DURATION_KEY, it)
+                    }
+                }.show(supportFragmentManager, "Duration picker")
                 true
             }
             else -> super.onOptionsItemSelected(item)

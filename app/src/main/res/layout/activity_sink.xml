@@ -45,4 +45,23 @@
                 android:text="@string/empty" />
         </com.google.android.material.textfield.TextInputLayout>
     </RelativeLayout>
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/result_tab"
+        style="@style/Widget.MaterialComponents.TabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/control_panel"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/result_page"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/result_tab"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp" />
 </RelativeLayout>

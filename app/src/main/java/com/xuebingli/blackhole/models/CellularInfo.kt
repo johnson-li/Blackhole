@@ -4,15 +4,6 @@ import android.os.Build
 import android.telephony.*
 import android.util.Log
 
-fun getSubscriptionInfoModel(subscriptionInfo: SubscriptionInfo): SubscriptionInfoModel {
-    return subscriptionInfo.run {
-        SubscriptionInfoModel(
-            subscriptionId = subscriptionId,
-            iccId = iccId
-        )
-    }
-}
-
 fun getCellInfoModel(cellInfo: CellInfo): CellInfoModel {
     if (cellInfo.isRegistered) {
         Log.d("johnson", cellInfo.toString())
@@ -169,11 +160,6 @@ data class CellInfoSignalStrength(
     val ssRsrp: Int? = null,
     val ssRsrq: Int? = null,
     val ssSinr: Int? = null
-)
-
-data class SubscriptionInfoModel(
-    val subscriptionId: Int? = null,
-    val iccId: String? = null // ICCID is the identifier of the actual SIM card itself – i.e. an identifier for the SIM chip
 )
 
 data class CellInfoModel(

@@ -89,6 +89,7 @@ class UdpClient(
             it.onNext(PacketReport(counter, buf.size, SystemClock.elapsedRealtime(), -1))
             counter++
         }
+        Thread.sleep(1000)
         it.onComplete()
     })
 

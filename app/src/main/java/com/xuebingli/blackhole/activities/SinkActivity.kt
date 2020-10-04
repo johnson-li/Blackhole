@@ -1,40 +1,34 @@
 package com.xuebingli.blackhole.activities
 
-import android.content.Context
-import android.content.SharedPreferences
-import android.os.Bundle
-import android.util.Log
 import android.view.Menu
-import android.view.MenuItem
 import android.view.View
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.textfield.TextInputEditText
+import android.widget.Toast
+import com.google.gson.Gson
 import com.xuebingli.blackhole.R
 import com.xuebingli.blackhole.network.UdpClient
-import com.xuebingli.blackhole.dialog.InterfacePicker
-import com.xuebingli.blackhole.dialog.SinkModePicker
 import com.xuebingli.blackhole.restful.ControlMessage
 import com.xuebingli.blackhole.restful.Request
 import com.xuebingli.blackhole.restful.RequestType
+import com.xuebingli.blackhole.results.ResultFragment
 import com.xuebingli.blackhole.utils.ConfigUtils
+import com.xuebingli.blackhole.utils.Constants
+import java.io.File
 import java.util.*
 
-class SinkActivity : BaseActivity(true) {
-    private lateinit var sharedPref: SharedPreferences
-    private lateinit var ipInput: TextInputEditText
-    private lateinit var actionButton: MaterialButton
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_sink)
-        sharedPref = getPreferences(Context.MODE_PRIVATE)
-        ipInput = findViewById(R.id.ip_input)
-        actionButton = findViewById(R.id.udp_action)
-        ipInput.setText(ConfigUtils(this).getTargetIP())
-    }
-
+class SinkActivity : SinkPourActivity(R.layout.activity_sink) {
     @ExperimentalStdlibApi
-    fun sinkAction(view: View) {
+    override fun action(view: View) {
+        if (working) {
+            return
+        }
+        working = true
+        actionButton.setText(R.string.button_stop)
+        reports.clear()
+        for (fragment in supportFragmentManager.fragments) {
+            if (fragment is ResultFragment) {
+                fragment.onDataReset()
+            }
+        }
         val bitrate = ConfigUtils(this).getSinkBitrate()
         val packetSize = ConfigUtils(this).getPacketSize()
         val duration = ConfigUtils(this).getDuration()
@@ -46,7 +40,29 @@ class SinkActivity : BaseActivity(true) {
                 UdpClient(id, ip, port, bitrate, packetSize, duration).also { client ->
                     client.startUdpSink { packet_report, is_last, has_error ->
                         if (is_last) {
-                            Log.d("johnson", "UDP sink finished")
+                            val file = File(
+                                ConfigUtils(this).getDataDir(),
+                                "udp_sink_${Constants.LOG_TIME_FORMAT.format(Date())}.json"
+                            )
+                            Toast.makeText(
+                                this,
+                                getString(R.string.toast_udp_sink_finished),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            file.writeText(Gson().toJson(reports))
+                            working = false
+                            actionButton.setText(R.string.sink_button)
+                        }
+                        if (has_error) {
+                            Toast.makeText(this, "Error occurred!", Toast.LENGTH_SHORT).show()
+                        }
+                        packet_report?.also { p ->
+                            reports.add(p)
+                            for (fragment in supportFragmentManager.fragments) {
+                                if (fragment is ResultFragment) {
+                                    fragment.onDataInserted(reports.size - 1)
+                                }
+                            }
                         }
                     }.also { d -> disposables.add(d) }
                 }
@@ -55,28 +71,7 @@ class SinkActivity : BaseActivity(true) {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        val inflater = menuInflater
-        inflater.inflate(R.menu.menu_sink_activity, menu)
+        menuInflater.inflate(R.menu.menu_sink_activity, menu)
         return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.set_interface -> {
-                InterfacePicker()
-                    .show(supportFragmentManager, "interface picker")
-                true
-            }
-            R.id.set_sink_mode -> {
-                SinkModePicker { }
-                    .show(supportFragmentManager, "Sink mode picker")
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        return super.onSupportNavigateUp()
     }
 }

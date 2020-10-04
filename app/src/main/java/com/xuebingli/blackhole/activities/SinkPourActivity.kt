@@ -1,0 +1,44 @@
+package com.xuebingli.blackhole.activities
+
+import android.os.Bundle
+import android.view.View
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
+import com.google.android.material.textfield.TextInputEditText
+import com.xuebingli.blackhole.R
+import com.xuebingli.blackhole.network.PacketReport
+import com.xuebingli.blackhole.ui.SinkPourPagerAdapter
+import com.xuebingli.blackhole.utils.ConfigUtils
+
+abstract class SinkPourActivity(private val layout: Int) : BaseActivity(true) {
+    lateinit var tab: TabLayout
+    lateinit var pager: ViewPager2
+    lateinit var ipInput: TextInputEditText
+    lateinit var actionButton: MaterialButton
+    val reports = ArrayList<PacketReport>()
+    val adapter = SinkPourPagerAdapter(this)
+    var working = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(layout)
+        ipInput = findViewById(R.id.ip_input)
+        actionButton = findViewById(R.id.udp_action)
+        tab = findViewById(R.id.result_tab)
+        pager = findViewById(R.id.result_page)
+
+        actionButton.setOnClickListener(this::action)
+        pager.offscreenPageLimit = 2
+        pager.adapter = adapter
+        TabLayoutMediator(tab, pager) { tab, position ->
+            tab.text = adapter.packetReportFragments[position].first
+        }.attach()
+        ipInput.setText(ConfigUtils(this).getTargetIP())
+        reports.clear()
+    }
+
+    abstract fun action(view: View)
+}
+
