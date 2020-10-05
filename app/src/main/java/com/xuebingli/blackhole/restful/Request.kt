@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class Request(
     var type: RequestType,
-    var bitrate: Int
+    var bitrate: Int = 0
 )
 
 data class PourRequest(

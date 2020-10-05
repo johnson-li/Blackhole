@@ -10,7 +10,7 @@
         android:title="@string/menu_set_sink_mode"
         app:showAsAction="never" />
     <item
-        android:id="@+id/set_bitrate"
+        android:id="@+id/set_bitrate_sink"
         android:title="@string/menu_set_bitrate"
         app:showAsAction="never" />
     <item

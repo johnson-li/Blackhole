@@ -1,12 +1,12 @@
 package com.xuebingli.blackhole.ui
 
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.xuebingli.blackhole.activities.BaseActivity
 import com.xuebingli.blackhole.results.PacketReportDiagramFragment
 import com.xuebingli.blackhole.results.ResultFragmentPair
 
-class SinkPourPagerAdapter(fragment: FragmentActivity) : FragmentStateAdapter(fragment) {
+class SinkPourPagerAdapter(activity: BaseActivity) : FragmentStateAdapter(activity) {
     val packetReportFragments = arrayOf(
         ResultFragmentPair("Diagram") { PacketReportDiagramFragment() }
 //        ResultFragmentPair("List") { PacketReportListFragment() }

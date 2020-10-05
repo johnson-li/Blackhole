@@ -1,5 +1,6 @@
 package com.xuebingli.blackhole.activities
 
+import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.widget.Toast
@@ -12,6 +13,7 @@ import com.xuebingli.blackhole.restful.RequestType
 import com.xuebingli.blackhole.results.ResultFragment
 import com.xuebingli.blackhole.utils.ConfigUtils
 import com.xuebingli.blackhole.utils.Constants
+import com.xuebingli.blackhole.utils.PacketReportUtils
 import java.io.File
 import java.util.*
 
@@ -40,18 +42,26 @@ class SinkActivity : SinkPourActivity(R.layout.activity_sink) {
                 UdpClient(id, ip, port, bitrate, packetSize, duration).also { client ->
                     client.startUdpSink { packet_report, is_last, has_error ->
                         if (is_last) {
-                            val file = File(
-                                ConfigUtils(this).getDataDir(),
-                                "udp_sink_${Constants.LOG_TIME_FORMAT.format(Date())}.json"
-                            )
-                            Toast.makeText(
-                                this,
-                                getString(R.string.toast_udp_sink_finished),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            file.writeText(Gson().toJson(reports))
-                            working = false
-                            actionButton.setText(R.string.sink_button)
+                            serverApi.request(ControlMessage(id, Request(RequestType.STATICS)))
+                                .also { staticsResponseSingle ->
+                                    subscribe(staticsResponseSingle) { staticsResponse ->
+                                        Log.d("johnson", staticsResponse.toString())
+                                        val file = File(
+                                            ConfigUtils(this).getDataDir(),
+                                            "udp_sink_${Constants.LOG_TIME_FORMAT.format(Date())}.json"
+                                        )
+                                        Toast.makeText(
+                                            this,
+                                            getString(R.string.toast_udp_sink_finished),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        PacketReportUtils
+                                            .update(reports, staticsResponse.statics!!.udp_sink!!)
+                                        file.writeText(Gson().toJson(reports))
+                                        working = false
+                                        actionButton.setText(R.string.sink_button)
+                                    }
+                                }
                         }
                         if (has_error) {
                             Toast.makeText(this, "Error occurred!", Toast.LENGTH_SHORT).show()

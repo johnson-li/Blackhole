@@ -17,8 +17,8 @@ abstract class SinkPourActivity(private val layout: Int) : BaseActivity(true) {
     lateinit var pager: ViewPager2
     lateinit var ipInput: TextInputEditText
     lateinit var actionButton: MaterialButton
+    lateinit var adapter: SinkPourPagerAdapter
     val reports = ArrayList<PacketReport>()
-    val adapter = SinkPourPagerAdapter(this)
     var working = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +28,7 @@ abstract class SinkPourActivity(private val layout: Int) : BaseActivity(true) {
         actionButton = findViewById(R.id.udp_action)
         tab = findViewById(R.id.result_tab)
         pager = findViewById(R.id.result_page)
-
+        adapter = SinkPourPagerAdapter(this)
         actionButton.setOnClickListener(this::action)
         pager.offscreenPageLimit = 2
         pager.adapter = adapter

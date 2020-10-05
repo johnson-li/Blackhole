@@ -89,7 +89,6 @@ class UdpClient(
             it.onNext(PacketReport(counter, buf.size, SystemClock.elapsedRealtime(), -1))
             counter++
         }
-        Thread.sleep(1000)
         it.onComplete()
     })
 
@@ -127,5 +126,5 @@ data class PacketReport(
     val sequence: Int,
     val size: Int,
     val localTimestamp: Long,
-    val remoteTimestamp: Long
+    var remoteTimestamp: Long
 )

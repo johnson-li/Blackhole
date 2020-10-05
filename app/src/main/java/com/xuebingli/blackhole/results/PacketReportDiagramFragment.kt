@@ -12,14 +12,12 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.xuebingli.blackhole.R
-import com.xuebingli.blackhole.activities.PourActivity
 import com.xuebingli.blackhole.activities.SinkPourActivity
 import com.xuebingli.blackhole.utils.ConfigUtils
 import com.xuebingli.blackhole.utils.Constants
 
 class PacketReportDiagramFragment : ResultFragment() {
     private lateinit var chart: LineChart
-    private val entries: MutableList<Entry> = ArrayList()
     private lateinit var dataset: LineDataSet
     private lateinit var lineData: LineData
     private lateinit var currentLatency: TextView
@@ -29,6 +27,7 @@ class PacketReportDiagramFragment : ResultFragment() {
     private lateinit var averageBandwidth: TextView
     private lateinit var medianBandwidth: TextView
     private lateinit var averagePacketLoss: TextView
+    private val entries: MutableList<Entry> = ArrayList()
     private var clockDrift = 0L
     private var dataSizes = ArrayList<Float>(120)
     private var startTimestamp = 0L

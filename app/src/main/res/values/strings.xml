@@ -16,6 +16,7 @@
     <string name="sink_activity_title">Sink</string>
     <string name="sync_activity_title">Sync</string>
     <string name="background_activity_title">Background Services</string>
+    <string name="tethering_activity_title">USB Tethering</string>
     <string name="traceroute_activity_title">Traceroute</string>
     <string name="ping_ip_address">Target IP address</string>
     <string name="iperf_ip_address">Target IP address</string>
@@ -52,9 +53,9 @@
     <string name="dialog_phone_state_permission">Access to the phone state is required to log radio info</string>
     <string name="toast_set_interface">Set interface: %1$s</string>
     <string name="toast_set_udp_mode">Set UDP mode: %1$s</string>
-    <string name="toast_set_pour_bitrate">Set pour bitrate: %1$d bps</string>
-    <string name="toast_set_sink_bitrate">Set sink bitrate: %1$d bps</string>
-    <string name="toast_set_duration">Set duration: %1$d s</string>
+    <string name="toast_set_pour_bitrate">Set pour bitrate: %1$s</string>
+    <string name="toast_set_sink_bitrate">Set sink bitrate: %1$s</string>
+    <string name="toast_set_duration">Set duration: %1$s</string>
     <string name="toast_set_frequency">Set frequency: %1$d ms</string>
     <string name="toast_udp_pour_finished">UDP pour finished, export to disk</string>
     <string name="toast_udp_sink_finished">UDP sink finished, export to disk</string>
@@ -65,6 +66,7 @@
     <string name="pour_button">Pour</string>
     <string name="empty">EMPTY</string>
     <string name="no_data">No Data</string>
+    <string name="tethering_button">Tethering</string>
 
     <string name="statics_title">Statics</string>
     <string name="statics_metric">Metric</string>
@@ -95,4 +97,5 @@
     <string name="background_notification_text">Collecting %1$s</string>
 
     <string name="error">ERROR</string>
+    <string name="infinity">Infinity</string>
 </resources>

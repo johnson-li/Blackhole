@@ -106,6 +106,14 @@ open class BaseActivity(
                 }.show(supportFragmentManager, "Bitrate picker")
                 true
             }
+            R.id.set_bitrate_sink -> {
+                BitratePicker {
+                    sharedPreferences.edit(true) {
+                        putInt(Preferences.SINK_BITRATE_KEY, it)
+                    }
+                }.show(supportFragmentManager, "Bitrate picker")
+                true
+            }
             R.id.set_duration -> {
                 DurationPicker {
                     sharedPreferences.edit(true) {
