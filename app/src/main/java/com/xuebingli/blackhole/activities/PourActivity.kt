@@ -13,11 +13,25 @@ import com.xuebingli.blackhole.restful.RequestType
 import com.xuebingli.blackhole.results.ResultFragment
 import com.xuebingli.blackhole.utils.ConfigUtils
 import com.xuebingli.blackhole.utils.Constants.Companion.LOG_TIME_FORMAT
+import com.xuebingli.blackhole.utils.Preferences
+import com.xuebingli.blackhole.utils.getBitrateString
+import com.xuebingli.blackhole.utils.getDurationString
 import java.io.File
 import java.util.*
 
-class PourActivity : SinkPourActivity(R.layout.activity_pour) {
-
+class PourActivity : SinkPourActivity(
+    R.layout.activity_pour,
+    listOf(
+        Pair(Preferences.POUR_BITRATE_KEY)
+        { s -> getBitrateString(s.getInt(Preferences.POUR_BITRATE_KEY, -1)) },
+        Pair(Preferences.POUR_MODE_KEY)
+        { s -> s.getString(Preferences.POUR_MODE_KEY, "Not set").toString() },
+        Pair(Preferences.DURATION_KEY)
+        { s -> getDurationString(s.getInt(Preferences.DURATION_KEY, -1)) },
+        Pair(Preferences.PACKET_SIZE_KEY)
+        { s -> s.getInt(Preferences.PACKET_SIZE_KEY, -1).toString() }
+    )
+) {
     @SuppressLint("SimpleDateFormat")
     @ExperimentalUnsignedTypes
     override fun action(view: View) {

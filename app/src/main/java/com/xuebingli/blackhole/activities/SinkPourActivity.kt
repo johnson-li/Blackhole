@@ -1,5 +1,6 @@
 package com.xuebingli.blackhole.activities
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import androidx.viewpager2.widget.ViewPager2
@@ -12,7 +13,11 @@ import com.xuebingli.blackhole.network.PacketReport
 import com.xuebingli.blackhole.ui.SinkPourPagerAdapter
 import com.xuebingli.blackhole.utils.ConfigUtils
 
-abstract class SinkPourActivity(private val layout: Int) : BaseActivity(true) {
+abstract class SinkPourActivity(
+    private val layout: Int,
+    parameters: List<Pair<String, (SharedPreferences) -> String>>
+) :
+    BaseActivity(true, parameters = parameters) {
     lateinit var tab: TabLayout
     lateinit var pager: ViewPager2
     lateinit var ipInput: TextInputEditText

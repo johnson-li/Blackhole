@@ -86,7 +86,7 @@ class UdpClient(
             buf[idBytes + 2] = (counter shr 8).toByte()
             buf[idBytes + 3] = (counter shr 0).toByte()
             socket.send(DatagramPacket(buf, buf.size, address, port))
-            it.onNext(PacketReport(counter, buf.size, SystemClock.elapsedRealtime(), -1))
+            it.onNext(PacketReport(counter, buf.size, SystemClock.elapsedRealtime() ))
             counter++
         }
         it.onComplete()
@@ -126,5 +126,5 @@ data class PacketReport(
     val sequence: Int,
     val size: Int,
     val localTimestamp: Long,
-    var remoteTimestamp: Long
+    var remoteTimestamp: Long? = null
 )

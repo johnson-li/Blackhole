@@ -37,15 +37,18 @@
     <string name="menu_set_pour_mode">Pour Mode</string>
     <string name="menu_set_bitrate">Bitrate</string>
     <string name="menu_set_duration">Duration</string>
+    <string name="menu_set_packet_size">Packet size</string>
     <string name="menu_clear_data">Clear Data</string>
     <string name="menu_stop_all">Stop All</string>
     <string name="menu_start_all">Start All</string>
+    <string name="menu_show_data_folder">Show Data Folder</string>
     <string name="dialog_set_interface_title">Pick interface</string>
     <string name="dialog_set_sink_mode_title">Set sink mode</string>
     <string name="dialog_set_pour_mode_title">Set pour mode</string>
     <string name="dialog_set_pour_bitrate_title">Set pour bitrate</string>
     <string name="dialog_set_frequency">Set frequency</string>
     <string name="dialog_set_sink_bitrate_title">Set sink bitrate</string>
+    <string name="dialog_set_packet_size_title">Set UDP packet size</string>
     <string name="dialog_set_duration_title">Set duration</string>
     <string name="dialog_clear_data_title">Confirm</string>
     <string name="dialog_clear_data_message">Are you sure to delete all data?</string>
@@ -56,6 +59,7 @@
     <string name="toast_set_pour_bitrate">Set pour bitrate: %1$s</string>
     <string name="toast_set_sink_bitrate">Set sink bitrate: %1$s</string>
     <string name="toast_set_duration">Set duration: %1$s</string>
+    <string name="toast_set_packet_size">Set packet size: %1$d bytes</string>
     <string name="toast_set_frequency">Set frequency: %1$d ms</string>
     <string name="toast_udp_pour_finished">UDP pour finished, export to disk</string>
     <string name="toast_udp_sink_finished">UDP sink finished, export to disk</string>
@@ -98,4 +102,8 @@
 
     <string name="error">ERROR</string>
     <string name="infinity">Infinity</string>
+    <string name="parameters">Parameters</string>
+    <string name="pending">-</string>
+    <string name="sink_statics">Sink Statics</string>
+    <string name="pour_statics">Pour Statics</string>
 </resources>

@@ -14,11 +14,23 @@
         android:title="@string/menu_set_bitrate"
         app:showAsAction="never" />
     <item
+        android:id="@+id/set_packet_size"
+        android:title="@string/menu_set_packet_size"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/set_duration"
         android:title="@string/menu_set_duration"
         app:showAsAction="never" />
     <item
         android:id="@+id/clear_data"
         android:title="@string/menu_clear_data"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/show_parameters"
+        android:title="@string/parameters"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/show_data_folder"
+        android:title="@string/menu_show_data_folder"
         app:showAsAction="never" />
 </menu>

@@ -11,13 +11,23 @@ import com.xuebingli.blackhole.restful.ControlMessage
 import com.xuebingli.blackhole.restful.Request
 import com.xuebingli.blackhole.restful.RequestType
 import com.xuebingli.blackhole.results.ResultFragment
-import com.xuebingli.blackhole.utils.ConfigUtils
-import com.xuebingli.blackhole.utils.Constants
-import com.xuebingli.blackhole.utils.PacketReportUtils
+import com.xuebingli.blackhole.utils.*
 import java.io.File
 import java.util.*
 
-class SinkActivity : SinkPourActivity(R.layout.activity_sink) {
+class SinkActivity : SinkPourActivity(
+    R.layout.activity_sink,
+    listOf(
+        Pair(Preferences.SINK_BITRATE_KEY)
+        { s -> getBitrateString(s.getInt(Preferences.SINK_BITRATE_KEY, -1)) },
+        Pair(Preferences.SINK_MODE_KEY)
+        { s -> s.getString(Preferences.SINK_MODE_KEY, "Not set").toString() },
+        Pair(Preferences.DURATION_KEY)
+        { s -> getDurationString(s.getInt(Preferences.DURATION_KEY, -1)) },
+        Pair(Preferences.PACKET_SIZE_KEY)
+        { s -> s.getInt(com.xuebingli.blackhole.utils.Preferences.PACKET_SIZE_KEY, -1).toString() }
+    )
+) {
     @ExperimentalStdlibApi
     override fun action(view: View) {
         if (working) {
@@ -60,6 +70,11 @@ class SinkActivity : SinkPourActivity(R.layout.activity_sink) {
                                         file.writeText(Gson().toJson(reports))
                                         working = false
                                         actionButton.setText(R.string.sink_button)
+                                        for (fragment in supportFragmentManager.fragments) {
+                                            if (fragment is ResultFragment) {
+                                                fragment.onFinished()
+                                            }
+                                        }
                                     }
                                 }
                         }

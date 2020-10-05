@@ -6,6 +6,7 @@ import android.os.IBinder
 import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import com.xuebingli.blackhole.MyApplication
@@ -25,9 +26,11 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 
+
 open class BaseActivity(
     private val displayHomeAsUp: Boolean = true,
-    private val bindService: Boolean = false
+    private val bindService: Boolean = false,
+    private val parameters: List<Pair<String, (SharedPreferences) -> String>> = listOf(),
 ) : AppCompatActivity() {
     lateinit var sharedPreferences: SharedPreferences
     var foregroundService: ForegroundService? = null
@@ -120,6 +123,32 @@ open class BaseActivity(
                         putInt(Preferences.DURATION_KEY, it)
                     }
                 }.show(supportFragmentManager, "Duration picker")
+                true
+            }
+            R.id.show_parameters -> {
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.parameters)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .setMessage(parameters.joinToString("\n") {
+                        "${it.first}: ${it.second(sharedPreferences)}"
+                    })
+                    .create().show()
+                true
+            }
+            R.id.show_data_folder -> {
+//                val intent = Intent(Intent.ACTION_VIEW)
+//                val dir = FileProvider.getUriForFile(
+//                    this,
+//                    "$packageName.provider",
+//                    ConfigUtils(this).getDataDir()
+//                )
+//                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                intent.setDataAndType(dir, "application/*")
+//                startActivity(intent)
+                true
+            }
+            R.id.set_packet_size -> {
+                PacketSizePicker().show(supportFragmentManager, "Packet size picker")
                 true
             }
             else -> super.onOptionsItemSelected(item)

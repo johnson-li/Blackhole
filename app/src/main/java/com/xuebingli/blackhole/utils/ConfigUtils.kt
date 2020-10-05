@@ -62,7 +62,7 @@ class ConfigUtils(private val context: Context) {
     }
 
     fun getPacketSize(): Int {
-        return getSharedPreferences().getInt(PACKET_SIZE_KEY, 1024)
+        return getSharedPreferences().getInt(PACKET_SIZE_KEY, 10204)
     }
 
     fun getDuration(): Int {

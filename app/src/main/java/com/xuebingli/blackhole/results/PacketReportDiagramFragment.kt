@@ -2,6 +2,7 @@ package com.xuebingli.blackhole.results
 
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.xuebingli.blackhole.R
+import com.xuebingli.blackhole.activities.PourActivity
 import com.xuebingli.blackhole.activities.SinkPourActivity
 import com.xuebingli.blackhole.utils.ConfigUtils
 import com.xuebingli.blackhole.utils.Constants
@@ -35,6 +37,7 @@ class PacketReportDiagramFragment : ResultFragment() {
     private var totalDataLatency = 0L
     private var maxBandwidth = 0f
     private val measurementGranularity = 500 // In milliseconds
+    private var pourMode = false
 
     init {
         for (i in 1..120) {
@@ -50,8 +53,10 @@ class PacketReportDiagramFragment : ResultFragment() {
         chart.setNoDataText(requireContext().getString(R.string.no_data))
         chart.setTouchEnabled(false)
         chart.description.text = ""
-        dataset = LineDataSet(entries, "packet_report_diagram")
-            .apply { axisDependency = YAxis.AxisDependency.LEFT }
+        dataset = LineDataSet(
+            entries,
+            getString(if (pourMode) R.string.pour_statics else R.string.sink_statics)
+        ).apply { axisDependency = YAxis.AxisDependency.LEFT }
         lineData = LineData(dataset)
         chart.data = lineData
         chart.invalidate()
@@ -72,6 +77,7 @@ class PacketReportDiagramFragment : ResultFragment() {
         medianBandwidth = view.findViewById(R.id.bandwidth_median)
         averagePacketLoss = view.findViewById(R.id.packet_loss_average)
         clockDrift = ConfigUtils(requireContext()).clockDrift
+        pourMode = activity is PourActivity
         initLineChart()
         return view
     }
@@ -85,7 +91,7 @@ class PacketReportDiagramFragment : ResultFragment() {
         val timestamp = report.localTimestamp - startTimestamp
         val i = (timestamp / measurementGranularity).toInt()
         dataSizes[i] += report.size.toFloat() * Constants.BYTE_BITS / Constants.M
-        val latency = report.localTimestamp - report.remoteTimestamp - clockDrift
+        val latency = report.remoteTimestamp?.run { report.localTimestamp - this - clockDrift } ?: 0
         totalDataLatency += latency
         val bw = totalDataSize.toDouble() * 8 /
                 (SystemClock.elapsedRealtime() - startTimestamp) * 1000 / Constants.M
@@ -100,15 +106,41 @@ class PacketReportDiagramFragment : ResultFragment() {
             lineData.addEntry(Entry(j.toFloat() / 1000 * measurementGranularity, data), 0)
             chart.notifyDataSetChanged()
             chart.invalidate()
-            currentBandwidth.text = getString(R.string.statics_mbps, data)
-            averagePacketLoss.text = getString(
-                R.string.statics_percent,
-                100f * (report.sequence - index) / (report.sequence + 1)
-            )
-            averageBandwidth.text = getString(R.string.statics_mbps, bw)
-            currentLatency.text = getString(R.string.statics_ms, latency)
-            averageLatency.text = getString(R.string.statics_ms, totalDataLatency / (index + 1))
+            if (pourMode) {
+                currentBandwidth.text = getString(R.string.statics_mbps, data)
+                averagePacketLoss.text = getString(
+                    R.string.statics_percent,
+                    100f * (report.sequence - index) / (report.sequence + 1)
+                )
+                averageBandwidth.text = getString(R.string.statics_mbps, bw)
+                currentLatency.text = getString(R.string.statics_ms, latency)
+                averageLatency.text = getString(R.string.statics_ms, totalDataLatency / (index + 1))
+            } else {
+                averageBandwidth.setText(R.string.pending)
+                averageLatency.setText(R.string.pending)
+                averagePacketLoss.setText(R.string.pending)
+            }
         }
+    }
+
+    override fun onFinished() {
+        val reports = (activity as SinkPourActivity).reports
+        Log.d("johnson", reports.size.toString())
+        Log.d("johnson", reports.filter { it.remoteTimestamp == null }.size.toString())
+        averagePacketLoss.text = getString(
+            R.string.statics_percent,
+            100f * reports.filter { it.remoteTimestamp == null }.size / reports.size
+        )
+        averageLatency.text = getString(
+            R.string.statics_ms,
+            reports.filter { it.remoteTimestamp != null }
+                .map { it.remoteTimestamp!! - it.localTimestamp + clockDrift }.average().toInt()
+        )
+        averageBandwidth.text = getString(
+            R.string.statics_mbps,
+            reports.map { it.size }.sum()
+                .toDouble() * 8 / (reports.last().localTimestamp - reports.first().localTimestamp) * 1000 / Constants.M
+        )
     }
 
     override fun onDataReset() {

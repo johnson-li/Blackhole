@@ -1,8 +1,6 @@
 package com.xuebingli.blackhole.utils
 
-import android.content.Context
 import android.util.Patterns
-import com.xuebingli.blackhole.R
 import com.xuebingli.blackhole.utils.Constants.Companion.G
 import com.xuebingli.blackhole.utils.Constants.Companion.K
 import com.xuebingli.blackhole.utils.Constants.Companion.M
@@ -20,9 +18,9 @@ fun getBitrateString(bitrate: Int): String {
     }
 }
 
-fun getDurationString(context: Context, duration: Int): String {
+fun getDurationString(duration: Int): String {
     return when {
-        duration == Int.MAX_VALUE -> context.getString(R.string.infinity)
+        duration == Int.MAX_VALUE -> "Infinity"
         duration >= 60 * 60 -> "${duration / 60 / 60} h"
         duration >= 60 -> "${duration / 60} min"
         else -> "$duration s"
