@@ -102,7 +102,7 @@
 
     <string name="error">ERROR</string>
     <string name="infinity">Infinity</string>
-    <string name="parameters">Parameters</string>
+    <string name="parameters">Show Parameters</string>
     <string name="pending">-</string>
     <string name="sink_statics">Sink Statics</string>
     <string name="pour_statics">Pour Statics</string>

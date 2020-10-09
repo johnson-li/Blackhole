@@ -15,16 +15,21 @@ import com.xuebingli.blackhole.utils.ConfigUtils
 
 class SyncActivity : BaseActivity(true) {
     lateinit var syncButton: ImageView
-    lateinit var clockDriftTextView: TextView
-    lateinit var confidenceTextView: TextView
+    lateinit var clockDrift: TextView
+    lateinit var confidence: TextView
     var syncing = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sync)
         syncButton = findViewById(R.id.syncButton)
-        clockDriftTextView = findViewById(R.id.clockDrift)
-        confidenceTextView = findViewById(R.id.confidence)
+        clockDrift = findViewById(R.id.clockDrift)
+        confidence = findViewById(R.id.confidence)
+
+        clockDrift.text =
+            getString(R.string.sync_activity_clock_drift, ConfigUtils(this).clockDrift)
+        confidence.text =
+            getString(R.string.sync_activity_clock_confidence, ConfigUtils(this).clockConfidence)
     }
 
     fun syncAction(view: View) {
@@ -48,10 +53,14 @@ class SyncActivity : BaseActivity(true) {
                     Toast.LENGTH_SHORT
                 ).show()
             } else {
-                ConfigUtils(applicationContext).clockDrift = it.clockDrift
-                clockDriftTextView.text =
+                ConfigUtils(applicationContext).apply {
+                    clockDrift = it.clockDrift
+                    clockConfidence = it.confidence
+                }
+
+                clockDrift.text =
                     getString(R.string.sync_activity_clock_drift, it.clockDrift)
-                confidenceTextView.text =
+                confidence.text =
                     getString(R.string.sync_activity_clock_confidence, it.confidence)
             }
             syncing = false

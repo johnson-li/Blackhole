@@ -1,6 +1,6 @@
 package com.xuebingli.blackhole.utils
 
-import com.xuebingli.blackhole.network.PacketReport
+import com.xuebingli.blackhole.models.PacketReport
 import com.xuebingli.blackhole.restful.PacketInfo
 
 class PacketReportUtils {

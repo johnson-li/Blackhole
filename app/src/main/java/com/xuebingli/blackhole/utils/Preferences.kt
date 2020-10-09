@@ -13,6 +13,7 @@ class Preferences {
         const val DURATION_KEY = "duration"
         const val FREQUENCY_KEY = "frequency"
         const val CLOCK_DRIFT_KEY = "clock drift"
+        const val CLOCK_CONFIDENCE_KEY = "clock confidence"
         const val SERVICE_LOCATION = "location service"
         const val SERVICE_CELL_INFO = "cell info"
         const val SUBSCRIPTION_INFO = "subscription info"

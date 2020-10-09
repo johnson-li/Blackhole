@@ -5,9 +5,6 @@ import android.telephony.*
 import android.util.Log
 
 fun getCellInfoModel(cellInfo: CellInfo): CellInfoModel {
-    if (cellInfo.isRegistered) {
-        Log.d("johnson", cellInfo.toString())
-    }
     return when (cellInfo) {
         is CellInfoNr -> {
             CellInfoModel(

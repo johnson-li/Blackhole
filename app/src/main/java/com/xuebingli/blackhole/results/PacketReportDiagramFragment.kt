@@ -2,7 +2,6 @@ package com.xuebingli.blackhole.results
 
 import android.os.Bundle
 import android.os.SystemClock
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -125,8 +124,6 @@ class PacketReportDiagramFragment : ResultFragment() {
 
     override fun onFinished() {
         val reports = (activity as SinkPourActivity).reports
-        Log.d("johnson", reports.size.toString())
-        Log.d("johnson", reports.filter { it.remoteTimestamp == null }.size.toString())
         averagePacketLoss.text = getString(
             R.string.statics_percent,
             100f * reports.filter { it.remoteTimestamp == null }.size / reports.size

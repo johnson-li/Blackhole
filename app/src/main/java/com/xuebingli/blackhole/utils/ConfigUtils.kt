@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.xuebingli.blackhole.BuildConfig
+import com.xuebingli.blackhole.utils.Preferences.Companion.CLOCK_CONFIDENCE_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.CLOCK_DRIFT_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.DURATION_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.PACKET_SIZE_KEY
@@ -22,6 +23,13 @@ class ConfigUtils(private val context: Context) {
         }
         set(value) {
             getSharedPreferences().edit(true) { putLong(CLOCK_DRIFT_KEY, value) }
+        }
+    var clockConfidence: Float
+        get() {
+            return getSharedPreferences().getFloat(CLOCK_CONFIDENCE_KEY, 0f)
+        }
+        set(value) {
+            getSharedPreferences().edit(true) { putFloat(CLOCK_CONFIDENCE_KEY, value) }
         }
 
 

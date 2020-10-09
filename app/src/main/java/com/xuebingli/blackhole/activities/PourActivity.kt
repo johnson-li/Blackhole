@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.Toast
 import com.google.gson.Gson
 import com.xuebingli.blackhole.R
+import com.xuebingli.blackhole.models.getReport
 import com.xuebingli.blackhole.network.UdpClient
 import com.xuebingli.blackhole.restful.ControlMessage
 import com.xuebingli.blackhole.restful.Request
@@ -69,7 +70,7 @@ class PourActivity : SinkPourActivity(
                                 getString(R.string.toast_udp_pour_finished),
                                 Toast.LENGTH_SHORT
                             ).show()
-                            file.writeText(Gson().toJson(reports))
+                            file.writeText(Gson().toJson(getReport(this, reports)))
                             working = false
                             actionButton.setText(R.string.pour_button)
                         }

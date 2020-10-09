@@ -24,7 +24,7 @@ class BitratePicker(val callback: (Int) -> Unit) : DialogFragment() {
             listOf(
                 K, 10 * K, 50 * K, 100 * K, 200 * K, 300 * K, 500 * K, 800 * K,
                 M, 10 * M, 50 * M, 100 * M, 200 * M, 300 * M, 500 * M, 800 * M,
-                G, (1.2 * G).toInt(),
+                G, (1.2 * G).toInt(), (1.5 * G).toInt(), (1.8 * G).toInt(),
             )
         builder.setTitle(R.string.dialog_set_pour_bitrate_title)
             .setItems(bitrateValues.map { getBitrateString(it) }.toTypedArray()) { _, which ->

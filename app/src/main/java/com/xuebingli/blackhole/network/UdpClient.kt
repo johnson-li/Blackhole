@@ -3,6 +3,7 @@ package com.xuebingli.blackhole.network
 import android.os.SystemClock
 import android.util.Log
 import com.google.gson.Gson
+import com.xuebingli.blackhole.models.PacketReport
 import com.xuebingli.blackhole.restful.PourRequest
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
@@ -29,7 +30,7 @@ class UdpClient(
             "johnson", "Starting UDP pour, bitrate: $bitrate bps, " +
                     "duration: $duration s, id: $id"
         )
-        val buffer = ByteArray(1500)
+        val buffer = ByteArray(1024 * 1024)
         val socket = DatagramSocket()
         val address = InetAddress.getByName(ip)
         val buf = Gson().toJson(PourRequest(id, "start", packetSize, bitrate, duration))
@@ -122,9 +123,3 @@ class UdpClient(
     }
 }
 
-data class PacketReport(
-    val sequence: Int,
-    val size: Int,
-    val localTimestamp: Long,
-    var remoteTimestamp: Long? = null
-)
