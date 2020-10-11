@@ -44,7 +44,7 @@ class SyncActivity : BaseActivity(true) {
         syncButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate))
         val ip = ConfigUtils(this).getTargetIP()
         val port = ConfigUtils(this).getSyncPort()
-        val client = TcpClient(ip, port, ConfigUtils(this).getDataDir())
+        val client = TcpClient(ip = ip, port = port, dataDir = ConfigUtils(this).getDataDir())
         client.startTcpSync {
             if (it == null) {
                 Toast.makeText(

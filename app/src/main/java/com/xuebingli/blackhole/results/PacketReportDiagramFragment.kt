@@ -109,7 +109,7 @@ class PacketReportDiagramFragment : ResultFragment() {
                 currentBandwidth.text = getString(R.string.statics_mbps, data)
                 averagePacketLoss.text = getString(
                     R.string.statics_percent,
-                    100f * (report.sequence - index) / (report.sequence + 1)
+                    report.sequence?.run { 100f * (this - index) / (this + 1) } ?: 0f
                 )
                 averageBandwidth.text = getString(R.string.statics_mbps, bw)
                 currentLatency.text = getString(R.string.statics_ms, latency)

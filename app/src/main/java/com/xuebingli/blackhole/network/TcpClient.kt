@@ -4,6 +4,8 @@ import android.os.SystemClock
 import android.util.Log
 import com.google.common.primitives.Longs
 import com.google.gson.Gson
+import com.xuebingli.blackhole.models.PacketReport
+import com.xuebingli.blackhole.restful.PourRequest
 import com.xuebingli.blackhole.utils.Constants.Companion.LOG_TIME_FORMAT
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
@@ -16,9 +18,10 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class TcpClient(
+    private var id: String? = null,
     private val ip: String,
     private val port: Int,
-    private val dataDir: File
+    private var dataDir: File? = null,
 ) {
     private val tcpSyncService = Observable.create(ObservableOnSubscribe<SyncResult?> {
         val count = 20
@@ -57,6 +60,34 @@ class TcpClient(
         it.onComplete()
     })
 
+    private val tcpPourService = Observable.create(ObservableOnSubscribe<PacketReport> {
+        val socket = Socket(ip, port).apply { tcpNoDelay = true }
+        val output = socket.getOutputStream()
+        val input = socket.getInputStream()
+        val buf = Gson().toJson(PourRequest(id!!, "start", dataSize = 1024))
+            .toByteArray()
+        output.write(buf)
+        output.flush()
+        val buffer = ByteArray(1024)
+        while (!it.isDisposed) {
+            val bytes = input.read(buffer)
+            if (bytes > 0) {
+                Log.d("johnson", "read $bytes bytes")
+                it.onNext(
+                    PacketReport(
+                        size = bytes,
+                        localTimestamp = SystemClock.elapsedRealtime()
+                    )
+                )
+            }
+        }
+        Log.d("johnson", "exit")
+        socket.close()
+        it.onComplete()
+    })
+    private val tcpSinkService = Observable.create(ObservableOnSubscribe<PacketReport> {
+    })
+
     fun startTcpSync(callback: (SyncResult?) -> Unit): Disposable {
         return tcpSyncService.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
             .subscribe({
@@ -64,6 +95,30 @@ class TcpClient(
             }, {
                 Log.w("johnson", it.message, it)
                 callback(null)
+            })
+    }
+
+    fun startTcpPour(callback: (PacketReport?, Boolean, Boolean) -> Unit): Disposable {
+        return tcpPourService.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                callback(it, false, false)
+            }, {
+                Log.w("johnson", it.message, it)
+                callback(null, false, true)
+            }, {
+                callback(null, true, false)
+            })
+    }
+
+    fun startTcpSink(callback: (PacketReport?, Boolean, Boolean) -> Unit): Disposable {
+        return tcpSinkService.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                callback(it, false, false)
+            }, {
+                Log.w("johnson", it.message, it)
+                callback(null, false, true)
+            }, {
+                callback(null, true, false)
             })
     }
 }

@@ -4,8 +4,10 @@ import android.annotation.SuppressLint
 import android.view.Menu
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.Lifecycle
 import com.xuebingli.blackhole.R
 import com.xuebingli.blackhole.models.getReport
+import com.xuebingli.blackhole.network.TcpClient
 import com.xuebingli.blackhole.network.UdpClient
 import com.xuebingli.blackhole.restful.ControlMessage
 import com.xuebingli.blackhole.restful.Request
@@ -29,10 +31,11 @@ class PourActivity : SinkPourActivity(
         { s -> s.getInt(Preferences.PACKET_SIZE_KEY, -1).toString() }
     )
 ) {
-    fun onMeasurementFinished() {
+    private fun onMeasurementFinished() {
+        val mode = ConfigUtils(this).getPourMode().name.toLowerCase()
         val file = File(
             ConfigUtils(this).getDataDir(),
-            "udp_pour_${LOG_TIME_FORMAT.format(Date())}.json"
+            "${mode}_pour_${LOG_TIME_FORMAT.format(Date())}.json"
         )
         loading.visibility = View.VISIBLE
         FileUtils().dumpJson(getReport(this, reports), file) {
@@ -47,26 +50,8 @@ class PourActivity : SinkPourActivity(
         }
     }
 
-    @SuppressLint("SimpleDateFormat")
     @ExperimentalUnsignedTypes
-    override fun action(view: View) {
-        if (working) {
-            disposables.clear()
-            onMeasurementFinished()
-            return
-        }
-        working = true
-        actionButton.setText(R.string.button_stop)
-        reports.clear()
-        for (fragment in supportFragmentManager.fragments) {
-            if (fragment is ResultFragment) {
-                fragment.onDataReset()
-            }
-        }
-        val bitrate = ConfigUtils(this).getPourBitrate()
-        val packetSize = ConfigUtils(this).getPacketSize()
-        val duration = ConfigUtils(this).getDuration()
-        val id = UUID.randomUUID().toString()
+    private fun actionUDP(id: String, bitrate: Int, packetSize: Int, duration: Int) {
         serverApi.request(ControlMessage(id, Request(RequestType.UDP_POUR, bitrate))).also {
             subscribe(it, { response ->
                 val ip = ConfigUtils(this).getTargetIP()
@@ -93,6 +78,68 @@ class PourActivity : SinkPourActivity(
                 working = false
                 actionButton.setText(R.string.pour_button)
             }).also { d -> disposables.add(d) }
+        }
+    }
+
+    private fun actionTCP(id: String) {
+        serverApi.request(ControlMessage(id, Request(RequestType.TCP_POUR))).also {
+            subscribe(it, { response ->
+                val ip = ConfigUtils(this).getTargetIP()
+                val port = response.port!!
+                TcpClient(id = id, ip = ip, port = port).also { client ->
+                    client.startTcpPour { packetReport, is_last, has_error ->
+                        if (is_last) {
+                            onMeasurementFinished()
+                        }
+                        if (has_error) {
+                            Toast.makeText(this, "Error occurred!", Toast.LENGTH_SHORT).show()
+                        }
+                        packetReport?.also { p ->
+                            if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                                reports.add(p)
+                                for (fragment in supportFragmentManager.fragments) {
+                                    if (fragment is ResultFragment) {
+                                        fragment.onDataInserted(reports.size - 1)
+                                    }
+                                }
+                            }
+                        }
+                    }.also { d -> disposables.add(d) }
+                }
+            }, {
+                working = false
+                actionButton.setText(R.string.pour_button)
+            }).also { d -> disposables.add(d) }
+        }
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    @ExperimentalUnsignedTypes
+    override fun action(view: View) {
+        if (working) {
+            disposables.clear()
+            onMeasurementFinished()
+            return
+        }
+        working = true
+        actionButton.setText(R.string.button_stop)
+        reports.clear()
+        for (fragment in supportFragmentManager.fragments) {
+            if (fragment is ResultFragment) {
+                fragment.onDataReset()
+            }
+        }
+        val bitrate = ConfigUtils(this).getPourBitrate()
+        val packetSize = ConfigUtils(this).getPacketSize()
+        val duration = ConfigUtils(this).getDuration()
+        val id = UUID.randomUUID().toString()
+        when (ConfigUtils(this).getPourMode()) {
+            PourMode.TCP -> {
+                actionTCP(id)
+            }
+            PourMode.UDP -> {
+                actionUDP(id, bitrate, packetSize, duration)
+            }
         }
     }
 

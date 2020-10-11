@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class PacketReport(
     @SerializedName("seq")
-    val sequence: Int,
+    val sequence: Int? = null,
     val size: Int,
     @SerializedName("localTs")
     val localTimestamp: Long,
