@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.view.Menu
 import android.view.View
 import android.widget.Toast
-import com.google.gson.Gson
 import com.xuebingli.blackhole.R
 import com.xuebingli.blackhole.models.getReport
 import com.xuebingli.blackhole.network.UdpClient
@@ -12,11 +11,8 @@ import com.xuebingli.blackhole.restful.ControlMessage
 import com.xuebingli.blackhole.restful.Request
 import com.xuebingli.blackhole.restful.RequestType
 import com.xuebingli.blackhole.results.ResultFragment
-import com.xuebingli.blackhole.utils.ConfigUtils
+import com.xuebingli.blackhole.utils.*
 import com.xuebingli.blackhole.utils.Constants.Companion.LOG_TIME_FORMAT
-import com.xuebingli.blackhole.utils.Preferences
-import com.xuebingli.blackhole.utils.getBitrateString
-import com.xuebingli.blackhole.utils.getDurationString
 import java.io.File
 import java.util.*
 
@@ -33,14 +29,31 @@ class PourActivity : SinkPourActivity(
         { s -> s.getInt(Preferences.PACKET_SIZE_KEY, -1).toString() }
     )
 ) {
+    fun onMeasurementFinished() {
+        val file = File(
+            ConfigUtils(this).getDataDir(),
+            "udp_pour_${LOG_TIME_FORMAT.format(Date())}.json"
+        )
+        loading.visibility = View.VISIBLE
+        FileUtils().dumpJson(getReport(this, reports), file) {
+            loading.visibility = View.GONE
+            Toast.makeText(
+                this,
+                getString(R.string.toast_udp_pour_finished),
+                Toast.LENGTH_SHORT
+            ).show()
+            working = false
+            actionButton.setText(R.string.pour_button)
+        }
+    }
+
     @SuppressLint("SimpleDateFormat")
     @ExperimentalUnsignedTypes
     override fun action(view: View) {
         if (working) {
+            disposables.clear()
+            onMeasurementFinished()
             return
-//            disposables.clear()
-//            pouring = true
-//            actionButton.setText(R.string.pour_button)
         }
         working = true
         actionButton.setText(R.string.button_stop)
@@ -61,18 +74,7 @@ class PourActivity : SinkPourActivity(
                 UdpClient(id, ip, port, bitrate, packetSize, duration).also { client ->
                     client.startUdpPour { packet_report, is_last, has_error ->
                         if (is_last) {
-                            val file = File(
-                                ConfigUtils(this).getDataDir(),
-                                "udp_pour_${LOG_TIME_FORMAT.format(Date())}.json"
-                            )
-                            Toast.makeText(
-                                this,
-                                getString(R.string.toast_udp_pour_finished),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            file.writeText(Gson().toJson(getReport(this, reports)))
-                            working = false
-                            actionButton.setText(R.string.pour_button)
+                            onMeasurementFinished()
                         }
                         if (has_error) {
                             Toast.makeText(this, "Error occurred!", Toast.LENGTH_SHORT).show()

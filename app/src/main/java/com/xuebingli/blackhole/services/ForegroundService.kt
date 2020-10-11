@@ -11,6 +11,7 @@ import android.location.LocationManager
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
+import android.os.SystemClock
 import android.telephony.CellInfo
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
@@ -83,7 +84,10 @@ class ForegroundService : Service() {
         override fun onLocationResult(p0: LocationResult?) {
             p0?.lastLocation?.apply {
                 latestLocation =
-                    GpsLocation(time, System.currentTimeMillis(), latitude, longitude, accuracy)
+                    GpsLocation(
+                        time, System.currentTimeMillis(), SystemClock.elapsedRealtime(),
+                        latitude, longitude, accuracy
+                    )
                 LocationManager.GPS_PROVIDER
             }
         }

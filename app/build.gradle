@@ -25,17 +25,31 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // Default configs
-        buildConfigField "String", "TARGET_IP", '"195.148.127.108"'
+//        buildConfigField "String", "TARGET_IP", '"195.148.127.108"'
 //        buildConfigField "String", "TARGET_IP", '"192.168.42.7"'
-//        buildConfigField "String", "TARGET_IP", '"192.168.1.129"'
+        buildConfigField "String", "TARGET_IP", '"192.168.1.129"'
         buildConfigField "int", "TARGET_PORT", "8080"
         buildConfigField "String", "SINK_MODE", '"TCP"'
         buildConfigField "String", "POUR_MODE", '"TCP"'
+
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++17"
+            }
+        }
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.10.2"
         }
     }
 }
@@ -48,8 +62,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.core:core-ktx:1.3.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation 'androidx.core:core-ktx:1.3.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'

@@ -7,4 +7,6 @@
     <color name="terminalText">#ffffff</color>
 
     <color name="cellDivider">#000000</color>
+    <color name="white">#ffffff</color>
+    <color name="grayOverlay">#88000000</color>
 </resources>

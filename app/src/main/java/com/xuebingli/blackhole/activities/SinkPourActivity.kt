@@ -20,6 +20,7 @@ abstract class SinkPourActivity(
     BaseActivity(true, parameters = parameters) {
     lateinit var tab: TabLayout
     lateinit var pager: ViewPager2
+    lateinit var loading: View
     lateinit var ipInput: TextInputEditText
     lateinit var actionButton: MaterialButton
     lateinit var adapter: SinkPourPagerAdapter
@@ -33,6 +34,7 @@ abstract class SinkPourActivity(
         actionButton = findViewById(R.id.udp_action)
         tab = findViewById(R.id.result_tab)
         pager = findViewById(R.id.result_page)
+        loading = findViewById(R.id.loading)
         adapter = SinkPourPagerAdapter(this)
         actionButton.setOnClickListener(this::action)
         pager.offscreenPageLimit = 2

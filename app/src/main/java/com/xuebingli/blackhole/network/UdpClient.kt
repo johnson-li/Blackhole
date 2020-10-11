@@ -13,6 +13,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
+import java.net.SocketTimeoutException
 
 class UdpClient(
     private val id: String,
@@ -27,18 +28,23 @@ class UdpClient(
     @ExperimentalUnsignedTypes
     private val udpPourService = Observable.create(ObservableOnSubscribe<PacketReport> {
         Log.d(
-            "johnson", "Starting UDP pour, bitrate: $bitrate bps, " +
+            "johnson", "Starting UDP pour, ip: $ip, port: $port, bitrate: $bitrate bps, " +
                     "duration: $duration s, id: $id"
         )
         val buffer = ByteArray(1024 * 1024)
         val socket = DatagramSocket()
+        socket.soTimeout = 1000
         val address = InetAddress.getByName(ip)
         val buf = Gson().toJson(PourRequest(id, "start", packetSize, bitrate, duration))
             .toByteArray()
         socket.send(DatagramPacket(buf, buf.size, address, port))
         val packet = DatagramPacket(buffer, buffer.size)
         while (!it.isDisposed) {
-            socket.receive(packet)
+            try {
+                socket.receive(packet)
+            } catch (e: SocketTimeoutException) {
+                continue
+            }
             if (packet.length == 1 && packet.data[0] == 'T'.toByte()) {
                 break
             }
@@ -57,6 +63,7 @@ class UdpClient(
                 )
             )
         }
+        socket.close()
         it.onComplete()
     })
 
@@ -87,9 +94,10 @@ class UdpClient(
             buf[idBytes + 2] = (counter shr 8).toByte()
             buf[idBytes + 3] = (counter shr 0).toByte()
             socket.send(DatagramPacket(buf, buf.size, address, port))
-            it.onNext(PacketReport(counter, buf.size, SystemClock.elapsedRealtime() ))
+            it.onNext(PacketReport(counter, buf.size, SystemClock.elapsedRealtime()))
             counter++
         }
+        socket.close()
         it.onComplete()
     })
 
