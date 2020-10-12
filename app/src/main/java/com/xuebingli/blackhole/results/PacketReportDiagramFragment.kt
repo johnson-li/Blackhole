@@ -1,7 +1,6 @@
 package com.xuebingli.blackhole.results
 
 import android.os.Bundle
-import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +15,7 @@ import com.xuebingli.blackhole.activities.PourActivity
 import com.xuebingli.blackhole.activities.SinkPourActivity
 import com.xuebingli.blackhole.utils.ConfigUtils
 import com.xuebingli.blackhole.utils.Constants
+import com.xuebingli.blackhole.utils.TimeUtils
 
 class PacketReportDiagramFragment : ResultFragment() {
     private lateinit var chart: LineChart
@@ -87,7 +87,7 @@ class PacketReportDiagramFragment : ResultFragment() {
         val latency = report.remoteTimestamp?.run { report.localTimestamp - this - clockDrift } ?: 0
         totalDataLatency += latency
         val bw = totalDataSize.toDouble() * 8 /
-                (SystemClock.elapsedRealtime() - startTimestamp) * 1000 / Constants.M
+                (TimeUtils().elapsedRealTime() - startTimestamp) * 1000 / Constants.M
         if (i > entries.size) {
             val j = entries.size
             val data = dataSizes[j] * 1000 / measurementGranularity

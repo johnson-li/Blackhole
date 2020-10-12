@@ -6,16 +6,28 @@
 #include <netinet/in.h>
 #include <cstring>
 #include <netdb.h>
+#include <ctime>
+#include <fcntl.h>
 #include "network-lib.h"
 
 #define BUF_SIZE 102400
+
+int64_t elapsedTime(JNIEnv *env) {
+//    timespec now{};
+//    clock_gettime(CLOCK_MONOTONIC, &now);
+//    return (int64_t) now.tv_sec * 1000LL + now.tv_nsec / 1000000;
+    auto clazz = env->FindClass("android/os/SystemClock");
+    auto method_id = env->GetStaticMethodID(clazz, "elapsedRealtime", "()J");
+    return env->CallStaticLongMethod(clazz, method_id);
+}
 
 extern "C" void
 Java_com_xuebingli_blackhole_network_UdpClient_udpPourRead(JNIEnv *env, jobject thiz, jstring ip_j,
                                                            jint port, jstring request_j,
                                                            jobject listener) {
-    __android_log_print(ANDROID_LOG_INFO, "johnson", "asdf");
     sockaddr_in addr{};
+    auto clazz = env->FindClass("com/xuebingli/blackhole/network/DatagramListener");
+    auto method_id = env->GetMethodID(clazz, "onReceived", "(IIJJ)Z");
     auto ip = env->GetStringUTFChars(ip_j, nullptr);
     auto request = env->GetStringUTFChars(request_j, nullptr);
     auto host = gethostbyname(ip);
@@ -25,17 +37,35 @@ Java_com_xuebingli_blackhole_network_UdpClient_udpPourRead(JNIEnv *env, jobject 
     addr.sin_addr = *((in_addr *) host->h_addr);
 
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
+    fcntl(fd, F_SETFL, O_NONBLOCK);
     sendto(fd, request, strlen(request), MSG_CONFIRM, (sockaddr *) &addr, sizeof(addr));
-    char buffer[BUF_SIZE];
+    unsigned char buffer[BUF_SIZE];
     socklen_t len;
     int nread;
-    while (1) {
-        nread = recvfrom(fd, (char *) buffer, BUF_SIZE, MSG_WAITALL, (sockaddr *) &addr, &len);
-        int seq = ((unsigned int *) buffer)[0];
-        long remote_timestamp = ((unsigned long *) (buffer + 4))[0];
-        long local_timestamp = 0;
-        __android_log_print(ANDROID_LOG_INFO, "johnson", "Read %d bytes, seq: %d, remoteTs: %ld",
-                            nread, seq, remote_timestamp);
+    unsigned int seq = 0;
+    unsigned long long remote_timestamp = 0;
+    bool finish = false;
+    long long data_size = 0;
+    while (!finish) {
+        nread = recvfrom(fd, buffer, BUF_SIZE, MSG_WAITALL, (sockaddr *) &addr, &len);
+        if (nread <= 0) {
+            continue;
+        }
+//        for (int i = 0; i < 4; i++) {
+//            seq = (seq << 8u) | buffer[i];
+//        }
+//        for (int i = 4; i < 12; i++) {
+//            remote_timestamp = (remote_timestamp << 8u) | buffer[i];
+//        }
+//        __android_log_print(ANDROID_LOG_INFO, "johnson", "Read %d bytes, seq: %d, remoteTs: %lld, localTs: %lld",
+//                            nread, seq, remote_timestamp, elapsedTime(env));
+//        finish = !env->CallBooleanMethod(listener, method_id, (int) seq, nread,
+//                                         (long long) remote_timestamp, elapsedTime(env));
+        data_size += nread;
+//        if (nread == 1) {
+            __android_log_print(ANDROID_LOG_INFO, "johnson", "Data size: %lld bytes, %d",
+                                data_size, nread);
+//        }
     }
 
     // clean up

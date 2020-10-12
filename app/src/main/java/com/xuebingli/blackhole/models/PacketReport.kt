@@ -7,9 +7,9 @@ import kotlinx.serialization.Serializable
 data class PacketReport(
     @SerialName("seq")
     val sequence: Int? = null,
-    val size: Int? = null,
+    val size: Int,
     @SerialName("localTs")
-    val localTimestamp: Long? = null,
+    val localTimestamp: Long,
     @SerialName("remoteTs")
     var remoteTimestamp: Long? = null
 )

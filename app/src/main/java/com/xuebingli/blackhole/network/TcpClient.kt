@@ -1,12 +1,12 @@
 package com.xuebingli.blackhole.network
 
-import android.os.SystemClock
 import android.util.Log
 import com.google.common.primitives.Longs
 import com.google.gson.Gson
 import com.xuebingli.blackhole.models.PacketReport
 import com.xuebingli.blackhole.restful.PourRequest
 import com.xuebingli.blackhole.utils.Constants.Companion.LOG_TIME_FORMAT
+import com.xuebingli.blackhole.utils.TimeUtils
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableOnSubscribe
@@ -32,7 +32,7 @@ class TcpClient(
         val output = socket.getOutputStream()
         val input = socket.getInputStream()
         for (i in 1..count) {
-            SystemClock.elapsedRealtime().also { ts ->
+            TimeUtils().elapsedRealTime().also { ts ->
                 Log.d("johnson", "Local ts: $ts")
                 localTs.add(ts)
                 output.write(Longs.toByteArray(ts).apply { reverse() })
@@ -75,7 +75,7 @@ class TcpClient(
                 it.onNext(
                     PacketReport(
                         size = bytes,
-                        localTimestamp = SystemClock.elapsedRealtime()
+                        localTimestamp = TimeUtils().elapsedRealTime()
                     )
                 )
             }

@@ -11,7 +11,6 @@ import android.location.LocationManager
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
-import android.os.SystemClock
 import android.telephony.CellInfo
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
@@ -28,6 +27,7 @@ import com.xuebingli.blackhole.ui.BackgroundService
 import com.xuebingli.blackhole.utils.ConfigUtils
 import com.xuebingli.blackhole.utils.Constants
 import com.xuebingli.blackhole.utils.Preferences
+import com.xuebingli.blackhole.utils.TimeUtils
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -85,7 +85,7 @@ class ForegroundService : Service() {
             p0?.lastLocation?.apply {
                 latestLocation =
                     GpsLocation(
-                        time, System.currentTimeMillis(), SystemClock.elapsedRealtime(),
+                        time, System.currentTimeMillis(), TimeUtils().elapsedRealTime(),
                         latitude, longitude, accuracy
                     )
                 LocationManager.GPS_PROVIDER
