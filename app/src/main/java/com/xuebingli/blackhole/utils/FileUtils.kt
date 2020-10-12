@@ -1,12 +1,13 @@
 package com.xuebingli.blackhole.utils
 
 import android.util.Log
-import com.google.gson.Gson
+import com.xuebingli.blackhole.models.Report
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.File
-import java.io.FileWriter
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
@@ -16,9 +17,11 @@ class FileUtils {
         val FILE_EXECUTOR = ThreadPoolExecutor(2, 4, 4, TimeUnit.SECONDS, LinkedBlockingDeque())
     }
 
-    fun dumpJson(obj: Any, file: File, callback: (Boolean) -> Unit) {
+    fun dumpJson(obj: Report, file: File, callback: (Boolean) -> Unit) {
         Observable.create<Unit> {
-            Gson().toJson(obj, FileWriter(file))
+            Json.encodeToString(obj).also { str ->
+                file.writeText(str)
+            }
             it.onNext(Unit)
         }.subscribeOn(Schedulers.from(FILE_EXECUTOR)).observeOn(AndroidSchedulers.mainThread())
             .subscribe({

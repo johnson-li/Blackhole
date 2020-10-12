@@ -7,13 +7,13 @@ import com.xuebingli.blackhole.models.PacketReport
 import com.xuebingli.blackhole.restful.PourRequest
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.ObservableEmitter
 import io.reactivex.rxjava3.core.ObservableOnSubscribe
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
-import java.net.SocketTimeoutException
 
 class UdpClient(
     private val id: String,
@@ -23,7 +23,20 @@ class UdpClient(
     private val packetSize: Int,
     private val duration: Int
 ) {
+    companion object {
+        init {
+            System.loadLibrary("network-lib")
+        }
+    }
+
     private val idBytes = 36
+
+    private external fun udpPourRead(
+        ip: String,
+        port: Int,
+        request: String,
+        listener: DatagramListener
+    )
 
     @ExperimentalUnsignedTypes
     private val udpPourService = Observable.create(ObservableOnSubscribe<PacketReport> {
@@ -31,39 +44,43 @@ class UdpClient(
             "johnson", "Starting UDP pour, ip: $ip, port: $port, bitrate: $bitrate bps, " +
                     "duration: $duration s, id: $id"
         )
-        val buffer = ByteArray(1024 * 1024)
-        val socket = DatagramSocket()
-        socket.soTimeout = 1000
-        val address = InetAddress.getByName(ip)
+//        val socket = DatagramSocket()
+//        socket.soTimeout = 1000
+//        val address = InetAddress.getByName(ip)
         val buf = Gson().toJson(PourRequest(id, "start", packetSize, bitrate, duration))
-            .toByteArray()
-        socket.send(DatagramPacket(buf, buf.size, address, port))
-        val packet = DatagramPacket(buffer, buffer.size)
-        while (!it.isDisposed) {
-            try {
-                socket.receive(packet)
-            } catch (e: SocketTimeoutException) {
-                continue
-            }
-            if (packet.length == 1 && packet.data[0] == 'T'.toByte()) {
-                break
-            }
-            var sequence = 0
-            for (i in 0..3) {
-                sequence = (sequence shl 8) + packet.data[i].toUByte().toInt()
-            }
-            var remoteTimestamp = 0L
-            for (i in 4..11) {
-                remoteTimestamp = (remoteTimestamp shl 8) + packet.data[i].toUByte().toInt()
-            }
-            it.onNext(
-                PacketReport(
-                    sequence, packet.length,
-                    SystemClock.elapsedRealtime(), remoteTimestamp
-                )
-            )
-        }
-        socket.close()
+//        val channel = DatagramChannel.open()
+//        channel.connect(InetSocketAddress(address, port))
+//        channel.write(buf)
+//        val buffer = ByteBuffer.allocateDirect(100 * 1024)
+        udpPourRead(ip, port, buf, DatagramListener(it))
+//        var nread = -1
+//        while (!it.isDisposed) {
+//            buffer.clear()
+//            try {
+//                nread = channel.read(buffer)
+//            } catch (e: SocketTimeoutException) {
+//                Log.w("johnson", e.message, e)
+//                continue
+//            }
+//            Log.d("johnson", "$nread, ${buffer.position()}")
+//            if (buffer.position() == 1 && buffer[0] == 'T'.toByte()) {
+//                break
+//            }
+//            var sequence = 0
+//            for (i in 0..3) {
+//                sequence = (sequence shl 8) + buffer[i].toUByte().toInt()
+//            }
+//            var remoteTimestamp = 0L
+//            for (i in 4..11) {
+//                remoteTimestamp = (remoteTimestamp shl 8) + buffer[i].toUByte().toInt()
+//            }
+//            it.onNext(
+//                PacketReport(
+//                    sequence, buffer.position(),
+//                    SystemClock.elapsedRealtime(), remoteTimestamp
+//                )
+//            )
+//        }
         it.onComplete()
     })
 
@@ -131,3 +148,18 @@ class UdpClient(
     }
 }
 
+class DatagramListener(private val emitter: ObservableEmitter<PacketReport>) {
+    fun onReceived(seq: Int, remoteTs: Long, localTs: Long): Boolean {
+        if (!emitter.isDisposed) {
+            return false
+        }
+        emitter.onNext(
+            PacketReport(
+                sequence = seq,
+                remoteTimestamp = remoteTs,
+                localTimestamp = localTs
+            )
+        )
+        return true
+    }
+}

@@ -8,3 +8,5 @@ add_library(network-lib
             network-lib.cpp )
 
 include_directories(include)
+
+target_link_libraries(network-lib ${log-lib})

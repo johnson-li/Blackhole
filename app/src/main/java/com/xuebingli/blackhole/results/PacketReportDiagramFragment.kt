@@ -30,19 +30,13 @@ class PacketReportDiagramFragment : ResultFragment() {
     private lateinit var averagePacketLoss: TextView
     private val entries: MutableList<Entry> = ArrayList()
     private var clockDrift = 0L
-    private var dataSizes = ArrayList<Float>(120)
+    private var dataSizes = List(30 * 60) { 0f }.toFloatArray()
     private var startTimestamp = 0L
-    private var totalDataSize = 0
+    private var totalDataSize = 0L
     private var totalDataLatency = 0L
     private var maxBandwidth = 0f
     private val measurementGranularity = 500 // In milliseconds
     private var pourMode = false
-
-    init {
-        for (i in 1..120) {
-            dataSizes.add(0.toFloat())
-        }
-    }
 
     private fun initLineChart() {
         chart.clear()

@@ -1,13 +1,15 @@
 package com.xuebingli.blackhole.models
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class PacketReport(
-    @SerializedName("seq")
+    @SerialName("seq")
     val sequence: Int? = null,
-    val size: Int,
-    @SerializedName("localTs")
-    val localTimestamp: Long,
-    @SerializedName("remoteTs")
+    val size: Int? = null,
+    @SerialName("localTs")
+    val localTimestamp: Long? = null,
+    @SerialName("remoteTs")
     var remoteTimestamp: Long? = null
 )

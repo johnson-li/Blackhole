@@ -68,11 +68,10 @@ class TcpClient(
             .toByteArray()
         output.write(buf)
         output.flush()
-        val buffer = ByteArray(1024)
+        val buffer = ByteArray(100 * 1024)
         while (!it.isDisposed) {
             val bytes = input.read(buffer)
             if (bytes > 0) {
-                Log.d("johnson", "read $bytes bytes")
                 it.onNext(
                     PacketReport(
                         size = bytes,
