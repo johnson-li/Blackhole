@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
@@ -77,14 +78,15 @@ class PacketReportDiagramFragment : ResultFragment() {
 
     override fun onDataInserted(index: Int) {
         val report = (activity as SinkPourActivity).reports[index]
+        val localTimestamp = report.localTimestamp ?: report.remoteTimestamp!!
         totalDataSize += report.size
         if (index == 0) {
-            startTimestamp = report.localTimestamp
+            startTimestamp = localTimestamp
         }
-        val timestamp = report.localTimestamp - startTimestamp
+        val timestamp = localTimestamp - startTimestamp
         val i = (timestamp / measurementGranularity).toInt()
         dataSizes[i] += report.size.toFloat() * Constants.BYTE_BITS / Constants.M
-        val latency = report.remoteTimestamp?.run { report.localTimestamp - this - clockDrift } ?: 0
+        val latency = report.remoteTimestamp?.run { localTimestamp - this - clockDrift } ?: 0
         totalDataLatency += latency
         val bw = totalDataSize.toDouble() * 8 /
                 (TimeUtils().elapsedRealTime() - startTimestamp) * 1000 / Constants.M
@@ -118,6 +120,10 @@ class PacketReportDiagramFragment : ResultFragment() {
 
     override fun onFinished() {
         val reports = (activity as SinkPourActivity).reports
+        if (reports.isEmpty()) {
+            Toast.makeText(requireContext(), R.string.no_result, Toast.LENGTH_SHORT).show()
+            return
+        }
         averagePacketLoss.text = getString(
             R.string.statics_percent,
             100f * reports.filter { it.remoteTimestamp == null }.size / reports.size
@@ -125,12 +131,18 @@ class PacketReportDiagramFragment : ResultFragment() {
         averageLatency.text = getString(
             R.string.statics_ms,
             reports.filter { it.remoteTimestamp != null }
-                .map { it.remoteTimestamp!! - it.localTimestamp + clockDrift }.average().toInt()
+                .map {
+                    if (it.remoteTimestamp != null && it.localTimestamp != null)
+                        it.remoteTimestamp!! - it.localTimestamp + clockDrift else 0
+                }.average().toInt()
         )
         averageBandwidth.text = getString(
             R.string.statics_mbps,
             reports.map { it.size }.sum()
-                .toDouble() * 8 / (reports.last().localTimestamp - reports.first().localTimestamp) * 1000 / Constants.M
+                .toDouble() * 8 /
+                    (reports.last().run { localTimestamp ?: remoteTimestamp!! }
+                            - reports.first().run { localTimestamp ?: remoteTimestamp!! })
+                    * 1000 / Constants.M
         )
     }
 

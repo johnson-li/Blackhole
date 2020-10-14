@@ -21,6 +21,7 @@ class TcpClient(
     private var id: String? = null,
     private val ip: String,
     private val port: Int,
+    private val duration: Int? = null,
     private var dataDir: File? = null,
 ) {
     private val tcpSyncService = Observable.create(ObservableOnSubscribe<SyncResult?> {
@@ -80,11 +81,25 @@ class TcpClient(
                 )
             }
         }
-        Log.d("johnson", "exit")
+        Log.d("johnson", "Finish TCP pour")
         socket.close()
         it.onComplete()
     })
+
     private val tcpSinkService = Observable.create(ObservableOnSubscribe<PacketReport> {
+        val socket = Socket(ip, port).apply { tcpNoDelay = true }
+        val output = socket.getOutputStream()
+        val startTs = TimeUtils().elapsedRealTime()
+        output.write(id!!.encodeToByteArray())
+        output.flush()
+        val buffer = ByteArray(100 * 1024).apply { Random().nextBytes(this) }
+        while (!it.isDisposed && TimeUtils().elapsedRealTime() - startTs < duration!! * 1000) {
+            output.write(buffer)
+            output.flush()
+        }
+        Log.d("johnson", "Finish TCP sink")
+        socket.close()
+        it.onComplete()
     })
 
     fun startTcpSync(callback: (SyncResult?) -> Unit): Disposable {

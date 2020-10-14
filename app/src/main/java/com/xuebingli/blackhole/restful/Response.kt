@@ -14,7 +14,9 @@ data class Response(
 
 data class Statics(
     val udp_sink: Map<Int, PacketInfo>?,
-    val udp_pour: Map<Int, PacketInfo>?
+    val udp_pour: Map<Int, PacketInfo>?,
+    val tcp_sink: Map<Int, PacketInfo>?,
+    val tcp_pour: Map<Int, PacketInfo>?,
 )
 
 data class PacketInfo(

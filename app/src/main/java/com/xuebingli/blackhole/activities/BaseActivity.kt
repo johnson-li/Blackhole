@@ -30,7 +30,7 @@ import java.net.SocketTimeoutException
 open class BaseActivity(
     private val displayHomeAsUp: Boolean = true,
     private val bindService: Boolean = false,
-    private val parameters: List<Pair<String, (SharedPreferences) -> String>> = listOf(),
+    private val parameters: List<Pair<String, (Context) -> String>> = listOf(),
 ) : AppCompatActivity() {
     lateinit var sharedPreferences: SharedPreferences
     var foregroundService: ForegroundService? = null
@@ -130,7 +130,7 @@ open class BaseActivity(
                     .setTitle(R.string.parameters)
                     .setPositiveButton(android.R.string.ok, null)
                     .setMessage(parameters.joinToString("\n") {
-                        "${it.first}: ${it.second(sharedPreferences)}"
+                        "${it.first}: ${it.second(this)}"
                     })
                     .create().show()
                 true

@@ -1,6 +1,5 @@
 package com.xuebingli.blackhole.network
 
-import android.os.SystemClock
 import android.util.Log
 import com.google.gson.Gson
 import com.xuebingli.blackhole.models.PacketReport
@@ -57,7 +56,9 @@ class UdpClient(
 //        val socket = DatagramSocket()
 //        socket.soTimeout = 1000
         val address = InetAddress.getByName(ip)
-        val buf = ByteBuffer.wrap(Gson().toJson(PourRequest(id, "start", packetSize, bitrate, duration)).toByteArray())
+        val buf = ByteBuffer.wrap(
+            Gson().toJson(PourRequest(id, "start", packetSize, bitrate, duration)).toByteArray()
+        )
         val channel = DatagramChannel.open()
         channel.connect(InetSocketAddress(address, port))
         channel.write(buf)
@@ -71,7 +72,6 @@ class UdpClient(
                 Log.w("johnson", e.message, e)
                 continue
             }
-            Log.d("johnson", "$nread, ${buffer.position()}")
             if (buffer.position() == 1 && buffer[0] == 'T'.toByte()) {
                 break
             }

@@ -36,5 +36,8 @@ enum class RequestType {
 
     @SerializedName("statics")
     STATICS,
+
+    @SerializedName("cleanup")
+    CLEANUP,
 }
 

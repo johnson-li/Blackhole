@@ -65,16 +65,32 @@ class ConfigUtils(private val context: Context) {
         return getSharedPreferences().getInt(SINK_BITRATE_KEY, 1024 * 1024)
     }
 
+    fun getSinkBitrateStr(): String {
+        return getBitrateString(getSinkBitrate())
+    }
+
     fun getPourBitrate(): Int {
         return getSharedPreferences().getInt(POUR_BITRATE_KEY, 1024 * 1024)
     }
 
+    fun getPourBitrateStr(): String {
+        return getBitrateString(getPourBitrate())
+    }
+
     fun getPacketSize(): Int {
-        return getSharedPreferences().getInt(PACKET_SIZE_KEY, 10204)
+        return getSharedPreferences().getInt(PACKET_SIZE_KEY, 1500 - 8)
+    }
+
+    fun getPacketSizeStr(): String {
+        return getSizeString(getPacketSize())
     }
 
     fun getDuration(): Int {
         return getSharedPreferences().getInt(DURATION_KEY, 15)
+    }
+
+    fun getDurationStr(): String {
+        return getDurationString(getDuration())
     }
 
     fun getDataDir(): File {
