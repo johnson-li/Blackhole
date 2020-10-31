@@ -11,5 +11,6 @@ data class PacketReport(
     @SerialName("localTs")
     val localTimestamp: Long? = null,
     @SerialName("remoteTs")
-    var remoteTimestamp: Long? = null
+    var remoteTimestamp: Long? = null,
+    var timestamp: Long? = null
 )

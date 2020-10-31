@@ -8,6 +8,8 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.LocationManager
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
@@ -32,6 +34,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.File
+import java.lang.Exception
 import java.text.DateFormat
 import java.util.*
 import java.util.concurrent.Executors
@@ -138,6 +141,16 @@ class ForegroundService : Service() {
         }
     }
 
+    private fun getNetworkInfo(): CellNetworkInfo {
+        val cm = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val netId = cm.activeNetwork.toString()
+        cm.getNetworkCapabilities(cm.activeNetwork)?.linkDownstreamBandwidthKbps
+        val downLink = cm.getNetworkCapabilities(cm.activeNetwork)?.linkDownstreamBandwidthKbps
+        val upLink = cm.getNetworkCapabilities(cm.activeNetwork)?.linkUpstreamBandwidthKbps
+        return CellNetworkInfo(netId = netId, downLink=downLink, upLink = upLink,
+            networkType = telephonyManager.dataNetworkType)
+    }
+
     private fun getSubscriptionInfo(): List<SubscriptionInfoModel> {
         return subscriptionManager.activeSubscriptionInfoList.map {
             getSubscriptionInfoModel(it)
@@ -155,7 +168,8 @@ class ForegroundService : Service() {
                             MeasurementResult(
                                 location = if (locationEnabled) latestLocation else null,
                                 cellInfoList = if (cellInfoEnabled) getCellularInfo() else null,
-                                subscriptionInfoList = if (cellInfoEnabled) getSubscriptionInfo() else null
+                                subscriptionInfoList = if (cellInfoEnabled) getSubscriptionInfo() else null,
+                                networkInfo = getNetworkInfo(),
                             )
                         )
                     }
@@ -242,5 +256,6 @@ data class MeasurementResult(
     val dateTime: String = DateFormat.getDateTimeInstance().format(Date()),
     val location: GpsLocation? = null,
     val cellInfoList: List<CellInfoModel>? = null,
-    val subscriptionInfoList: List<SubscriptionInfoModel>? = null
+    val subscriptionInfoList: List<SubscriptionInfoModel>? = null,
+    val networkInfo: CellNetworkInfo? = null
 )
