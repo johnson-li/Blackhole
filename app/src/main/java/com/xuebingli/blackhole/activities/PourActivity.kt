@@ -13,8 +13,11 @@ import com.xuebingli.blackhole.restful.ControlMessage
 import com.xuebingli.blackhole.restful.Request
 import com.xuebingli.blackhole.restful.RequestType
 import com.xuebingli.blackhole.results.ResultFragment
-import com.xuebingli.blackhole.utils.*
+import com.xuebingli.blackhole.utils.ConfigUtils
 import com.xuebingli.blackhole.utils.Constants.Companion.LOG_TIME_FORMAT
+import com.xuebingli.blackhole.utils.FileUtils
+import com.xuebingli.blackhole.utils.PourMode
+import com.xuebingli.blackhole.utils.Preferences
 import java.io.File
 import java.util.*
 
@@ -22,13 +25,13 @@ class PourActivity : SinkPourActivity(
     R.layout.activity_pour,
     listOf(
         Pair(Preferences.POUR_BITRATE_KEY)
-        { s -> getBitrateString(s.getInt(Preferences.POUR_BITRATE_KEY, -1)) },
+        { c -> ConfigUtils(c).getPourBitrateStr() },
         Pair(Preferences.POUR_MODE_KEY)
-        { s -> s.getString(Preferences.POUR_MODE_KEY, "Not set").toString() },
+        { c -> ConfigUtils(c).getPourMode().name },
         Pair(Preferences.DURATION_KEY)
-        { s -> getDurationString(s.getInt(Preferences.DURATION_KEY, -1)) },
+        { c -> ConfigUtils(c).getDurationStr() },
         Pair(Preferences.PACKET_SIZE_KEY)
-        { s -> s.getInt(Preferences.PACKET_SIZE_KEY, -1).toString() }
+        { c -> ConfigUtils(c).getPacketSizeStr() }
     )
 ) {
     private fun onMeasurementFinished() {
@@ -47,6 +50,11 @@ class PourActivity : SinkPourActivity(
             ).show()
             working = false
             actionButton.setText(R.string.pour_button)
+            for (fragment in supportFragmentManager.fragments) {
+                if (fragment is ResultFragment) {
+                    fragment.onFinished()
+                }
+            }
         }
     }
 
@@ -81,12 +89,12 @@ class PourActivity : SinkPourActivity(
         }
     }
 
-    private fun actionTCP(id: String) {
+    private fun actionTCP(id: String, duration: Int) {
         serverApi.request(ControlMessage(id, Request(RequestType.TCP_POUR))).also {
             subscribe(it, { response ->
                 val ip = ConfigUtils(this).getTargetIP()
                 val port = response.port!!
-                TcpClient(id = id, ip = ip, port = port).also { client ->
+                TcpClient(id = id, ip = ip, port = port, duration = duration).also { client ->
                     client.startTcpPour { packetReport, is_last, has_error ->
                         if (is_last) {
                             onMeasurementFinished()
@@ -135,7 +143,7 @@ class PourActivity : SinkPourActivity(
         val id = UUID.randomUUID().toString()
         when (ConfigUtils(this).getPourMode()) {
             PourMode.TCP -> {
-                actionTCP(id)
+                actionTCP(id, duration)
             }
             PourMode.UDP -> {
                 actionUDP(id, bitrate, packetSize, duration)

@@ -9,7 +9,8 @@ data class PacketReport(
     val sequence: Int? = null,
     val size: Int,
     @SerialName("localTs")
-    val localTimestamp: Long,
+    val localTimestamp: Long? = null,
     @SerialName("remoteTs")
-    var remoteTimestamp: Long? = null
+    var remoteTimestamp: Long? = null,
+    var timestamp: Long? = null
 )

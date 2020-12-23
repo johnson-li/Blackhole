@@ -1,10 +1,10 @@
 package com.xuebingli.blackhole.network
 
-import android.os.SystemClock
 import android.util.Log
 import com.google.gson.Gson
 import com.xuebingli.blackhole.models.PacketReport
 import com.xuebingli.blackhole.restful.PourRequest
+import com.xuebingli.blackhole.utils.Constants.Companion.M
 import com.xuebingli.blackhole.utils.TimeUtils
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
@@ -57,8 +57,11 @@ class UdpClient(
 //        val socket = DatagramSocket()
 //        socket.soTimeout = 1000
         val address = InetAddress.getByName(ip)
-        val buf = ByteBuffer.wrap(Gson().toJson(PourRequest(id, "start", packetSize, bitrate, duration)).toByteArray())
+        val buf = ByteBuffer.wrap(
+            Gson().toJson(PourRequest(id, "start", packetSize, bitrate, duration)).toByteArray()
+        )
         val channel = DatagramChannel.open()
+        channel.setOption(StandardSocketOptions.SO_RCVBUF, 4 * M)
         channel.connect(InetSocketAddress(address, port))
         channel.write(buf)
         val buffer = ByteBuffer.allocateDirect(100 * 1024)
@@ -71,7 +74,6 @@ you        var nread = -1
                 Log.w("johnson", e.message, e)
                 continue
             }
-            Log.d("johnson", "$nread, ${buffer.position()}")
             if (buffer.position() == 1 && buffer[0] == 'T'.toByte()) {
                 break
             }

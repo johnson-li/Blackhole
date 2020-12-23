@@ -11,9 +11,12 @@ fun isValidIpAddress(value: String): Boolean {
 
 fun getBitrateString(bitrate: Int): String {
     return when {
-        bitrate >= Constants.G -> "%.1f gbps".format(bitrate.toFloat() / G)
-        bitrate >= Constants.M -> "${bitrate / M} mbps"
-        bitrate >= Constants.K -> "${bitrate / K} kbps"
+        bitrate >= G -> (bitrate.toFloat() / G)
+            .let { (if (bitrate % G != 0) "%.2f Gbps" else "%.0f Gbps").format(it) }
+        bitrate >= M -> (bitrate.toFloat() / M)
+            .let { (if (bitrate % M != 0) "%.2f Mbps" else "%.0f Mbps").format(it) }
+        bitrate >= K -> (bitrate.toFloat() / K)
+            .let { (if (bitrate % K != 0) "%.2f Kbps" else "%.0f Kbps").format(it) }
         else -> "$bitrate bps"
     }
 }
@@ -24,5 +27,17 @@ fun getDurationString(duration: Int): String {
         duration >= 60 * 60 -> "${duration / 60 / 60} h"
         duration >= 60 -> "${duration / 60} min"
         else -> "$duration s"
+    }
+}
+
+fun getSizeString(bytes: Int): String {
+    return when {
+        bytes >= G -> (bytes.toFloat() / G)
+            .let { (if (bytes % G != 0) "%.2f GB" else "%.0f GB").format(it) }
+        bytes >= M -> (bytes.toFloat() / M)
+            .let { (if (bytes % M != 0) "%.2f MB" else "%.0f MB").format(it) }
+        bytes >= K -> (bytes.toFloat() / K)
+            .let { (if (bytes % K != 0) "%.2f KB" else "%.0f KB").format(it) }
+        else -> "$bytes Bytes"
     }
 }

@@ -63,6 +63,8 @@
     <string name="toast_set_frequency">Set frequency: %1$d ms</string>
     <string name="toast_udp_pour_finished">UDP pour finished, export to disk</string>
     <string name="toast_udp_sink_finished">UDP sink finished, export to disk</string>
+    <string name="toast_tcp_pour_finished">TCP pour finished, export to disk</string>
+    <string name="toast_tcp_sink_finished">TCP sink finished, export to disk</string>
     <string name="toast_sync_error">Failed to connect to %1$s:%2$d</string>
     <string name="toast_location_denied">Location permission denied. It is essential for collecting GPS info</string>
     <string name="toast_phone_state_denied">Read phone state permission denied. It is essential for collecting radio info</string>
@@ -107,4 +109,5 @@
     <string name="sink_statics">Sink Statics</string>
     <string name="pour_statics">Pour Statics</string>
     <string name="dumping_log_file">Dumping log file</string>
+    <string name="no_result">No Result</string>
 </resources>

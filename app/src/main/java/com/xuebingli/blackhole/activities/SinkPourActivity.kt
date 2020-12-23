@@ -1,5 +1,6 @@
 package com.xuebingli.blackhole.activities
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
@@ -15,7 +16,7 @@ import com.xuebingli.blackhole.utils.ConfigUtils
 
 abstract class SinkPourActivity(
     private val layout: Int,
-    parameters: List<Pair<String, (SharedPreferences) -> String>>
+    parameters: List<Pair<String, (Context) -> String>>
 ) :
     BaseActivity(true, parameters = parameters) {
     lateinit var tab: TabLayout
