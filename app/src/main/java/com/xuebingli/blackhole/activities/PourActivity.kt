@@ -1,6 +1,7 @@
 package com.xuebingli.blackhole.activities
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.widget.Toast
@@ -62,7 +63,7 @@ class PourActivity : SinkPourActivity(
     private fun actionUDP(id: String, bitrate: Int, packetSize: Int, duration: Int) {
         serverApi.request(ControlMessage(id, Request(RequestType.UDP_POUR, bitrate))).also {
             subscribe(it, { response ->
-                val ip = ConfigUtils(this).getTargetIP()
+                val ip = ConfigUtils(this).targetIP
                 val port = response.port!!
                 UdpClient(id, ip, port, bitrate, packetSize, duration).also { client ->
                     client.startUdpPour { packet_report, is_last, has_error ->
@@ -92,7 +93,7 @@ class PourActivity : SinkPourActivity(
     private fun actionTCP(id: String, duration: Int) {
         serverApi.request(ControlMessage(id, Request(RequestType.TCP_POUR))).also {
             subscribe(it, { response ->
-                val ip = ConfigUtils(this).getTargetIP()
+                val ip = ConfigUtils(this).targetIP
                 val port = response.port!!
                 TcpClient(id = id, ip = ip, port = port, duration = duration).also { client ->
                     client.startTcpPour { packetReport, is_last, has_error ->
@@ -131,6 +132,7 @@ class PourActivity : SinkPourActivity(
         }
         working = true
         actionButton.setText(R.string.button_stop)
+        ConfigUtils(this).targetIP = ipInput.text.toString()
         reports.clear()
         for (fragment in supportFragmentManager.fragments) {
             if (fragment is ResultFragment) {

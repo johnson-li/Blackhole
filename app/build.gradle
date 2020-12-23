@@ -27,7 +27,7 @@ android {
         // Default configs
 //        buildConfigField "String", "TARGET_IP", '"195.148.127.108"'
 //        buildConfigField "String", "TARGET_IP", '"192.168.42.7"'
-        buildConfigField "String", "TARGET_IP", '"192.168.1.129"'
+        buildConfigField "String", "TARGET_IP", '"192.168.42.198"'
         buildConfigField "int", "TARGET_PORT", "8080"
         buildConfigField "String", "SINK_MODE", '"TCP"'
         buildConfigField "String", "POUR_MODE", '"TCP"'

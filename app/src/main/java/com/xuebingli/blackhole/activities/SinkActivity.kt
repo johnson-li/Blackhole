@@ -35,6 +35,7 @@ class SinkActivity : SinkPourActivity(
         }
         working = true
         actionButton.setText(R.string.button_stop)
+        ConfigUtils(this).targetIP = ipInput.text.toString()
         reports.clear()
         for (fragment in supportFragmentManager.fragments) {
             if (fragment is ResultFragment) {
@@ -94,7 +95,7 @@ class SinkActivity : SinkPourActivity(
     private fun actionUDP(id: String, bitrate: Int, packetSize: Int, duration: Int) {
         serverApi.request(ControlMessage(id, Request(RequestType.UDP_SINK, bitrate))).also {
             subscribe(it) { response ->
-                val ip = ConfigUtils(this).getTargetIP()
+                val ip = ConfigUtils(this).targetIP
                 val port = response.port!!
                 UdpClient(id, ip, port, bitrate, packetSize, duration).also { client ->
                     client.startUdpSink { packet_report, is_last, has_error ->
@@ -121,7 +122,7 @@ class SinkActivity : SinkPourActivity(
     private fun actionTCP(id: String, duration: Int) {
         serverApi.request(ControlMessage(id, Request(RequestType.TCP_SINK))).also {
             subscribe(it) { response ->
-                val ip = ConfigUtils(this).getTargetIP()
+                val ip = ConfigUtils(this).targetIP
                 val port = response.port!!
                 TcpClient(id, ip, port, duration).also { client ->
                     client.startTcpSink { packet_report, is_last, has_error ->

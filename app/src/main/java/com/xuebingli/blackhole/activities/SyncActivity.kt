@@ -42,7 +42,7 @@ class SyncActivity : BaseActivity(true) {
         rotate.interpolator = LinearInterpolator()
         syncButton.startAnimation(rotate)
         syncButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate))
-        val ip = ConfigUtils(this).getTargetIP()
+        val ip = ConfigUtils(this).targetIP
         val port = ConfigUtils(this).getSyncPort()
         val client = TcpClient(ip = ip, port = port, dataDir = ConfigUtils(this).getDataDir())
         client.startTcpSync {

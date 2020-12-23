@@ -31,16 +31,18 @@ class ConfigUtils(private val context: Context) {
         set(value) {
             getSharedPreferences().edit(true) { putFloat(CLOCK_CONFIDENCE_KEY, value) }
         }
+    var targetIP: String
+        get() {
+            return getSharedPreferences().getString(TARGET_IP_KEY, BuildConfig.TARGET_IP)!!
+        }
+        set(value) {
+            getSharedPreferences().edit(true) { putString(TARGET_IP_KEY, value) }
+        }
 
 
     fun getSharedPreferences(): SharedPreferences {
         return context.applicationContext
             .getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
-    }
-
-    fun getTargetIP(): String {
-        val targetIP = getSharedPreferences().getString(TARGET_IP_KEY, null)
-        return targetIP ?: BuildConfig.TARGET_IP
     }
 
     fun getSyncPort(): Int {

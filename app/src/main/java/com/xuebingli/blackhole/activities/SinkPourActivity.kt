@@ -43,7 +43,7 @@ abstract class SinkPourActivity(
         TabLayoutMediator(tab, pager) { tab, position ->
             tab.text = adapter.packetReportFragments[position].first
         }.attach()
-        ipInput.setText(ConfigUtils(this).getTargetIP())
+        ipInput.setText(ConfigUtils(this).targetIP)
         reports.clear()
     }
 

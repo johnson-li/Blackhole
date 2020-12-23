@@ -28,7 +28,7 @@ class MyApplication : Application() {
             .readTimeout(20, TimeUnit.SECONDS)
             .addInterceptor(interceptor)
             .build()
-        val ip = ConfigUtils(applicationContext).getTargetIP()
+        val ip = ConfigUtils(applicationContext).targetIP
         val port = ConfigUtils(applicationContext).getTargetPort()
         val retrofit = Retrofit.Builder()
             .baseUrl("http://$ip:$port")
