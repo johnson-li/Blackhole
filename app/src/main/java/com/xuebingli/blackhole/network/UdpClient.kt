@@ -62,7 +62,7 @@ class UdpClient(
         channel.connect(InetSocketAddress(address, port))
         channel.write(buf)
         val buffer = ByteBuffer.allocateDirect(100 * 1024)
-        var nread = -1
+you        var nread = -1
         while (!it.isDisposed) {
             buffer.clear()
             try {
