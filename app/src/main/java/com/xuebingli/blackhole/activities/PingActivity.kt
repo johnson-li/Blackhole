@@ -86,7 +86,8 @@ class PingActivity : BaseActivity(true) {
                 return
             }
             val interfaceName = sharedPref.getString(INTERFACE_PREF_KEY, "wlan0")
-            val command = "su -c ping -I $interfaceName $ip"
+//            val command = "su -c ping -I $interfaceName $ip"
+            val command = "ping $ip"
             Log.d("johnson", command)
             val process = Runtime.getRuntime().exec(command)
             val output = DataOutputStream(process.outputStream)
