@@ -17,6 +17,7 @@
     <string name="sync_activity_title">Sync</string>
     <string name="background_activity_title">Background Services</string>
     <string name="tethering_activity_title">USB Tethering</string>
+    <string name="probing_activity_title">Probing</string>
     <string name="traceroute_activity_title">Traceroute</string>
     <string name="ping_ip_address">Target IP address</string>
     <string name="iperf_ip_address">Target IP address</string>
@@ -37,6 +38,7 @@
     <string name="menu_set_pour_mode">Pour Mode</string>
     <string name="menu_set_bitrate">Bitrate</string>
     <string name="menu_set_duration">Duration</string>
+    <string name="menu_set_probing_interval">Probing interval</string>
     <string name="menu_set_packet_size">Packet size</string>
     <string name="menu_clear_data">Clear Data</string>
     <string name="menu_stop_all">Stop All</string>
@@ -46,6 +48,7 @@
     <string name="dialog_set_sink_mode_title">Set sink mode</string>
     <string name="dialog_set_pour_mode_title">Set pour mode</string>
     <string name="dialog_set_pour_bitrate_title">Set pour bitrate</string>
+    <string name="dialog_set_probing_delay_title">Set probing delay</string>
     <string name="dialog_set_frequency">Set frequency</string>
     <string name="dialog_set_sink_bitrate_title">Set sink bitrate</string>
     <string name="dialog_set_packet_size_title">Set UDP packet size</string>
@@ -59,12 +62,14 @@
     <string name="toast_set_pour_bitrate">Set pour bitrate: %1$s</string>
     <string name="toast_set_sink_bitrate">Set sink bitrate: %1$s</string>
     <string name="toast_set_duration">Set duration: %1$s</string>
+    <string name="toast_set_probing_delay">Set probing delay: %1$s</string>
     <string name="toast_set_packet_size">Set packet size: %1$d bytes</string>
     <string name="toast_set_frequency">Set frequency: %1$d ms</string>
     <string name="toast_udp_pour_finished">UDP pour finished, export to disk</string>
     <string name="toast_udp_sink_finished">UDP sink finished, export to disk</string>
     <string name="toast_tcp_pour_finished">TCP pour finished, export to disk</string>
     <string name="toast_tcp_sink_finished">TCP sink finished, export to disk</string>
+    <string name="toast_probing_finished">Probing finished, export to disk</string>
     <string name="toast_sync_error">Failed to connect to %1$s:%2$d</string>
     <string name="toast_location_denied">Location permission denied. It is essential for collecting GPS info</string>
     <string name="toast_phone_state_denied">Read phone state permission denied. It is essential for collecting radio info</string>
@@ -101,6 +106,8 @@
 
     <string name="background_notification_title">Background Services</string>
     <string name="background_notification_text">Collecting %1$s</string>
+    <string name="probing_notification_title">UDP Probing</string>
+    <string name="probing_notification_text">Testing network connectivity</string>
 
     <string name="error">ERROR</string>
     <string name="infinity">Infinity</string>
@@ -110,4 +117,14 @@
     <string name="pour_statics">Pour Statics</string>
     <string name="dumping_log_file">Dumping log file</string>
     <string name="no_result">No Result</string>
+
+    <string name="probing">Probing</string>
+    <string name="probing_button">Probe</string>
+
+    <string name="received_packets">Received packets</string>
+    <string name="sent_packets">Sent packets</string>
+    <string name="client">Client</string>
+    <string name="server">Server</string>
+    <string name="placeholder">/</string>
+    <string name="probing_error">Failed to initiate probing service</string>
 </resources>

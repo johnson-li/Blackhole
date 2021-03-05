@@ -58,6 +58,9 @@ class NetworkUtilsAdapter : RecyclerView.Adapter<NetworkUtilsItemViewHolder>() {
             NetworkUtil.TETHERING -> {
                 context.startActivity(Intent(context, TetheringActivity::class.java))
             }
+            NetworkUtil.PROBING -> {
+                context.startActivity(Intent(context, ProbingActivity::class.java))
+            }
         }
     }
 }
@@ -76,4 +79,5 @@ enum class NetworkUtil(val utilName: String, val utilDescription: String) {
     SYNC("Sync", "Synchronize the clock between the UE and the remote server"),
     BACKGROUND("Background", "Background services including location, signal strength"),
     TETHERING("Tethering", "USB tethering that exposes the phone's network to a USB-connected PC"),
+    PROBING("Probing", "Constantly send/receive UDP packets to/from the MEC")
 }

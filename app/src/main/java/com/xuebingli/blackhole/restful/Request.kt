@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class Request(
     var type: RequestType,
     var bitrate: Int = 0,
+    val delay: Int = 0,
 )
 
 data class PourRequest(
@@ -33,6 +34,9 @@ enum class RequestType {
 
     @SerializedName("udp_echo")
     UDP_ECHO,
+
+    @SerializedName("probing")
+    PROBING,
 
     @SerializedName("statics")
     STATICS,

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.xuebingli.blackhole.BuildConfig
+import com.xuebingli.blackhole.utils.Preferences.Companion.CLIENT_ID_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.CLOCK_CONFIDENCE_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.CLOCK_DRIFT_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.DURATION_KEY
@@ -11,10 +12,12 @@ import com.xuebingli.blackhole.utils.Preferences.Companion.PACKET_SIZE_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.POUR_BITRATE_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.POUR_MODE_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.PREFERENCE_NAME
+import com.xuebingli.blackhole.utils.Preferences.Companion.PROBING_DELAY_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.SINK_BITRATE_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.SINK_MODE_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.TARGET_IP_KEY
 import java.io.File
+import java.util.*
 
 class ConfigUtils(private val context: Context) {
     var clockDrift: Long
@@ -37,6 +40,24 @@ class ConfigUtils(private val context: Context) {
         }
         set(value) {
             getSharedPreferences().edit(true) { putString(TARGET_IP_KEY, value) }
+        }
+    var probingDelay: Int
+        get() {
+            return getSharedPreferences().getInt(PROBING_DELAY_KEY, 10)!!
+        }
+        set(value) {
+            getSharedPreferences().edit(true) { putInt(PROBING_DELAY_KEY, value) }
+        }
+    val clientID: UUID
+        get() {
+            var str = getSharedPreferences().getString(CLIENT_ID_KEY, null)
+            if (str == null) {
+                str = UUID.randomUUID().toString()
+                getSharedPreferences().edit {
+                    putString(CLIENT_ID_KEY, str)
+                }
+            }
+            return UUID.fromString(str)
         }
 
 

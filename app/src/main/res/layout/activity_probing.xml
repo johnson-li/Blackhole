@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/probing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:onClick="toggleProbing"
+        android:text="@string/probing_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            style="@style/CellStyle"
+            android:text="@string/statics_title"
+            android:textStyle="bold" />
+
+        <ImageView style="@style/HorizontalCellDivider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/CellStyle"
+                android:text="" />
+
+            <TextView
+                style="@style/CellStyle"
+                android:text="@string/received_packets" />
+
+            <TextView
+                style="@style/CellStyle"
+                android:text="@string/sent_packets" />
+        </LinearLayout>
+
+        <ImageView style="@style/HorizontalCellDivider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/CellStyle"
+                android:text="@string/client" />
+
+            <TextView
+                android:id="@+id/client_received"
+                style="@style/CellStyle"
+                android:text="@string/placeholder" />
+
+            <TextView
+                android:id="@+id/client_sent"
+                style="@style/CellStyle"
+                android:text="@string/placeholder" />
+        </LinearLayout>
+
+        <ImageView style="@style/HorizontalCellDivider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/CellStyle"
+                android:text="@string/server" />
+
+            <TextView
+                android:id="@+id/server_received"
+                style="@style/CellStyle"
+                android:text="@string/placeholder" />
+
+            <TextView
+                android:id="@+id/server_sent"
+                style="@style/CellStyle"
+                android:text="@string/placeholder" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

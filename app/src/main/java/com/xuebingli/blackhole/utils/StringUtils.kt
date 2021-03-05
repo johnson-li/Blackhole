@@ -21,6 +21,10 @@ fun getBitrateString(bitrate: Int): String {
     }
 }
 
+fun getProbingDelayString(delay: Int): String {
+    return "$delay ms"
+}
+
 fun getDurationString(duration: Int): String {
     return when {
         duration == Int.MAX_VALUE -> "Infinity"

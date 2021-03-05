@@ -16,6 +16,7 @@ import com.xuebingli.blackhole.restful.Response
 import com.xuebingli.blackhole.restful.ServerApi
 import com.xuebingli.blackhole.restful.Status
 import com.xuebingli.blackhole.services.ForegroundService
+import com.xuebingli.blackhole.services.ProbingService
 import com.xuebingli.blackhole.utils.ConfigUtils
 import com.xuebingli.blackhole.utils.Preferences
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -25,6 +26,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.net.ConnectException
 import java.net.SocketTimeoutException
+import java.util.concurrent.CompletableFuture
 
 
 open class BaseActivity(
@@ -33,20 +35,71 @@ open class BaseActivity(
     private val parameters: List<Pair<String, (Context) -> String>> = listOf(),
 ) : AppCompatActivity() {
     lateinit var sharedPreferences: SharedPreferences
-    var foregroundService: ForegroundService? = null
+    lateinit var foregroundService: ForegroundService
+    lateinit var probingService: ProbingService
     val disposables = CompositeDisposable()
+    private lateinit var localDisposable: CompositeDisposable
+    private val viewObservableEmitter = CompletableFuture<Unit>()
+    private val viewObservable: Single<Unit> = Single.fromFuture(viewObservableEmitter)
+    private var foregroundServiceObservableEmitter = CompletableFuture<Unit>()
+    private var foregroundServiceObservable: Single<Unit> =
+        Single.fromFuture(foregroundServiceObservableEmitter)
+    private var probingServiceObservableEmitter = CompletableFuture<Unit>()
+    private var probingServiceObservable: Single<Unit> =
+        Single.fromFuture(probingServiceObservableEmitter)
     val serverApi: ServerApi
         get() = (application as MyApplication).serverApi
 
-    private val connection = object : ServiceConnection {
+    private val foregroundConnection = object : ServiceConnection {
         override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
             val binder = p1 as ForegroundService.ForegroundBinder
             foregroundService = binder.getService()
+            foregroundServiceObservableEmitter.complete(Unit)
         }
 
-        override fun onServiceDisconnected(p0: ComponentName?) {
-            foregroundService = null
+        override fun onServiceDisconnected(p0: ComponentName?) {}
+    }
+    private val probingConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as ProbingService.ForegroundBinder
+            probingService = binder.getService()
+            probingServiceObservableEmitter.complete(Unit)
         }
+
+        override fun onServiceDisconnected(name: ComponentName?) {}
+    }
+
+    override fun onPause() {
+        localDisposable.dispose()
+        super.onPause()
+    }
+
+    override fun onResume() {
+        foregroundServiceObservableEmitter = CompletableFuture()
+        foregroundServiceObservable = Single.fromFuture(foregroundServiceObservableEmitter)
+        probingServiceObservableEmitter = CompletableFuture()
+        probingServiceObservable = Single.fromFuture(probingServiceObservableEmitter)
+        localDisposable = CompositeDisposable()
+        viewObservableEmitter.complete(Unit)
+        if (bindService) {
+            Intent(this, ForegroundService::class.java).also {
+                this.bindService(it, foregroundConnection, Context.BIND_AUTO_CREATE)
+            }
+            Intent(this, ProbingService::class.java).also {
+                this.bindService(it, probingConnection, Context.BIND_AUTO_CREATE)
+            }
+        }
+        onInitialized {
+            onInitialized()
+        }
+        super.onResume()
+    }
+
+    private fun onInitialized(callback: () -> Unit) {
+        Single.zip(viewObservable, foregroundServiceObservable, probingServiceObservable,
+            { _: Unit, _: Unit, _: Unit -> }).observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io())
+            .subscribe({ callback() }, { it.printStackTrace() }).also { localDisposable.add(it) }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,11 +109,6 @@ open class BaseActivity(
             Context.MODE_PRIVATE
         )
         supportActionBar?.setDisplayHomeAsUpEnabled(displayHomeAsUp)
-        if (bindService) {
-            Intent(this, ForegroundService::class.java).also {
-                this.bindService(it, connection, Context.BIND_AUTO_CREATE)
-            }
-        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -122,6 +170,12 @@ open class BaseActivity(
                     sharedPreferences.edit(true) {
                         putInt(Preferences.DURATION_KEY, it)
                     }
+                }.show(supportFragmentManager, "Duration picker")
+                true
+            }
+            R.id.set_probing_interval -> {
+                ProbingDelayPicker {
+                    ConfigUtils(this).probingDelay = it
                 }.show(supportFragmentManager, "Duration picker")
                 true
             }
@@ -200,5 +254,11 @@ open class BaseActivity(
     override fun onStop() {
         super.onStop()
         disposables.clear()
+        if (bindService) {
+            unbindService(foregroundConnection)
+            unbindService(probingConnection)
+        }
     }
+
+    open fun onInitialized() {}
 }

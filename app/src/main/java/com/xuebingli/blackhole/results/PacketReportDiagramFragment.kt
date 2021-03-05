@@ -89,7 +89,7 @@ class PacketReportDiagramFragment : ResultFragment() {
         val latency = report.remoteTimestamp?.run { localTimestamp - this - clockDrift } ?: 0
         totalDataLatency += latency
         val bw = totalDataSize.toDouble() * 8 /
-                (TimeUtils().elapsedRealTime() - startTimestamp) * 1000 / Constants.M
+                (TimeUtils().getTimeStampAccurate() - startTimestamp) * 1000 / Constants.M
         if (i > entries.size) {
             val j = entries.size
             val data = dataSizes[j] * 1000 / measurementGranularity

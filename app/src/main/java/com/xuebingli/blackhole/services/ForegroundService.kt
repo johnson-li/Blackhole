@@ -9,7 +9,6 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.LocationManager
 import android.net.ConnectivityManager
-import android.net.NetworkInfo
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
@@ -34,7 +33,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.File
-import java.lang.Exception
 import java.text.DateFormat
 import java.util.*
 import java.util.concurrent.Executors
@@ -88,7 +86,7 @@ class ForegroundService : Service() {
             p0?.lastLocation?.apply {
                 latestLocation =
                     GpsLocation(
-                        time, System.currentTimeMillis(), TimeUtils().elapsedRealTime(),
+                        time, System.currentTimeMillis(), TimeUtils().getTimeStampAccurate(),
                         latitude, longitude, accuracy
                     )
                 LocationManager.GPS_PROVIDER
@@ -142,13 +140,18 @@ class ForegroundService : Service() {
     }
 
     private fun getNetworkInfo(): CellNetworkInfo {
-        val cm = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val cm =
+            applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val netId = cm.activeNetwork.toString()
         cm.getNetworkCapabilities(cm.activeNetwork)?.linkDownstreamBandwidthKbps
         val downLink = cm.getNetworkCapabilities(cm.activeNetwork)?.linkDownstreamBandwidthKbps
         val upLink = cm.getNetworkCapabilities(cm.activeNetwork)?.linkUpstreamBandwidthKbps
-        return CellNetworkInfo(netId = netId, downLink=downLink, upLink = upLink,
-            networkType = telephonyManager.dataNetworkType)
+        return CellNetworkInfo(
+            netId = netId,
+            downLink = downLink,
+            upLink = upLink,
+            networkType = telephonyManager.dataNetworkType
+        )
     }
 
     private fun getSubscriptionInfo(): List<SubscriptionInfoModel> {
@@ -252,7 +255,8 @@ class ForegroundService : Service() {
 }
 
 data class MeasurementResult(
-    val timeStamp: Long = System.currentTimeMillis(),
+    val timeStamp: Long = TimeUtils().getTimeStamp(),
+    val timeStampLocal: Long = TimeUtils().getTimeStampAccurate(),
     val dateTime: String = DateFormat.getDateTimeInstance().format(Date()),
     val location: GpsLocation? = null,
     val cellInfoList: List<CellInfoModel>? = null,

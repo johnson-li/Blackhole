@@ -52,6 +52,9 @@
         <activity
             android:name=".activities.TetheringActivity"
             android:label="@string/tethering_activity_title" />
+        <activity
+            android:name=".activities.ProbingActivity"
+            android:label="@string/probing_activity_title" />
 
         <service
             android:name=".services.BlackHoleVpnService"
@@ -63,6 +66,9 @@
         <service
             android:name=".services.ForegroundService"
             android:foregroundServiceType="location" />
+        <service
+            android:name=".services.ProbingService"
+            android:foregroundServiceType="dataSync" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

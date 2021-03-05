@@ -22,7 +22,7 @@ class MyApplication : Application() {
 
     private fun createServerApi(): ServerApi {
         val interceptor =
-            HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC }
+            HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
         val client = OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(20, TimeUnit.SECONDS)
