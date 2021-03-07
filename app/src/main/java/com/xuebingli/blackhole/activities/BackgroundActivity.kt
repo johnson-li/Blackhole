@@ -45,13 +45,23 @@ class BackgroundActivity : BaseActivity(true) {
                 true
             }
             R.id.start_all -> {
-                sharedPreferences.edit(true) {
-                    BackgroundService.values().forEachIndexed { index, backgroundService ->
-                        putBoolean(backgroundService.prefKey, true)
-                        adapter.notifyItemChanged(index)
+                var permissionsGranted = true
+                for (service in adapter.services) {
+                    service.permission?.let {
+                        if (!AndroidPermissionUtils(this).requestPermission(it)) {
+                            permissionsGranted = false
+                        }
                     }
                 }
-                ForegroundService.updateForegroundService(this)
+                if (permissionsGranted) {
+                    sharedPreferences.edit(true) {
+                        BackgroundService.values().forEachIndexed { index, backgroundService ->
+                            putBoolean(backgroundService.prefKey, true)
+                            adapter.notifyItemChanged(index)
+                        }
+                    }
+                    ForegroundService.updateForegroundService(this)
+                }
                 true
             }
             R.id.stop_all -> {

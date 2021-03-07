@@ -22,7 +22,7 @@ class BackgroundServiceAdapter(
     private val sharedPreferences: SharedPreferences
 ) :
     RecyclerView.Adapter<BackgroundServiceViewHolder>() {
-    private val services = ArrayList<BackgroundService>(10)
+    val services = ArrayList<BackgroundService>(10)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BackgroundServiceViewHolder {
         val view = LayoutInflater.from(parent.context)
