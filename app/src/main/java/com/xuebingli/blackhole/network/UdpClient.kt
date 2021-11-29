@@ -90,7 +90,7 @@ class UdpClient(
             it.onNext(
                 PacketReport(
                     sequence, buffer.position(),
-                    TimeUtils().elapsedRealTime(), remoteTimestamp
+                    TimeUtils().getTimeStampAccurate(), remoteTimestamp
                 )
             )
         }
@@ -108,10 +108,10 @@ class UdpClient(
         id.encodeToByteArray().copyInto(buf, 0, 0, idBytes)
         val socket = DatagramSocket()
         val address = InetAddress.getByName(ip)
-        val startTs = TimeUtils().elapsedRealTime()
-        while (!it.isDisposed && TimeUtils().elapsedRealTime() - startTs < duration * 1000) {
+        val startTs = TimeUtils().getTimeStampAccurate()
+        while (!it.isDisposed && TimeUtils().getTimeStampAccurate() - startTs < duration * 1000) {
             val wait = buf.size.toLong() * 8 * counter * 1000 / bitrate -
-                    (TimeUtils().elapsedRealTime() - startTs)
+                    (TimeUtils().getTimeStampAccurate() - startTs)
             if (wait > 0) {
                 try {
                     Thread.sleep(wait)
@@ -124,7 +124,7 @@ class UdpClient(
             buf[idBytes + 2] = (counter shr 8).toByte()
             buf[idBytes + 3] = (counter shr 0).toByte()
             socket.send(DatagramPacket(buf, buf.size, address, port))
-            it.onNext(PacketReport(counter, buf.size, TimeUtils().elapsedRealTime()))
+            it.onNext(PacketReport(counter, buf.size, TimeUtils().getTimeStampAccurate()))
             counter++
         }
         socket.close()

@@ -34,32 +34,6 @@ class NetworkUtilsAdapter : RecyclerView.Adapter<NetworkUtilsItemViewHolder>() {
 
     private fun onItemClick(context: Context, networkUtil: NetworkUtil) {
         context.startActivity(Intent(context, networkUtil.activity))
-//        when (networkUtil) {
-//            NetworkUtil.PING -> {
-//                context.startActivity(Intent(context, PingActivity::class.java))
-//            }
-//            NetworkUtil.TRACEROUTE -> {
-//                context.startActivity(Intent(context, TracerouteActivity::class.java))
-//            }
-//            NetworkUtil.IPERF -> {
-//                context.startActivity(Intent(context, IperfActivity::class.java))
-//            }
-//            NetworkUtil.POUR -> {
-//                context.startActivity(Intent(context, PourActivity::class.java))
-//            }
-//            NetworkUtil.SINK -> {
-//                context.startActivity(Intent(context, SinkActivity::class.java))
-//            }
-//            NetworkUtil.SYNC -> {
-//                context.startActivity(Intent(context, SyncActivity::class.java))
-//            }
-//            NetworkUtil.BACKGROUND -> {
-//                context.startActivity(Intent(context, BackgroundActivity::class.java))
-//            }
-//            NetworkUtil.TETHERING -> {
-//                context.startActivity(Intent(context, TetheringActivity::class.java))
-//            }
-//        }
     }
 }
 

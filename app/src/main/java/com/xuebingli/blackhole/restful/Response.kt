@@ -17,6 +17,8 @@ data class Statics(
     val udp_pour: Map<Int, PacketInfo>?,
     val tcp_sink: Map<Int, PacketInfo>?,
     val tcp_pour: Map<Int, PacketInfo>?,
+    val probing_sent: List<ProbingRecord>,
+    val probing_received: List<ProbingRecord>,
 )
 
 data class PacketInfo(

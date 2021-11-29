@@ -33,7 +33,7 @@ class TcpClient(
         val output = socket.getOutputStream()
         val input = socket.getInputStream()
         for (i in 1..count) {
-            TimeUtils().elapsedRealTime().also { ts ->
+            TimeUtils().getTimeStampAccurate().also { ts ->
                 Log.d("johnson", "Local ts: $ts")
                 localTs.add(ts)
                 output.write(Longs.toByteArray(ts).apply { reverse() })
@@ -70,15 +70,15 @@ class TcpClient(
         output.write(buf)
         output.flush()
         val buffer = ByteArray(100 * 1024)
-        val startTs = TimeUtils().elapsedRealTime()
-        while (!it.isDisposed && TimeUtils().elapsedRealTime() - startTs < duration!! * 1000) {
+        val startTs = TimeUtils().getTimeStampAccurate()
+        while (!it.isDisposed && TimeUtils().getTimeStampAccurate() - startTs < duration!! * 1000) {
             val bytes = input.read(buffer)
             if (bytes > 0) {
                 it.onNext(
                     PacketReport(
                         size = bytes,
                         timestamp = System.currentTimeMillis(),
-                        localTimestamp = TimeUtils().elapsedRealTime()
+                        localTimestamp = TimeUtils().getTimeStampAccurate()
                     )
                 )
             }
@@ -91,11 +91,11 @@ class TcpClient(
     private val tcpSinkService = Observable.create(ObservableOnSubscribe<PacketReport> {
         val socket = Socket(ip, port).apply { tcpNoDelay = true }
         val output = socket.getOutputStream()
-        val startTs = TimeUtils().elapsedRealTime()
+        val startTs = TimeUtils().getTimeStampAccurate()
         output.write(id!!.encodeToByteArray())
         output.flush()
         val buffer = ByteArray(100 * 1024).apply { Random().nextBytes(this) }
-        while (!it.isDisposed && TimeUtils().elapsedRealTime() - startTs < duration!! * 1000) {
+        while (!it.isDisposed && TimeUtils().getTimeStampAccurate() - startTs < duration!! * 1000) {
             output.write(buffer)
             output.flush()
         }

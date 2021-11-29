@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/set_probing_interval"
+        android:title="@string/menu_set_probing_interval"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/clear_data"
+        android:title="@string/menu_clear_data"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/show_parameters"
+        android:title="@string/parameters"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/show_data_folder"
+        android:title="@string/menu_show_data_folder"
+        app:showAsAction="never" />
+</menu>
