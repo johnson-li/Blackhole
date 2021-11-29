@@ -4,9 +4,12 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.xuebingli.blackhole.BuildConfig
+import com.xuebingli.blackhole.utils.Preferences.Companion.BITRATE_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.CLOCK_CONFIDENCE_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.CLOCK_DRIFT_KEY
+import com.xuebingli.blackhole.utils.Preferences.Companion.DATARATE_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.DURATION_KEY
+import com.xuebingli.blackhole.utils.Preferences.Companion.LOGGING_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.PACKET_SIZE_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.POUR_BITRATE_KEY
 import com.xuebingli.blackhole.utils.Preferences.Companion.POUR_MODE_KEY
@@ -38,6 +41,13 @@ class ConfigUtils(private val context: Context) {
         set(value) {
             getSharedPreferences().edit(true) { putString(TARGET_IP_KEY, value) }
         }
+    var logging: Boolean
+        get() {
+            return getSharedPreferences().getBoolean(LOGGING_KEY, BuildConfig.LOGGING)
+        }
+        set(value) {
+            getSharedPreferences().edit(true) { putBoolean(LOGGING_KEY, value) }
+        }
 
 
     fun getSharedPreferences(): SharedPreferences {
@@ -51,6 +61,10 @@ class ConfigUtils(private val context: Context) {
 
     fun getTargetPort(): Int {
         return BuildConfig.TARGET_PORT
+    }
+
+    fun getUdpEchoPort(): Int {
+        return BuildConfig.UDP_ECHO_PORT
     }
 
     fun getSinkMode(): SinkMode {
@@ -75,8 +89,24 @@ class ConfigUtils(private val context: Context) {
         return getSharedPreferences().getInt(POUR_BITRATE_KEY, 1024 * 1024)
     }
 
+    fun getBitrate(): Int {
+        return getSharedPreferences().getInt(BITRATE_KEY, 1024 * 1024)
+    }
+
+    fun getDatarate(): Int {
+        return getSharedPreferences().getInt(DATARATE_KEY, 1024 * 1024)
+    }
+
     fun getPourBitrateStr(): String {
         return getBitrateString(getPourBitrate())
+    }
+
+    fun getBitrateStr(): String {
+        return getBitrateString(getBitrate())
+    }
+
+    fun getDatarateStr(): String {
+        return getBitrateString(getDatarate() * 8)
     }
 
     fun getPacketSize(): Int {

@@ -109,6 +109,22 @@ open class BaseActivity(
                 }.show(supportFragmentManager, "Bitrate picker")
                 true
             }
+            R.id.set_datarate -> {
+                BitratePicker {
+                    sharedPreferences.edit(true) {
+                        putInt(Preferences.DATARATE_KEY, it / 8)
+                    }
+                }.show(supportFragmentManager, "Bitrate picker")
+                true
+            }
+            R.id.set_logging -> {
+                BooleanPicker {
+                    sharedPreferences.edit(true) {
+                        putBoolean(Preferences.LOGGING_KEY, it)
+                    }
+                }.show(supportFragmentManager, "Logging picker")
+                true
+            }
             R.id.set_bitrate_sink -> {
                 BitratePicker {
                     sharedPreferences.edit(true) {

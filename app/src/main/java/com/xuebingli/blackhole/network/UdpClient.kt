@@ -39,6 +39,8 @@ class UdpClient(
         listener: DatagramListener
     )
 
+    private external fun udpEcho(ip: String, port: Int, datarate: Int, packetSize: Int, controller: Controller, logging: Boolean)
+
     private val udpPourServiceNDK = Observable.create(ObservableOnSubscribe<PacketReport> {
         Log.d(
             "johnson", "Starting UDP pour, ip: $ip, port: $port, bitrate: $bitrate bps, " +
@@ -64,7 +66,7 @@ class UdpClient(
         channel.setOption(StandardSocketOptions.SO_RCVBUF, 4 * M)
         channel.connect(InetSocketAddress(address, port))
         channel.write(buf)
-        val buffer = ByteBuffer.allocateDirect(100 * 1024)
+        val buffer = ByteBuffer.allocateDirect(1024 * 1024)
         var nread = -1
         while (!it.isDisposed) {
             buffer.clear()
@@ -157,6 +159,14 @@ class UdpClient(
                 callback(null, true, false)
             })
     }
+
+    fun startUdpEcho(controller: Controller, logging: Boolean) {
+        udpEcho(ip, port, bitrate, packetSize, controller, logging)
+    }
+}
+
+interface Controller {
+    fun terminated(): Boolean
 }
 
 class DatagramListener(private val emitter: ObservableEmitter<PacketReport>) {

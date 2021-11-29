@@ -17,6 +17,7 @@
     <string name="sync_activity_title">Sync</string>
     <string name="background_activity_title">Background Services</string>
     <string name="tethering_activity_title">USB Tethering</string>
+    <string name="echo_activity_title">UDP Echo</string>
     <string name="traceroute_activity_title">Traceroute</string>
     <string name="ping_ip_address">Target IP address</string>
     <string name="iperf_ip_address">Target IP address</string>
@@ -36,7 +37,9 @@
     <string name="menu_set_sink_mode">Sink Mode</string>
     <string name="menu_set_pour_mode">Pour Mode</string>
     <string name="menu_set_bitrate">Bitrate</string>
+    <string name="menu_set_datarate">Datarate</string>
     <string name="menu_set_duration">Duration</string>
+    <string name="menu_set_logging">Logging</string>
     <string name="menu_set_packet_size">Packet size</string>
     <string name="menu_clear_data">Clear Data</string>
     <string name="menu_stop_all">Stop All</string>
@@ -44,8 +47,10 @@
     <string name="menu_show_data_folder">Show Data Folder</string>
     <string name="dialog_set_interface_title">Pick interface</string>
     <string name="dialog_set_sink_mode_title">Set sink mode</string>
+    <string name="dialog_boolean_title">Enable or not</string>
     <string name="dialog_set_pour_mode_title">Set pour mode</string>
     <string name="dialog_set_pour_bitrate_title">Set pour bitrate</string>
+    <string name="dialog_set_bitrate_title">Set bitrate</string>
     <string name="dialog_set_frequency">Set frequency</string>
     <string name="dialog_set_sink_bitrate_title">Set sink bitrate</string>
     <string name="dialog_set_packet_size_title">Set UDP packet size</string>
@@ -56,7 +61,9 @@
     <string name="dialog_phone_state_permission">Access to the phone state is required to log radio info</string>
     <string name="toast_set_interface">Set interface: %1$s</string>
     <string name="toast_set_udp_mode">Set UDP mode: %1$s</string>
+    <string name="toast_set_enabled">Enabled: %1$s</string>
     <string name="toast_set_pour_bitrate">Set pour bitrate: %1$s</string>
+    <string name="toast_set_bitrate">Set bitrate: %1$s</string>
     <string name="toast_set_sink_bitrate">Set sink bitrate: %1$s</string>
     <string name="toast_set_duration">Set duration: %1$s</string>
     <string name="toast_set_packet_size">Set packet size: %1$d bytes</string>
@@ -110,4 +117,11 @@
     <string name="pour_statics">Pour Statics</string>
     <string name="dumping_log_file">Dumping log file</string>
     <string name="no_result">No Result</string>
+
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+
+    <string name="echo_latency">Latency: %1$.2f ms</string>
+    <string name="udp_echo_start">Starting UDP echo</string>
+    <string name="udp_echo_stop">Stopping UDP echo</string>
 </resources>

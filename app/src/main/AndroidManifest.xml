@@ -52,6 +52,9 @@
         <activity
             android:name=".activities.TetheringActivity"
             android:label="@string/tethering_activity_title" />
+        <activity
+            android:name=".activities.EchoActivity"
+            android:label="@string/echo_activity_title" />
 
         <service
             android:name=".services.BlackHoleVpnService"
