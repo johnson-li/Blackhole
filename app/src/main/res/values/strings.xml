@@ -144,4 +144,6 @@
 
     <string name="home_no_content_text">No network measurement service is running. Please enable at least on of them from the menu and click the start button.</string>
     <string name="add_measurement">Add measurement</string>
+
+    <string name="last_modified">Updated %1$ds ago</string>
 </resources>

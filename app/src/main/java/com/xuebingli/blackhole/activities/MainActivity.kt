@@ -116,6 +116,9 @@ class MeasurementAdapter(val measurement: Measurement, val activity: MainActivit
     }
 
     override fun onBindViewHolder(holder: MeasurementViewHolder, position: Int) {
+        val setup = measurement.setups[position]
+        holder.binding.title.text = setup.key.name
+        holder.binding.updated.text = activity.getString(R.string.last_modified, 100)
     }
 
     override fun getItemCount(): Int {
@@ -123,4 +126,4 @@ class MeasurementAdapter(val measurement: Measurement, val activity: MainActivit
     }
 }
 
-class MeasurementViewHolder(binding: ViewDataBinding) : ViewHolder(binding.root)
+class MeasurementViewHolder(val binding: ItemMeasurementBinding) : ViewHolder(binding.root)
