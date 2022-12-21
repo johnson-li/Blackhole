@@ -169,7 +169,7 @@ data class CellInfoModel(
 )
 
 enum class CellInfoType {
-    NR, LTE, GSM, WCDMA, OTHER
+    NR, LTE, GSM, WCDMA, OTHER, UNKNOWN
 }
 
 fun getCellInfoConnectionStatus(value: Int): CellInfoConnectionStatus {

@@ -3,6 +3,7 @@ package com.xuebingli.blackhole.utils
 class Preferences {
     companion object {
         const val PREFERENCE_NAME = "preference"
+        const val MEASUREMENT_SETUP_KEY = "measurement setup"
         const val CLIENT_ID_KEY = "client id"
         const val TARGET_IP_KEY = "target ip"
         const val LOGGING_KEY = "logging"

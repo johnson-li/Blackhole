@@ -5,7 +5,11 @@
 
         <variable
             name="measurementRunning"
-            type="java.lang.Boolean" />
+            type="androidx.databinding.ObservableBoolean" />
+
+        <variable
+            name="measurement"
+            type="com.xuebingli.blackhole.models.Measurement" />
     </data>
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -18,8 +22,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
+            android:layout_height="match_parent" />
 
         <TextView
             android:id="@+id/noContentText"
@@ -43,6 +46,7 @@
             android:layout_marginStart="64dp"
             android:layout_marginEnd="64dp"
             android:layout_marginBottom="32dp"
+            android:onClick="onStartButtonClick"
             android:paddingTop="16dp"
             android:paddingBottom="16dp"
             android:text="@{measurementRunning ? @string/start : @string/stop}"

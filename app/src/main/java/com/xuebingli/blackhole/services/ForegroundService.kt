@@ -74,16 +74,20 @@ class ForegroundService : Service() {
     private lateinit var client: FusedLocationProviderClient
     private lateinit var telephonyManager: TelephonyManager
     private lateinit var subscriptionManager: SubscriptionManager
+    private val binder = ForegroundBinder()
     private val disposables = CompositeDisposable()
     private val logFileName = "measurement_${Constants.LOG_TIME_FORMAT.format(Date())}.txt"
     private var locationEnabled = false
     private var cellInfoEnabled = false
     private var subscriptionInfoEnabled = false
     private var frequency = 100 // in milliseconds
+    var measurementStarted = false
+        private set
     private var latestLocation: GpsLocation? = null
+    private var measurement: Measurement? = null
     private var locationCallback = object : LocationCallback() {
-        override fun onLocationResult(p0: LocationResult?) {
-            p0?.lastLocation?.apply {
+        override fun onLocationResult(p0: LocationResult) {
+            p0.lastLocation?.apply {
                 latestLocation =
                     GpsLocation(
                         time, System.currentTimeMillis(), TimeUtils().getTimeStampAccurate(),
@@ -94,7 +98,6 @@ class ForegroundService : Service() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate() {
         super.onCreate()
         telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
@@ -164,7 +167,6 @@ class ForegroundService : Service() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
     private fun updateBackgroundTask() {
         disposables.clear()
         periodObservable =
@@ -192,19 +194,20 @@ class ForegroundService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        onPreferenceUpdated()
-        if (updateParameters()) {
-            updateBackgroundTask()
-        }
+//        onPreferenceUpdated()
+//        if (updateParameters()) {
+//            updateBackgroundTask()
+//        }
         return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-            .cancel(FOREGROUND_SERVICE_NOTIFICATION_ID)
-        client.removeLocationUpdates(locationCallback)
-        disposables.clear()
+//        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+//            .cancel(FOREGROUND_SERVICE_NOTIFICATION_ID)
+//        client.removeLocationUpdates(locationCallback)
+//        disposables.clear()
+        stopMeasurement()
     }
 
     private fun onPreferenceUpdated() {
@@ -247,9 +250,21 @@ class ForegroundService : Service() {
         }
     }
 
-    private val binder = ForegroundBinder()
+    fun startMeasurement() {
+        if (measurementStarted) {
+            return
+        }
+        measurementStarted = true
+    }
 
-    override fun onBind(p0: Intent?): IBinder? {
+    fun stopMeasurement() {
+        if (!measurementStarted) {
+            return
+        }
+        measurementStarted = false
+    }
+
+    override fun onBind(p0: Intent?): IBinder {
         return binder
     }
 
