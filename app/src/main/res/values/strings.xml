@@ -3,6 +3,7 @@
     <string name="switch_icon_name">switch icon</string>
     <string name="vpn_started">RUNNING</string>
     <string name="vpn_starting">STARTING</string>
+    <string name="vpn_name">Blackhole VPN</string>
     <string name="vpn_stopped">STOPPED</string>
     <string name="notification_vpn_connected">connected</string>
     <string name="notification_vpn_connecting">connection</string>
@@ -125,8 +126,8 @@
     <string name="dumping_log_file">Dumping log file</string>
     <string name="no_result">No Result</string>
 
-    <string name="start">Start</string>
-    <string name="stop">Stop</string>
+    <string name="start">Start Measurement</string>
+    <string name="stop">Stop Measurement</string>
 
     <string name="echo_latency">Latency: %1$.2f ms</string>
     <string name="udp_echo_start">Starting UDP echo</string>
@@ -140,4 +141,6 @@
     <string name="server">Server</string>
     <string name="placeholder">/</string>
     <string name="probing_error">Failed to initiate probing service</string>
+
+    <string name="home_no_content_text">No network measurement service is running. Please enable at least on of them from the menu and click the start button.</string>
 </resources>

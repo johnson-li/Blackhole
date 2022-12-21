@@ -13,15 +13,12 @@ import androidx.core.content.ContextCompat
 import com.xuebingli.blackhole.BuildConfig
 import com.xuebingli.blackhole.MyApplication
 import com.xuebingli.blackhole.R
-import com.xuebingli.blackhole.activities.BackgroundActivity
 import com.xuebingli.blackhole.activities.ProbingActivity
 import com.xuebingli.blackhole.network.ProbingClient
 import com.xuebingli.blackhole.restful.*
-import com.xuebingli.blackhole.ui.BackgroundService
 import com.xuebingli.blackhole.utils.ConfigUtils
 import com.xuebingli.blackhole.utils.Constants
 import com.xuebingli.blackhole.utils.FileUtils
-import com.xuebingli.blackhole.utils.SinkMode
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers

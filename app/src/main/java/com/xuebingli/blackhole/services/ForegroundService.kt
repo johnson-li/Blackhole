@@ -112,6 +112,10 @@ class ForegroundService : Service() {
         updateBackgroundTask()
     }
 
+    fun measurementRunning(): Boolean {
+        return false
+    }
+
     private fun updateParameters(): Boolean {
         locationEnabled =
             sharedPreferences.getBoolean(BackgroundService.LOCATION.prefKey, locationEnabled)
