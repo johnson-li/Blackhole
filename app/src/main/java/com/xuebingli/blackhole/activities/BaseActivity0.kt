@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.SharedPreferences
 import android.os.IBinder
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.xuebingli.blackhole.services.ForegroundService
 import com.xuebingli.blackhole.utils.Preferences

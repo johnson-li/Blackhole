@@ -112,8 +112,8 @@
     <string name="subscription_info">Subscription Info</string>
     <string name="subscription_info_desc">Record subscription info to differentiate multiple SIM cards</string>
 
-    <string name="background_notification_title">Background Services</string>
-    <string name="background_notification_text">Collecting %1$s</string>
+    <string name="background_notification_title">Blackhole is running</string>
+    <string name="background_notification_text">Measurements: %1$s</string>
     <string name="probing_notification_title">UDP Probing</string>
     <string name="probing_notification_text">Testing network connectivity</string>
 

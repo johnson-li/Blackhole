@@ -1,6 +1,7 @@
 package com.xuebingli.blackhole.activities
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -23,7 +24,7 @@ import com.xuebingli.blackhole.utils.Preferences
 class MainActivity : BaseActivity0() {
     private lateinit var binding: ActivityMainBinding
     private var measurementRunning = ObservableBoolean(false)
-    private var measurement: Measurement? = null
+    private lateinit var measurement: Measurement
     private lateinit var adapter: MeasurementAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,12 +32,10 @@ class MainActivity : BaseActivity0() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.measurementRunning = measurementRunning
         setContentView(binding.root)
-        ForegroundService.updateForegroundService(this)
-
+        ForegroundService.startForegroundService(this)
         measurementRunning.set(isMeasurementRunning())
-
         measurement = Measurement.loadSetup(pref.getString(Preferences.MEASUREMENT_SETUP_KEY, null))
-        adapter = MeasurementAdapter(measurement!!, this)
+        adapter = MeasurementAdapter(measurement, this)
         val layoutManager = LinearLayoutManager(this)
         binding.container.also {
             it.adapter = adapter
@@ -54,7 +53,7 @@ class MainActivity : BaseActivity0() {
     }
 
     private fun startMeasurement() {
-        foregroundService?.startMeasurement()
+        foregroundService?.startMeasurement(measurement)
         measurementRunning.set(isMeasurementRunning())
     }
 
@@ -71,17 +70,17 @@ class MainActivity : BaseActivity0() {
     private fun addMeasurement(key: MeasurementKey) {
         when (key) {
             MeasurementKey.LocationInfo -> {
-                measurement?.recordSet?.put(
-                    LocationMeasurementSetup(),
+                measurement.recordSet[LocationMeasurementSetup()] =
                     Records(mutableListOf<LocationRecord>())
-                )
                 adapter.notifyItemInserted(adapter.itemCount - 1)
             }
             MeasurementKey.CellularInfo -> {
-                measurement?.recordSet?.put(
-                    CellularMeasurementSetup(),
+                measurement.recordSet[CellularMeasurementSetup()] =
                     Records(mutableListOf<CellularRecord>())
-                )
+                adapter.notifyItemInserted(adapter.itemCount - 1)
+            }
+            MeasurementKey.Ping -> {
+                measurement.recordSet[PingMeasurementSetup()] = Records(mutableListOf<PingRecord>())
                 adapter.notifyItemInserted(adapter.itemCount - 1)
             }
         }

@@ -7,7 +7,7 @@ open class GenericRecord {
     var tsRealtime = SystemClock.elapsedRealtime()
 }
 
-class Records (
+class Records(
     val records: List<GenericRecord> = mutableListOf()
 )
 
@@ -33,4 +33,5 @@ open class MeasurementSetup(val key: MeasurementKey) {
 enum class MeasurementKey {
     CellularInfo,
     LocationInfo,
+    Ping,
 }

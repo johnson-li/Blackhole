@@ -55,13 +55,13 @@ class ForegroundService : Service() {
             }
         }
 
-        private fun startForegroundService(context: Context) {
+        fun startForegroundService(context: Context) {
             Intent(context, ForegroundService::class.java).also {
                 ContextCompat.startForegroundService(context, it)
             }
         }
 
-        private fun stopForegroundService(context: Context) {
+        fun stopForegroundService(context: Context) {
             Intent(context, ForegroundService::class.java).also {
                 context.stopService(it)
             }
@@ -194,36 +194,32 @@ class ForegroundService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-//        onPreferenceUpdated()
-//        if (updateParameters()) {
-//            updateBackgroundTask()
-//        }
         return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-//        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-//            .cancel(FOREGROUND_SERVICE_NOTIFICATION_ID)
-//        client.removeLocationUpdates(locationCallback)
-//        disposables.clear()
+        client.removeLocationUpdates(locationCallback)
+        disposables.clear()
         stopMeasurement()
     }
 
-    private fun onPreferenceUpdated() {
+    private fun hideNotification() {
+        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+            .cancel(FOREGROUND_SERVICE_NOTIFICATION_ID)
+    }
+
+    private fun showNotification() {
         val pendingIntent = Intent(this, BackgroundActivity::class.java).let {
-            PendingIntent.getActivity(this, 0, it, 0)
+            PendingIntent.getActivity(this, 0, it, PendingIntent.FLAG_IMMUTABLE)
         }
-        val enabledServices =
-            BackgroundService.values().filter { sharedPreferences.getBoolean(it.prefKey, false) }
-                .map { it.getName(this) }
         notification = NotificationCompat.Builder(this, CHANNEL_ID).setOngoing(true)
             .setSmallIcon(R.drawable.ic_baseline_network_check_24)
             .setContentTitle(getString(R.string.background_notification_title))
             .setContentText(
                 getString(
                     R.string.background_notification_text,
-                    enabledServices.joinToString { it.toLowerCase(Locale.getDefault()) }
+                    measurement?.setups?.map { it.key.name }?.joinToString { it } ?: "None"
                 )
             )
             .setPriority(NotificationManager.IMPORTANCE_MIN)
@@ -231,9 +227,6 @@ class ForegroundService : Service() {
             .setContentIntent(pendingIntent)
             .build()
         startForeground(FOREGROUND_SERVICE_NOTIFICATION_ID, notification)
-        if (sharedPreferences.getBoolean(BackgroundService.LOCATION.prefKey, false)) {
-            requestLocation()
-        }
     }
 
     private fun requestLocation() {
@@ -250,10 +243,17 @@ class ForegroundService : Service() {
         }
     }
 
-    fun startMeasurement() {
+    fun startMeasurement0() {
+
+    }
+
+    fun startMeasurement(measurement: Measurement) {
         if (measurementStarted) {
             return
         }
+        this.measurement = measurement
+        showNotification()
+        startMeasurement0()
         measurementStarted = true
     }
 
@@ -261,6 +261,7 @@ class ForegroundService : Service() {
         if (!measurementStarted) {
             return
         }
+        hideNotification()
         measurementStarted = false
     }
 
