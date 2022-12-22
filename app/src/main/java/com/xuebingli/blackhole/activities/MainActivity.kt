@@ -6,10 +6,11 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.edit
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ObservableBoolean
-import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.Adapter
@@ -34,7 +35,7 @@ class MainActivity : BaseActivity0() {
         setContentView(binding.root)
         ForegroundService.startForegroundService(this)
         measurementRunning.set(isMeasurementRunning())
-        measurement = Measurement.loadSetup(pref.getString(Preferences.MEASUREMENT_SETUP_KEY, null))
+        measurement = Measurement.loadSetup(pref)
         adapter = MeasurementAdapter(measurement, this)
         val layoutManager = LinearLayoutManager(this)
         binding.container.also {
@@ -42,6 +43,12 @@ class MainActivity : BaseActivity0() {
             it.layoutManager = layoutManager
             it.addItemDecoration(DividerItemDecoration(this, layoutManager.orientation))
         }
+    }
+
+    private fun initMeasurement() {
+        measurement = Measurement.loadSetup(pref)
+        adapter.updateMeasurement(measurement)
+        binding.measurement = measurement
     }
 
     fun onStartButtonClick(view: View) {
@@ -59,6 +66,10 @@ class MainActivity : BaseActivity0() {
 
     private fun stopMeasurement() {
         foregroundService?.stopMeasurement()
+        val recordSize = measurement.recordSet.values.sumOf { it.records.size }
+        Toast.makeText(this, "Dumping log, $recordSize records are collected", Toast.LENGTH_SHORT)
+            .show()
+        initMeasurement()
         measurementRunning.set(isMeasurementRunning())
     }
 
@@ -70,20 +81,33 @@ class MainActivity : BaseActivity0() {
     private fun addMeasurement(key: MeasurementKey) {
         when (key) {
             MeasurementKey.LocationInfo -> {
-                measurement.recordSet[LocationMeasurementSetup()] =
-                    Records(mutableListOf<LocationRecord>())
-                adapter.notifyItemInserted(adapter.itemCount - 1)
+                if (measurement.addMeasurement(LocationMeasurementSetup())) {
+                    adapter.notifyItemInserted(adapter.itemCount - 1)
+                } else {
+                    Toast.makeText(this, R.string.error_add_measurement, Toast.LENGTH_SHORT).show()
+                }
             }
             MeasurementKey.CellularInfo -> {
-                measurement.recordSet[CellularMeasurementSetup()] =
-                    Records(mutableListOf<CellularRecord>())
-                adapter.notifyItemInserted(adapter.itemCount - 1)
+                if (measurement.addMeasurement(CellularMeasurementSetup())) {
+                    adapter.notifyItemInserted(adapter.itemCount - 1)
+                } else {
+                    Toast.makeText(this, R.string.error_add_measurement, Toast.LENGTH_SHORT).show()
+                }
             }
             MeasurementKey.Ping -> {
-                measurement.recordSet[PingMeasurementSetup()] = Records(mutableListOf<PingRecord>())
-                adapter.notifyItemInserted(adapter.itemCount - 1)
+                if (measurement.addMeasurement(PingMeasurementSetup())) {
+                    adapter.notifyItemInserted(adapter.itemCount - 1)
+                }
+            }
+            MeasurementKey.SubscriptionInfo -> {
+                if (measurement.addMeasurement(SubscriptionMeasurementSetup())) {
+                    adapter.notifyItemInserted(adapter.itemCount - 1)
+                } else {
+                    Toast.makeText(this, R.string.error_add_measurement, Toast.LENGTH_SHORT).show()
+                }
             }
         }
+        measurement.saveSetup(pref)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -100,13 +124,26 @@ class MainActivity : BaseActivity0() {
                     .show()
                 true
             }
+            R.id.reset_measurement -> {
+                pref.edit {
+                    putString(Preferences.MEASUREMENT_SETUP_KEY, "")
+                    apply()
+                }
+                initMeasurement()
+                true
+            }
             else -> false
         }
     }
 }
 
-class MeasurementAdapter(val measurement: Measurement, val activity: MainActivity) :
+class MeasurementAdapter(var measurement: Measurement, val activity: MainActivity) :
     Adapter<MeasurementViewHolder>() {
+    fun updateMeasurement(measurement: Measurement) {
+        this.measurement = measurement
+        notifyDataSetChanged()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MeasurementViewHolder {
         val binding = DataBindingUtil.inflate<ItemMeasurementBinding>(
             activity.layoutInflater, R.layout.item_measurement, null, false

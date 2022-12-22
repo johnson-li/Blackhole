@@ -3,6 +3,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="measurementRunning"
             type="androidx.databinding.ObservableBoolean" />
@@ -35,7 +37,8 @@
             android:layout_marginBottom="32dp"
             android:gravity="center"
             android:text="@string/home_no_content_text"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            android:visibility="@{measurement.empty() ? View.VISIBLE : View.GONE}" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/startButton"

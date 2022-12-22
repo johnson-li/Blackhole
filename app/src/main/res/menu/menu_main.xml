@@ -12,4 +12,7 @@
         android:title="@string/vpn_name"
         app:actionViewClass="android.widget.CheckBox"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/reset_measurement"
+        android:title="@string/reset_measurement" />
 </menu>
