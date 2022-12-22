@@ -60,6 +60,7 @@ class MainActivity : BaseActivity0() {
     }
 
     private fun startMeasurement() {
+        initMeasurement()
         foregroundService?.startMeasurement(measurement)
         measurementRunning.set(isMeasurementRunning())
     }
@@ -69,7 +70,6 @@ class MainActivity : BaseActivity0() {
         val recordSize = measurement.recordSet.values.sumOf { it.records.size }
         Toast.makeText(this, "Dumping log, $recordSize records are collected", Toast.LENGTH_SHORT)
             .show()
-        initMeasurement()
         measurementRunning.set(isMeasurementRunning())
     }
 
@@ -104,6 +104,11 @@ class MainActivity : BaseActivity0() {
                     adapter.notifyItemInserted(adapter.itemCount - 1)
                 } else {
                     Toast.makeText(this, R.string.error_add_measurement, Toast.LENGTH_SHORT).show()
+                }
+            }
+            MeasurementKey.UdpPing -> {
+                if (measurement.addMeasurement(UdpPingMeasurementSetup())) {
+                    adapter.notifyItemInserted(adapter.itemCount - 1)
                 }
             }
         }

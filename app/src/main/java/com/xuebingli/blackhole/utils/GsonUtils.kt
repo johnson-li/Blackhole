@@ -33,6 +33,8 @@ internal class InterfaceAdapter : JsonDeserializer<MeasurementSetup> {
                 context.deserialize(elem, PingMeasurementSetup::class.java)
             MeasurementKey.SubscriptionInfo ->
                 context.deserialize(elem, SubscriptionMeasurementSetup::class.java)
+            MeasurementKey.UdpPing ->
+                context.deserialize(elem, UdpPingMeasurementSetup::class.java)
         }
     }
 }

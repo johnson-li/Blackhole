@@ -33,7 +33,10 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.File
-import java.nio.file.Paths
+import java.io.IOException
+import java.net.DatagramPacket
+import java.net.DatagramSocket
+import java.net.InetAddress
 import java.text.DateFormat
 import java.util.*
 import java.util.concurrent.Executors
@@ -160,6 +163,13 @@ class ForegroundService : Service() {
             .subscribe { }.also { disposables.add(it) }
     }
 
+    private fun startUdpPingRecording(records: Records) {
+        val serverIP = "195.148.127.230"
+        val serverPort = 8877
+        threadPool.execute {
+        }
+    }
+
     private fun startCellularInfoRecording(records: Records) {
         cellInfoCallback = MyCellInfoCallback(records)
         if (ActivityCompat.checkSelfPermission(
@@ -265,6 +275,7 @@ class ForegroundService : Service() {
                 MeasurementKey.LocationInfo -> startLocationRecording(records)
                 MeasurementKey.Ping -> startPingRecording(records)
                 MeasurementKey.SubscriptionInfo -> startSubscriptionInfoRecording(records)
+                MeasurementKey.UdpPing -> startUdpPingRecording(records)
             }
         }
     }
@@ -312,6 +323,31 @@ data class MeasurementResult(
     val subscriptionInfoList: List<SubscriptionInfoModel>? = null,
     val networkInfo: CellNetworkInfo? = null
 )
+
+class UdpPingThread(private val serverIP: String, private val serverPort: Int) : Runnable {
+    override fun run() {
+        try {
+            val socket = DatagramSocket()
+            val sendData = "a".toByteArray()
+            val sendPacket =
+                DatagramPacket(
+                    sendData,
+                    sendData.size,
+                    InetAddress.getByName(serverIP),
+                    serverPort
+                )
+            val sendTs = System.currentTimeMillis()
+            socket.send(sendPacket)
+            val recvBuffer = ByteArray(100)
+            val recvPacket = DatagramPacket(recvBuffer, recvBuffer.size)
+            socket.receive(recvPacket)
+            val recvTs = System.currentTimeMillis()
+            Log.d("johnson", (recvTs - sendTs).toString())
+        } catch (e: IOException) {
+            Log.e("johnson", e.message, e)
+        }
+    }
+}
 
 class MyCellInfoCallback(var records: Records?) : CellInfoCallback() {
     override fun onCellInfo(p0: MutableList<CellInfo>) {

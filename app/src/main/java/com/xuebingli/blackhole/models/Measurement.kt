@@ -31,7 +31,6 @@ class Records(
         get() = records.size
 
     fun appendRecord(record: GenericRecord) {
-        Log.d("johnson", "Append record: $record")
         records.add(record)
         notifyPropertyChanged(BR.lastRecord)
         notifyPropertyChanged(BR.recordSize)
@@ -72,12 +71,7 @@ class Measurement {
                 return false
             }
         }
-        recordSet[setup] = when (setup.key) {
-            MeasurementKey.LocationInfo -> Records(setup, mutableListOf())
-            MeasurementKey.CellularInfo -> Records(setup, mutableListOf())
-            MeasurementKey.Ping -> Records(setup, mutableListOf())
-            MeasurementKey.SubscriptionInfo -> Records(setup, mutableListOf())
-        }
+        recordSet[setup] = Records(setup, mutableListOf())
         return true
     }
 
@@ -109,4 +103,5 @@ enum class MeasurementKey(val unique: Boolean) {
     CellularInfo(true),
     LocationInfo(true),
     Ping(false),
+    UdpPing(false),
 }

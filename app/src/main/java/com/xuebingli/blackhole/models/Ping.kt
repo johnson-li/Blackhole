@@ -7,3 +7,11 @@ class PingRecord : GenericRecord() {
         return ""
     }
 }
+
+class UdpPingMeasurementSetup : MeasurementSetup(MeasurementKey.UdpPing)
+
+class UdpPingRecord : GenericRecord() {
+    override fun toUiString(): String {
+        return ""
+    }
+}
