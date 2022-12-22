@@ -153,8 +153,7 @@ class MeasurementAdapter(var measurement: Measurement, val activity: MainActivit
 
     override fun onBindViewHolder(holder: MeasurementViewHolder, position: Int) {
         val setup = measurement.setups[position]
-        holder.binding.measurementSetup = setup
-        holder.binding.measurementRecords = measurement.recordSet[setup]
+        holder.binding.records = measurement.recordSet[setup]!!
 //        holder.binding.updated.text = activity.getString(R.string.last_modified, 100)
         holder.binding.root.setOnLongClickListener {
             AlertDialog.Builder(activity)

@@ -4,20 +4,39 @@ import android.content.SharedPreferences
 import android.os.SystemClock
 import android.util.Log
 import androidx.core.content.edit
+import androidx.databinding.BaseObservable
+import androidx.databinding.Bindable
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.xuebingli.blackhole.BR
 import com.xuebingli.blackhole.utils.GsonUtils
 import com.xuebingli.blackhole.utils.Preferences
 
-open class GenericRecord {
+abstract class GenericRecord {
     var createdAt = System.currentTimeMillis()
     var createdAtRealtime = SystemClock.elapsedRealtime()
+
+    abstract fun toUiString(): String
 }
 
 class Records(
     val setup: MeasurementSetup,
-    val records: List<GenericRecord>
-)
+    val records: MutableList<GenericRecord>
+) : BaseObservable() {
+    @get:Bindable
+    val lastRecord: GenericRecord?
+        get() = if (records.isEmpty()) null else records.last()
+    @get:Bindable
+    val recordSize: Int
+        get() = records.size
+
+    fun appendRecord(record: GenericRecord) {
+        Log.d("johnson", "Append record: $record")
+        records.add(record)
+        notifyPropertyChanged(BR.lastRecord)
+        notifyPropertyChanged(BR.recordSize)
+    }
+}
 
 class Measurement {
     companion object {
@@ -25,7 +44,7 @@ class Measurement {
             return loadSetup(pref.getString(Preferences.MEASUREMENT_SETUP_KEY, null))
         }
 
-        fun loadSetup(json: String?): Measurement {
+        private fun loadSetup(json: String?): Measurement {
             val measurement = Measurement()
             try {
                 val setups = GsonUtils.getGson().fromJson<List<MeasurementSetup>>(
@@ -54,10 +73,10 @@ class Measurement {
             }
         }
         recordSet[setup] = when (setup.key) {
-            MeasurementKey.LocationInfo -> Records(setup, mutableListOf<LocationRecord>())
-            MeasurementKey.CellularInfo -> Records(setup, mutableListOf<CellularRecord>())
-            MeasurementKey.Ping -> Records(setup, mutableListOf<PingRecord>())
-            MeasurementKey.SubscriptionInfo -> Records(setup, mutableListOf<SubscriptionRecord>())
+            MeasurementKey.LocationInfo -> Records(setup, mutableListOf())
+            MeasurementKey.CellularInfo -> Records(setup, mutableListOf())
+            MeasurementKey.Ping -> Records(setup, mutableListOf())
+            MeasurementKey.SubscriptionInfo -> Records(setup, mutableListOf())
         }
         return true
     }

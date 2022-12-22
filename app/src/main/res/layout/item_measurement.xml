@@ -5,14 +5,12 @@
 
         <import type="com.xuebingli.blackhole.models.MeasurementKey" />
 
+        <import type="com.xuebingli.blackhole.models.CellularRecord" />
+
         <import type="android.view.View" />
 
         <variable
-            name="measurementSetup"
-            type="com.xuebingli.blackhole.models.MeasurementSetup" />
-
-        <variable
-            name="measurementRecords"
+            name="records"
             type="com.xuebingli.blackhole.models.Records" />
     </data>
 
@@ -38,16 +36,16 @@
                 android:id="@+id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{measurementSetup.key.name()}"
+                android:text="@{records.setup.key.name()}"
                 android:textStyle="bold"
                 tools:text="Location" />
 
             <TextView
-                android:id="@+id/updated"
+                android:id="@+id/info"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:text="asdfasdfsadf"
+                android:text="@{@string/measurement_record_status(records.recordSize, 0)}"
                 tools:text="Last modified: 3 mins ago" />
         </LinearLayout>
 
@@ -55,48 +53,48 @@
             android:id="@+id/locationInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="@{measurementSetup.key == MeasurementKey.LocationInfo ? View.VISIBLE : View.GONE}">
+            android:visibility="@{records.setup.key == MeasurementKey.LocationInfo ? View.VISIBLE : View.GONE}">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="LocationInfo" />
+                android:text="@{records.lastRecord.toUiString()}" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/cellInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="@{measurementSetup.key == MeasurementKey.CellularInfo ? View.VISIBLE : View.GONE}">
+            android:visibility="@{records.setup.key == MeasurementKey.CellularInfo ? View.VISIBLE : View.GONE}">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="CellInfo" />
+                android:text="@{records.lastRecord.toUiString()}" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/ping"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:visibility="@{records.setup.key == MeasurementKey.Ping ? View.VISIBLE : View.GONE}">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ping"
-                android:visibility="@{measurementSetup.key == MeasurementKey.Ping ? View.VISIBLE : View.GONE}" />
+                android:text="@{records.lastRecord.toUiString()}" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/subscriptionInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="@{measurementSetup.key == MeasurementKey.SubscriptionInfo ? View.VISIBLE : View.GONE}">
+            android:visibility="@{records.setup.key == MeasurementKey.SubscriptionInfo ? View.VISIBLE : View.GONE}">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="SubscriptionInfo" />
+                android:text="@{records.lastRecord.toUiString()}" />
         </LinearLayout>
     </LinearLayout>
 </layout>

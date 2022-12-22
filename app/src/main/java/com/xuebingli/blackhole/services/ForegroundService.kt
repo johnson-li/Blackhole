@@ -151,9 +151,7 @@ class ForegroundService : Service() {
                         ) == PackageManager.PERMISSION_GRANTED
                     ) {
                         subscriptionManager.activeSubscriptionInfoList.forEach {
-                            (records.records as MutableList<SubscriptionRecord>).add(
-                                SubscriptionRecord(getSubscriptionInfoModel(it))
-                            )
+                            records.appendRecord(SubscriptionRecord(getSubscriptionInfoModel(it)))
                         }
                     }
                 }
@@ -318,11 +316,7 @@ data class MeasurementResult(
 class MyCellInfoCallback(var records: Records?) : CellInfoCallback() {
     override fun onCellInfo(p0: MutableList<CellInfo>) {
         p0.forEach { cellInfo ->
-            records?.records?.let {
-                (it as MutableList<CellularRecord>).add(
-                    CellularRecord(getCellInfoModel(cellInfo))
-                )
-            }
+            records?.appendRecord(CellularRecord(getCellInfoModel(cellInfo)))
         }
     }
 }
@@ -330,13 +324,7 @@ class MyCellInfoCallback(var records: Records?) : CellInfoCallback() {
 class MyLocationCallback(private val records: Records) : LocationCallback() {
     override fun onLocationResult(p0: LocationResult) {
         p0.lastLocation?.apply {
-            (records.records as MutableList<LocationRecord>).add(
-                LocationRecord(
-                    latitude,
-                    longitude,
-                    accuracy.toDouble()
-                )
-            )
+            records.appendRecord(LocationRecord(latitude, longitude, accuracy.toDouble()))
         }
     }
 }

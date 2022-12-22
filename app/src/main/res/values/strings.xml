@@ -150,4 +150,6 @@
     <string name="reset_measurement">Reset measurement</string>
     <string name="delete_measurement_title">Delete measurement</string>
     <string name="delete_measurement_message">Are you sure to delete this measurement?</string>
+
+    <string name="measurement_record_status">Record count: %1$d, updated %2$d s ago</string>
 </resources>
