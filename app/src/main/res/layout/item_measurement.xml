@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
+        <import type="com.xuebingli.blackhole.models.MeasurementKey" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="measurementSetup"
+            type="com.xuebingli.blackhole.models.MeasurementSetup" />
+
+        <variable
+            name="measurementRecords"
+            type="com.xuebingli.blackhole.models.Records" />
     </data>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground"
+        android:clickable="true"
         android:orientation="vertical"
         android:paddingStart="16dp"
         android:paddingTop="8dp"
@@ -16,7 +29,8 @@
         android:paddingBottom="8dp">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:id="@+id/titleLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
@@ -24,6 +38,7 @@
                 android:id="@+id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="@{measurementSetup.key.name()}"
                 android:textStyle="bold"
                 tools:text="Location" />
 
@@ -32,7 +47,56 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+                android:text="asdfasdfsadf"
                 tools:text="Last modified: 3 mins ago" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/locationInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="@{measurementSetup.key == MeasurementKey.LocationInfo ? View.VISIBLE : View.GONE}">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LocationInfo" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/cellInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="@{measurementSetup.key == MeasurementKey.CellularInfo ? View.VISIBLE : View.GONE}">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CellInfo" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ping"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ping"
+                android:visibility="@{measurementSetup.key == MeasurementKey.Ping ? View.VISIBLE : View.GONE}" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/subscriptionInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="@{measurementSetup.key == MeasurementKey.SubscriptionInfo ? View.VISIBLE : View.GONE}">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SubscriptionInfo" />
         </LinearLayout>
     </LinearLayout>
 </layout>

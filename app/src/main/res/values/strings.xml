@@ -148,4 +148,6 @@
     <string name="last_modified">Updated %1$ds ago</string>
     <string name="error_add_measurement">The measurement is unique and cannot be added twice.</string>
     <string name="reset_measurement">Reset measurement</string>
+    <string name="delete_measurement_title">Delete measurement</string>
+    <string name="delete_measurement_message">Are you sure to delete this measurement?</string>
 </resources>

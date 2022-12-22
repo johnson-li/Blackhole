@@ -23,7 +23,7 @@ import com.xuebingli.blackhole.services.ForegroundService
 import com.xuebingli.blackhole.utils.Preferences
 
 class MainActivity : BaseActivity0() {
-    private lateinit var binding: ActivityMainBinding
+    lateinit var binding: ActivityMainBinding
     private var measurementRunning = ObservableBoolean(false)
     private lateinit var measurement: Measurement
     private lateinit var adapter: MeasurementAdapter
@@ -146,15 +146,30 @@ class MeasurementAdapter(var measurement: Measurement, val activity: MainActivit
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MeasurementViewHolder {
         val binding = DataBindingUtil.inflate<ItemMeasurementBinding>(
-            activity.layoutInflater, R.layout.item_measurement, null, false
+            activity.layoutInflater, R.layout.item_measurement, activity.binding.container, false
         )
         return MeasurementViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: MeasurementViewHolder, position: Int) {
         val setup = measurement.setups[position]
-        holder.binding.title.text = setup.key.name
-        holder.binding.updated.text = activity.getString(R.string.last_modified, 100)
+        holder.binding.measurementSetup = setup
+        holder.binding.measurementRecords = measurement.recordSet[setup]
+//        holder.binding.updated.text = activity.getString(R.string.last_modified, 100)
+        holder.binding.root.setOnLongClickListener {
+            AlertDialog.Builder(activity)
+                .setTitle(R.string.delete_measurement_title)
+                .setMessage(R.string.delete_measurement_message)
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    measurement.recordSet.remove(setup)
+                    notifyItemRemoved(position)
+                }
+                .setNegativeButton(android.R.string.cancel) { _, _ ->
+
+                }
+                .show()
+            true
+        }
     }
 
     override fun getItemCount(): Int {
