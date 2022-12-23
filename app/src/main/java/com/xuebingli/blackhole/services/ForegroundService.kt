@@ -314,9 +314,13 @@ class UdpPingThread(private val serverIP: String, private val serverPort: Int) :
 }
 
 class MyCellInfoCallback(var records: Records?) : CellInfoCallback() {
+    private var lastResult: List<CellInfo>? = null
     override fun onCellInfo(p0: MutableList<CellInfo>) {
-        p0.forEach { cellInfo ->
-            records?.appendRecord(CellularRecord(getCellInfoModel(cellInfo)))
+        if (lastResult != p0) {
+            lastResult = p0
+            p0.forEach { cellInfo ->
+                records?.appendRecord(CellularRecord(getCellInfoModel(cellInfo)))
+            }
         }
     }
 }
