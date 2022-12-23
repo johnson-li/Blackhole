@@ -37,6 +37,7 @@ class MainActivity : BaseActivity0() {
         measurementRunning.set(isMeasurementRunning())
         measurement = Measurement.loadSetup(pref)
         adapter = MeasurementAdapter(measurement, this)
+        binding.measurement = measurement
         val layoutManager = LinearLayoutManager(this)
         binding.container.also {
             it.adapter = adapter
@@ -61,8 +62,12 @@ class MainActivity : BaseActivity0() {
 
     private fun startMeasurement() {
         initMeasurement()
-        foregroundService?.startMeasurement(measurement)
-        measurementRunning.set(isMeasurementRunning())
+        if (measurement.empty) {
+            Toast.makeText(this, R.string.measurement_no_setup, Toast.LENGTH_SHORT).show()
+        } else {
+            foregroundService?.startMeasurement(measurement)
+            measurementRunning.set(isMeasurementRunning())
+        }
     }
 
     private fun stopMeasurement() {
@@ -165,12 +170,11 @@ class MeasurementAdapter(var measurement: Measurement, val activity: MainActivit
                 .setTitle(R.string.delete_measurement_title)
                 .setMessage(R.string.delete_measurement_message)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
-                    measurement.recordSet.remove(setup)
+                    measurement.removeMeasurement(setup)
+                    measurement.saveSetup(activity.pref)
                     notifyItemRemoved(position)
                 }
-                .setNegativeButton(android.R.string.cancel) { _, _ ->
-
-                }
+                .setNegativeButton(android.R.string.cancel) { _, _ -> }
                 .show()
             true
         }

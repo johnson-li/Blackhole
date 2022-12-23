@@ -2,6 +2,7 @@ package com.xuebingli.blackhole.models
 
 import android.content.SharedPreferences
 import android.os.SystemClock
+import android.text.TextUtils
 import android.util.Log
 import androidx.core.content.edit
 import androidx.databinding.BaseObservable
@@ -26,6 +27,7 @@ class Records(
     @get:Bindable
     val lastRecord: GenericRecord?
         get() = if (records.isEmpty()) null else records.last()
+
     @get:Bindable
     val recordSize: Int
         get() = records.size
@@ -37,7 +39,7 @@ class Records(
     }
 }
 
-class Measurement {
+class Measurement : BaseObservable() {
     companion object {
         fun loadSetup(pref: SharedPreferences): Measurement {
             return loadSetup(pref.getString(Preferences.MEASUREMENT_SETUP_KEY, null))
@@ -46,11 +48,12 @@ class Measurement {
         private fun loadSetup(json: String?): Measurement {
             val measurement = Measurement()
             try {
-                val setups = GsonUtils.getGson().fromJson<List<MeasurementSetup>>(
-                    json,
-                    object : TypeToken<List<MeasurementSetup>>() {}.type
-                )
-                setups.forEach(measurement::addMeasurement)
+                if (!TextUtils.isEmpty(json)) {
+                    val setups = GsonUtils.getGson().fromJson<List<MeasurementSetup>>(
+                        json, object : TypeToken<List<MeasurementSetup>>() {}.type
+                    )
+                    setups.forEach(measurement::addMeasurement)
+                }
             } catch (e: java.lang.Exception) {
                 Log.e("johnson", e.message, e)
             }
@@ -65,6 +68,10 @@ class Measurement {
     val setups: List<MeasurementSetup>
         get() = recordSet.keys.toList().sortedBy { it.createdAt }
 
+    @get:Bindable
+    val empty: Boolean
+        get() = recordSet.isEmpty()
+
     fun addMeasurement(setup: MeasurementSetup): Boolean {
         if (setup.key.unique) {
             if (setups.any { it.key == setup.key }) {
@@ -72,7 +79,13 @@ class Measurement {
             }
         }
         recordSet[setup] = Records(setup, mutableListOf())
+        notifyPropertyChanged(BR.empty)
         return true
+    }
+
+    fun removeMeasurement(setup: MeasurementSetup) {
+        recordSet.remove(setup)
+        notifyPropertyChanged(BR.empty)
     }
 
     fun saveSetup(pref: SharedPreferences) {
@@ -81,10 +94,6 @@ class Measurement {
             putString(Preferences.MEASUREMENT_SETUP_KEY, data)
             apply()
         }
-    }
-
-    fun empty(): Boolean {
-        return recordSet.isEmpty()
     }
 }
 
