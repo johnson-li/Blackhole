@@ -6,5 +6,9 @@ class SubscriptionRecord(private val subscriptionInfo: SubscriptionInfoModel) : 
     override fun toUiString(): String {
         return "MCC: ${subscriptionInfo.mcc}, MNC: ${subscriptionInfo.mnc}"
     }
+
+    override fun equals(other: Any?): Boolean {
+        return other is SubscriptionRecord && other.subscriptionInfo == subscriptionInfo
+    }
 }
 

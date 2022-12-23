@@ -33,9 +33,11 @@ class Records(
         get() = records.size
 
     fun appendRecord(record: GenericRecord) {
-        records.add(record)
-        notifyPropertyChanged(BR.lastRecord)
-        notifyPropertyChanged(BR.recordSize)
+        if (records.isEmpty() || records.last() != record) {
+            records.add(record)
+            notifyPropertyChanged(BR.lastRecord)
+            notifyPropertyChanged(BR.recordSize)
+        }
     }
 }
 
