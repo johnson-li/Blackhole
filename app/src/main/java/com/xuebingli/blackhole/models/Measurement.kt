@@ -12,6 +12,8 @@ import com.google.gson.reflect.TypeToken
 import com.xuebingli.blackhole.BR
 import com.xuebingli.blackhole.utils.GsonUtils
 import com.xuebingli.blackhole.utils.Preferences
+import java.lang.reflect.Type
+import kotlin.reflect.KClass
 
 abstract class GenericRecord {
     var createdAt = System.currentTimeMillis()
@@ -104,16 +106,19 @@ abstract class MeasurementSetup(val key: MeasurementKey) {
     var updatedAt = createdAt
 
     override fun toString(): String {
-        return "${key.name}@$createdAt"
+        return "${key.name}Measurement@$createdAt"
     }
 }
 
 
-enum class MeasurementKey(val unique: Boolean) {
-    SubscriptionInfo(true),
-    CellularInfo(true),
-    NetworkInfo(true),
-    LocationInfo(true),
-    Ping(false),
-    UdpPing(false),
+enum class MeasurementKey(
+    val unique: Boolean,
+    val measurementSetupClass: KClass<out MeasurementSetup>
+) {
+    SubscriptionInfo(true, SubscriptionMeasurementSetup::class),
+    CellularInfo(true, CellularMeasurementSetup::class),
+    NetworkInfo(true, NetworkInfoMeasurementSetup::class),
+    LocationInfo(true, LocationMeasurementSetup::class),
+    Ping(false, PingMeasurementSetup::class),
+    UdpPing(false, UdpPingMeasurementSetup::class),
 }

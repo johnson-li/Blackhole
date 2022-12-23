@@ -24,19 +24,8 @@ internal class InterfaceAdapter : JsonDeserializer<MeasurementSetup> {
         context: JsonDeserializationContext
     ): MeasurementSetup {
         val wrapper: JsonObject = elem as JsonObject
-        return when (MeasurementKey.valueOf(wrapper.get("key").asString)) {
-            MeasurementKey.CellularInfo ->
-                context.deserialize(elem, CellularMeasurementSetup::class.java)
-            MeasurementKey.LocationInfo ->
-                context.deserialize(elem, LocationMeasurementSetup::class.java)
-            MeasurementKey.Ping ->
-                context.deserialize(elem, PingMeasurementSetup::class.java)
-            MeasurementKey.SubscriptionInfo ->
-                context.deserialize(elem, SubscriptionMeasurementSetup::class.java)
-            MeasurementKey.UdpPing ->
-                context.deserialize(elem, UdpPingMeasurementSetup::class.java)
-            MeasurementKey.NetworkInfo ->
-                context.deserialize(elem, NetworkInfoMeasurementSetup::class.java)
+        return MeasurementKey.valueOf(wrapper.get("key").asString).let {
+            context.deserialize(elem, it.measurementSetupClass.java)
         }
     }
 }

@@ -68,7 +68,7 @@ repositories {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.6.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.7.20"
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -91,6 +91,7 @@ dependencies {
     implementation("com.google.guava:guava:29.0-android")
     implementation 'com.google.android.gms:play-services-location:21.0.1'
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.7.20"
     implementation 'androidx.work:work-runtime-ktx:2.7.1'
 
 }

@@ -4,12 +4,10 @@ import android.Manifest
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.ConnectivityManager
 import android.os.Binder
-import android.os.Environment
 import android.os.IBinder
 import android.telephony.CellInfo
 import android.telephony.SubscriptionInfo
@@ -18,7 +16,6 @@ import android.telephony.TelephonyManager
 import android.telephony.TelephonyManager.CellInfoCallback
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
@@ -28,18 +25,13 @@ import com.xuebingli.blackhole.activities.BackgroundActivity
 import com.xuebingli.blackhole.models.*
 import com.xuebingli.blackhole.ui.BackgroundService
 import com.xuebingli.blackhole.utils.ConfigUtils
-import com.xuebingli.blackhole.utils.Constants
-import com.xuebingli.blackhole.utils.TimeUtils
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.io.File
 import java.io.IOException
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
-import java.text.DateFormat
-import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -73,7 +65,7 @@ class ForegroundService : Service() {
         }
     }
 
-    private val threadPool = Executors.newCachedThreadPool()
+    private var measurementThreadPool = Executors.newCachedThreadPool()
     private lateinit var notification: Notification
     private lateinit var locationClient: FusedLocationProviderClient
     private lateinit var telephonyManager: TelephonyManager
@@ -160,7 +152,7 @@ class ForegroundService : Service() {
     private fun startUdpPingRecording(records: Records) {
         val serverIP = "195.148.127.230"
         val serverPort = 8877
-        threadPool.execute {
+        measurementThreadPool.execute {
         }
     }
 
@@ -176,7 +168,7 @@ class ForegroundService : Service() {
         cellInfoObservable =
             Observable.interval(observationInterval, TimeUnit.MILLISECONDS).flatMap {
                 Observable.create {
-                    telephonyManager.requestCellInfoUpdate(threadPool, cellInfoCallback!!)
+                    telephonyManager.requestCellInfoUpdate(measurementThreadPool, cellInfoCallback!!)
                 }
             }
         cellInfoObservable!!.subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
@@ -243,6 +235,7 @@ class ForegroundService : Service() {
     }
 
     private fun startMeasurement0() {
+        measurementThreadPool = Executors.newCachedThreadPool()
         showNotification()
         measurement!!.startedAt = System.currentTimeMillis()
         measurement!!.recordSet.forEach { (setup, records) ->
@@ -262,6 +255,7 @@ class ForegroundService : Service() {
             return
         }
         stopMeasurement0()
+        measurementThreadPool.shutdown()
         measurementStarted = false
         recordMeasurement0()
     }

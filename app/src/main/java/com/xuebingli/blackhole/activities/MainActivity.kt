@@ -1,28 +1,37 @@
 package com.xuebingli.blackhole.activities
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.text.InputType
+import android.util.Log
+import android.view.*
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
+import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ObservableBoolean
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.xuebingli.blackhole.R
 import com.xuebingli.blackhole.databinding.ActivityMainBinding
+import com.xuebingli.blackhole.databinding.DialogSetupInputBinding
+import com.xuebingli.blackhole.databinding.ItemDialogSetupBinding
 import com.xuebingli.blackhole.databinding.ItemMeasurementBinding
 import com.xuebingli.blackhole.models.*
 import com.xuebingli.blackhole.services.ForegroundService
 import com.xuebingli.blackhole.utils.Preferences
+import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.full.createInstance
+import kotlin.reflect.full.declaredMemberProperties
 
 class MainActivity : BaseActivity0() {
     companion object {
@@ -122,8 +131,10 @@ class MainActivity : BaseActivity0() {
                 }
             }
             MeasurementKey.UdpPing -> {
-                if (measurement.addMeasurement(UdpPingMeasurementSetup())) {
-                    adapter.notifyItemInserted(adapter.itemCount - 1)
+                showSetupInputDialog(MeasurementKey.UdpPing) {
+                    if (measurement.addMeasurement(it)) {
+                        adapter.notifyItemInserted(adapter.itemCount - 1)
+                    }
                 }
             }
             MeasurementKey.NetworkInfo -> {
@@ -133,6 +144,28 @@ class MainActivity : BaseActivity0() {
             }
         }
         measurement.saveSetup(pref)
+    }
+
+    private fun showSetupInputDialog(
+        key: MeasurementKey,
+        callback: (MeasurementSetup) -> Unit
+    ) {
+        val binding =
+            DialogSetupInputBinding.inflate(layoutInflater, this.binding.root as ViewGroup, false)
+        val setup = key.measurementSetupClass.createInstance()
+
+        val adapter = SetupAdapter(setup, layoutInflater, this.binding.root)
+        val layoutManager = LinearLayoutManager(this)
+        binding.container.let {
+            it.adapter = adapter
+            it.layoutManager = layoutManager
+        }
+        val dialog = AlertDialog.Builder(this).setView(binding.root)
+            .setTitle(getString(R.string.add_measurement_detail, key.name))
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                callback(setup)
+            }.setNegativeButton(android.R.string.cancel) { _, _ -> }.create()
+        dialog.show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -180,6 +213,52 @@ class MainActivity : BaseActivity0() {
         return false
     }
 }
+
+class SetupAdapter(
+    private val setup: MeasurementSetup,
+    private val inflater: LayoutInflater,
+    val parent: View
+) : Adapter<SetupViewHolder>() {
+    private val properties =
+        (listOf(setup::class.declaredMemberProperties)[0] as ArrayList).filter { it is KMutableProperty1 }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SetupViewHolder {
+        val binding = ItemDialogSetupBinding.inflate(inflater, parent, false)
+        return SetupViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: SetupViewHolder, position: Int) {
+        val property = properties[position]
+        holder.binding.layout.hint = property.name.replaceFirstChar(Char::titlecase)
+        holder.binding.editText.inputType = when (property.returnType.classifier) {
+            Int::class -> InputType.TYPE_CLASS_NUMBER
+            String::class -> InputType.TYPE_CLASS_TEXT
+            else -> InputType.TYPE_CLASS_TEXT
+        }
+        when (property.returnType.classifier) {
+            Int::class ->
+                (property as KMutableProperty1<MeasurementSetup, Int>).let { p ->
+                    holder.binding.editText.setText(p.get(setup).toString())
+                    holder.binding.editText.addTextChangedListener {
+                        p.set(setup, it.toString().toIntOrNull() ?: 0)
+                    }
+                }
+            String::class ->
+                (property as KMutableProperty1<MeasurementSetup, String>).let { p ->
+                    holder.binding.editText.setText(p.get(setup))
+                    holder.binding.editText.addTextChangedListener {
+                        p.set(setup, it.toString())
+                    }
+                }
+            else ->
+                throw IllegalArgumentException("Unsupported property type: ${property.returnType}")
+        }
+    }
+
+    override fun getItemCount(): Int = properties.size
+}
+
+class SetupViewHolder(val binding: ItemDialogSetupBinding) : ViewHolder(binding.root)
 
 class MeasurementAdapter(var measurement: Measurement, val activity: MainActivity) :
     Adapter<MeasurementViewHolder>() {
