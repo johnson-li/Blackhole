@@ -153,4 +153,5 @@
 
     <string name="measurement_record_status">Record count: %1$d</string>
     <string name="measurement_no_setup">Please add a least one measurement to get started</string>
+    <string name="permission_missing">Please grant all permissions</string>
 </resources>

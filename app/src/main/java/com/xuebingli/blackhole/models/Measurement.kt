@@ -110,6 +110,7 @@ abstract class MeasurementSetup(val key: MeasurementKey) {
 enum class MeasurementKey(val unique: Boolean) {
     SubscriptionInfo(true),
     CellularInfo(true),
+    NetworkInfo(true),
     LocationInfo(true),
     Ping(false),
     UdpPing(false),

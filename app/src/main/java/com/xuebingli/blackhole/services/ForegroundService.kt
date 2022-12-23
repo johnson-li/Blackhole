@@ -18,6 +18,7 @@ import android.telephony.TelephonyManager
 import android.telephony.TelephonyManager.CellInfoCallback
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
@@ -65,7 +66,7 @@ class ForegroundService : Service() {
             }
         }
 
-        fun stopForegroundService(context: Context) {
+        private fun stopForegroundService(context: Context) {
             Intent(context, ForegroundService::class.java).also {
                 context.stopService(it)
             }
@@ -74,26 +75,19 @@ class ForegroundService : Service() {
 
     private val threadPool = Executors.newCachedThreadPool()
     private lateinit var notification: Notification
-    private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var periodObservable: Observable<MeasurementResult>
     private lateinit var locationClient: FusedLocationProviderClient
     private lateinit var telephonyManager: TelephonyManager
     private lateinit var subscriptionManager: SubscriptionManager
     private val binder = ForegroundBinder()
     private val disposables = CompositeDisposable()
-    private val logFileName = "measurement_${Constants.LOG_TIME_FORMAT.format(Date())}.txt"
-    private var locationEnabled = false
-    private var cellInfoEnabled = false
-    private var subscriptionInfoEnabled = false
-    private var frequency = 100 // in milliseconds
     var measurementStarted = false
         private set
-    private var latestLocation: GpsLocation? = null
     private var measurement: Measurement? = null
     private var locationCallback: MyLocationCallback? = null
     private var cellInfoCallback: MyCellInfoCallback? = null
     private var cellInfoObservable: Observable<MutableList<CellInfo>>? = null
     private var subscriptionInfoObservable: Observable<MutableList<SubscriptionInfo>>? = null
+    private var networkInfoObservable: Observable<MutableList<CellNetworkInfo>>? = null
     private val observationInterval = 300L
 
     override fun onCreate() {
@@ -205,51 +199,33 @@ class ForegroundService : Service() {
         }
     }
 
-    private fun getNetworkInfo(): CellNetworkInfo {
-        val cm =
-            applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val netId = cm.activeNetwork.toString()
-        cm.getNetworkCapabilities(cm.activeNetwork)?.linkDownstreamBandwidthKbps
-        val downLink = cm.getNetworkCapabilities(cm.activeNetwork)?.linkDownstreamBandwidthKbps
-        val upLink = cm.getNetworkCapabilities(cm.activeNetwork)?.linkUpstreamBandwidthKbps
-        return CellNetworkInfo(
-            netId = netId,
-            downLink = downLink,
-            upLink = upLink,
-            networkType = telephonyManager.dataNetworkType
-        )
-    }
-
-    private fun getSubscriptionInfo(): List<SubscriptionInfoModel> {
-        return subscriptionManager.activeSubscriptionInfoList.map {
-            getSubscriptionInfoModel(it)
-        }
-    }
-
-    private fun updateBackgroundTask() {
-        disposables.clear()
-        periodObservable =
-            Observable.interval(frequency.toLong(), TimeUnit.MILLISECONDS)
-                .flatMap {
-                    Observable.create<MeasurementResult> {
-                        it.onNext(
-                            MeasurementResult(
-                                location = if (locationEnabled) latestLocation else null,
-//                                cellInfoList = if (cellInfoEnabled) getCellularInfo() else null,
-                                subscriptionInfoList = if (cellInfoEnabled) getSubscriptionInfo() else null,
-                                networkInfo = getNetworkInfo(),
-                            )
-                        )
+    private fun startNetworkInfoRecording(records: Records) {
+        networkInfoObservable =
+            Observable.interval(observationInterval, TimeUnit.MILLISECONDS).flatMap {
+                Observable.create {
+                    val cm =
+                        applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                    val netId = cm.activeNetwork.toString()
+                    cm.getNetworkCapabilities(cm.activeNetwork)?.linkDownstreamBandwidthKbps
+                    val downLink =
+                        cm.getNetworkCapabilities(cm.activeNetwork)?.linkDownstreamBandwidthKbps
+                    val upLink =
+                        cm.getNetworkCapabilities(cm.activeNetwork)?.linkUpstreamBandwidthKbps
+                    if (ActivityCompat.checkSelfPermission(
+                            this,
+                            Manifest.permission.READ_PHONE_STATE
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        CellNetworkInfo(
+                            netId, downLink, upLink, telephonyManager.dataNetworkType
+                        ).let {
+                            records.appendRecord(NetworkInfoRecord(it))
+                        }
                     }
                 }
-        periodObservable.subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
-            .subscribe({
-                File(ConfigUtils(this).getDataDir(), logFileName).apply {
-                    appendText(Gson().toJson(it) + "\n")
-                }
-            }, {
-
-            }).also { disposables.add(it) }
+            }
+        networkInfoObservable!!.subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
+            .subscribe {}.also { disposables.add(it) }
     }
 
     override fun onDestroy() {
@@ -276,17 +252,18 @@ class ForegroundService : Service() {
                 MeasurementKey.Ping -> startPingRecording(records)
                 MeasurementKey.SubscriptionInfo -> startSubscriptionInfoRecording(records)
                 MeasurementKey.UdpPing -> startUdpPingRecording(records)
+                MeasurementKey.NetworkInfo -> startNetworkInfoRecording(records)
             }
         }
     }
 
-    fun stopMeasurement(): String {
+    fun stopMeasurement() {
         if (!measurementStarted) {
-            return ""
+            return
         }
         stopMeasurement0()
         measurementStarted = false
-        return recordMeasurement0()
+        recordMeasurement0()
     }
 
     private fun stopMeasurement0() {
@@ -296,15 +273,16 @@ class ForegroundService : Service() {
         disposables.clear()
     }
 
-    private fun recordMeasurement0(): String {
-        val dir = Environment.getExternalStorageDirectory().resolve("Blackhole")
+    private fun recordMeasurement0() {
+        val dir = getExternalFilesDir("Blackhole")!!
         dir.mkdirs()
         val path = "measurement_${measurement!!.createdAt}.json"
-        threadPool.execute {
-            val data = Gson().toJson(measurement)
-            dir.resolve(path).writeBytes(data.encodeToByteArray())
-        }
-        return path
+        object : Thread() {
+            override fun run() {
+                val data = Gson().toJson(measurement)
+                dir.resolve(path).writeBytes(data.encodeToByteArray())
+            }
+        }.start()
     }
 
     override fun onBind(p0: Intent?): IBinder = binder
@@ -314,28 +292,14 @@ class ForegroundService : Service() {
     }
 }
 
-data class MeasurementResult(
-    val timeStamp: Long = TimeUtils().getTimeStamp(),
-    val timeStampLocal: Long = TimeUtils().getTimeStampAccurate(),
-    val dateTime: String = DateFormat.getDateTimeInstance().format(Date()),
-    val location: GpsLocation? = null,
-    val cellInfoList: List<CellInfoModel>? = null,
-    val subscriptionInfoList: List<SubscriptionInfoModel>? = null,
-    val networkInfo: CellNetworkInfo? = null
-)
-
 class UdpPingThread(private val serverIP: String, private val serverPort: Int) : Runnable {
     override fun run() {
         try {
             val socket = DatagramSocket()
             val sendData = "a".toByteArray()
-            val sendPacket =
-                DatagramPacket(
-                    sendData,
-                    sendData.size,
-                    InetAddress.getByName(serverIP),
-                    serverPort
-                )
+            val sendPacket = DatagramPacket(
+                sendData, sendData.size, InetAddress.getByName(serverIP), serverPort
+            )
             val sendTs = System.currentTimeMillis()
             socket.send(sendPacket)
             val recvBuffer = ByteArray(100)

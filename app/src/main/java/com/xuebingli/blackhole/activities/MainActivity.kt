@@ -1,13 +1,15 @@
 package com.xuebingli.blackhole.activities
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ObservableBoolean
@@ -23,6 +25,10 @@ import com.xuebingli.blackhole.services.ForegroundService
 import com.xuebingli.blackhole.utils.Preferences
 
 class MainActivity : BaseActivity0() {
+    companion object {
+        private const val PERMISSION_REQUEST_CODE = 1
+    }
+
     lateinit var binding: ActivityMainBinding
     private var measurementRunning = ObservableBoolean(false)
     private lateinit var measurement: Measurement
@@ -61,6 +67,10 @@ class MainActivity : BaseActivity0() {
     }
 
     private fun startMeasurement() {
+        if (!checkPermissions()) {
+            Toast.makeText(this, R.string.permission_missing, Toast.LENGTH_SHORT).show()
+            return
+        }
         initMeasurement()
         if (measurement.empty) {
             Toast.makeText(this, R.string.measurement_no_setup, Toast.LENGTH_SHORT).show()
@@ -116,6 +126,11 @@ class MainActivity : BaseActivity0() {
                     adapter.notifyItemInserted(adapter.itemCount - 1)
                 }
             }
+            MeasurementKey.NetworkInfo -> {
+                if (measurement.addMeasurement(NetworkInfoMeasurementSetup())) {
+                    adapter.notifyItemInserted(adapter.itemCount - 1)
+                }
+            }
         }
         measurement.saveSetup(pref)
     }
@@ -126,24 +141,43 @@ class MainActivity : BaseActivity0() {
                 true
             }
             R.id.add_measurement -> {
-                AlertDialog.Builder(this).setTitle(R.string.add_measurement)
-                    .setNegativeButton(android.R.string.cancel) { _, _ -> }
-                    .setItems(
-                        MeasurementKey.values().map { it.name }.toTypedArray()
-                    ) { _, p1 -> addMeasurement(MeasurementKey.values()[p1]) }
-                    .show()
+                if (!isMeasurementRunning()) {
+                    AlertDialog.Builder(this).setTitle(R.string.add_measurement)
+                        .setNegativeButton(android.R.string.cancel) { _, _ -> }
+                        .setItems(
+                            MeasurementKey.values().map { it.name }.toTypedArray()
+                        ) { _, p1 -> addMeasurement(MeasurementKey.values()[p1]) }
+                        .show()
+                }
                 true
             }
             R.id.reset_measurement -> {
-                pref.edit {
-                    putString(Preferences.MEASUREMENT_SETUP_KEY, "")
-                    apply()
+                if (!isMeasurementRunning()) {
+                    pref.edit {
+                        putString(Preferences.MEASUREMENT_SETUP_KEY, "")
+                        apply()
+                    }
+                    initMeasurement()
                 }
-                initMeasurement()
                 true
             }
             else -> false
         }
+    }
+
+    private fun checkPermissions(): Boolean {
+        val permissionList = listOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.READ_PHONE_STATE,
+        )
+        val permissionsToBeGrant = permissionList.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+        if (permissionsToBeGrant.isEmpty()) {
+            return true
+        }
+        requestPermissions(permissionsToBeGrant.toTypedArray(), PERMISSION_REQUEST_CODE)
+        return false
     }
 }
 
@@ -164,18 +198,19 @@ class MeasurementAdapter(var measurement: Measurement, val activity: MainActivit
     override fun onBindViewHolder(holder: MeasurementViewHolder, position: Int) {
         val setup = measurement.setups[position]
         holder.binding.records = measurement.recordSet[setup]!!
-//        holder.binding.updated.text = activity.getString(R.string.last_modified, 100)
         holder.binding.root.setOnLongClickListener {
-            AlertDialog.Builder(activity)
-                .setTitle(R.string.delete_measurement_title)
-                .setMessage(R.string.delete_measurement_message)
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    measurement.removeMeasurement(setup)
-                    measurement.saveSetup(activity.pref)
-                    notifyItemRemoved(position)
-                }
-                .setNegativeButton(android.R.string.cancel) { _, _ -> }
-                .show()
+            if (!activity.isMeasurementRunning()) {
+                AlertDialog.Builder(activity)
+                    .setTitle(R.string.delete_measurement_title)
+                    .setMessage(R.string.delete_measurement_message)
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        measurement.removeMeasurement(setup)
+                        measurement.saveSetup(activity.pref)
+                        notifyItemRemoved(position)
+                    }
+                    .setNegativeButton(android.R.string.cancel) { _, _ -> }
+                    .show()
+            }
             true
         }
     }

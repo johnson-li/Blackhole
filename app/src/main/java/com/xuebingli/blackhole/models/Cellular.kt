@@ -9,3 +9,10 @@ class CellularRecord(private val cellInfo: CellInfoModel) : GenericRecord() {
     }
 }
 
+class NetworkInfoMeasurementSetup: MeasurementSetup(MeasurementKey.NetworkInfo)
+
+class NetworkInfoRecord(private val networkInfo: CellNetworkInfo): GenericRecord() {
+    override fun toUiString(): String = "Downlink: ${networkInfo.downLink}, " +
+            "Uplink: ${networkInfo.upLink}"
+
+}

@@ -35,6 +35,8 @@ internal class InterfaceAdapter : JsonDeserializer<MeasurementSetup> {
                 context.deserialize(elem, SubscriptionMeasurementSetup::class.java)
             MeasurementKey.UdpPing ->
                 context.deserialize(elem, UdpPingMeasurementSetup::class.java)
+            MeasurementKey.NetworkInfo ->
+                context.deserialize(elem, NetworkInfoMeasurementSetup::class.java)
         }
     }
 }
