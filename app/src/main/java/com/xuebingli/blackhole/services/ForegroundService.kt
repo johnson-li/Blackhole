@@ -168,7 +168,10 @@ class ForegroundService : Service() {
         cellInfoObservable =
             Observable.interval(observationInterval, TimeUnit.MILLISECONDS).flatMap {
                 Observable.create {
-                    telephonyManager.requestCellInfoUpdate(measurementThreadPool, cellInfoCallback!!)
+                    telephonyManager.requestCellInfoUpdate(
+                        measurementThreadPool,
+                        cellInfoCallback!!
+                    )
                 }
             }
         cellInfoObservable!!.subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
@@ -189,6 +192,10 @@ class ForegroundService : Service() {
         } else {
             Log.e("johnson", "Location permission is not granted")
         }
+    }
+
+    private fun startTracerouteRecording(records: Records) {
+
     }
 
     private fun startNetworkInfoRecording(records: Records) {
@@ -246,6 +253,7 @@ class ForegroundService : Service() {
                 MeasurementKey.SubscriptionInfo -> startSubscriptionInfoRecording(records)
                 MeasurementKey.UdpPing -> startUdpPingRecording(records)
                 MeasurementKey.NetworkInfo -> startNetworkInfoRecording(records)
+                MeasurementKey.Traceroute -> startTracerouteRecording(records)
             }
         }
     }

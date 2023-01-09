@@ -118,6 +118,7 @@ enum class MeasurementKey(
     SubscriptionInfo(true, SubscriptionMeasurementSetup::class),
     CellularInfo(true, CellularMeasurementSetup::class),
     NetworkInfo(true, NetworkInfoMeasurementSetup::class),
+    Traceroute(true, TracerouteMeasurementSetup::class),
     LocationInfo(true, LocationMeasurementSetup::class),
     Ping(false, PingMeasurementSetup::class),
     UdpPing(false, UdpPingMeasurementSetup::class),

@@ -142,6 +142,13 @@ class MainActivity : BaseActivity0() {
                     adapter.notifyItemInserted(adapter.itemCount - 1)
                 }
             }
+            MeasurementKey.Traceroute -> {
+                showSetupInputDialog(MeasurementKey.Traceroute) {
+                    if (measurement.addMeasurement(it)) {
+                        adapter.notifyItemInserted(adapter.itemCount - 1)
+                    }
+                }
+            }
         }
         measurement.saveSetup(pref)
     }
