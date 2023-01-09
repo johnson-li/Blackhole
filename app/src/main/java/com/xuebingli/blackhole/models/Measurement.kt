@@ -18,8 +18,11 @@ import kotlin.reflect.KClass
 abstract class GenericRecord {
     var createdAt = System.currentTimeMillis()
     var createdAtRealtime = SystemClock.elapsedRealtime()
+    var errorMessage: String? = null
 
-    abstract fun toUiString(): String
+    fun toUiString(): String = errorMessage ?: toUiString0()
+
+    abstract fun toUiString0(): String
 }
 
 class Records(
@@ -50,6 +53,7 @@ class Measurement : BaseObservable() {
         }
 
         private fun loadSetup(json: String?): Measurement {
+            Log.d("johnson", "Load setup: $json")
             val measurement = Measurement()
             try {
                 if (!TextUtils.isEmpty(json)) {
@@ -108,6 +112,8 @@ abstract class MeasurementSetup(val key: MeasurementKey) {
     override fun toString(): String {
         return "${key.name}Measurement@$createdAt"
     }
+
+    open fun description(): String = ""
 }
 
 

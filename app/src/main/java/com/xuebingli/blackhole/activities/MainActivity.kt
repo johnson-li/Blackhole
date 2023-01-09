@@ -106,26 +106,26 @@ class MainActivity : BaseActivity0() {
         when (key) {
             MeasurementKey.LocationInfo -> {
                 if (measurement.addMeasurement(LocationMeasurementSetup())) {
-                    adapter.notifyItemInserted(adapter.itemCount - 1)
+                    onMeasurementAdded()
                 } else {
                     Toast.makeText(this, R.string.error_add_measurement, Toast.LENGTH_SHORT).show()
                 }
             }
             MeasurementKey.CellularInfo -> {
                 if (measurement.addMeasurement(CellularMeasurementSetup())) {
-                    adapter.notifyItemInserted(adapter.itemCount - 1)
+                    onMeasurementAdded()
                 } else {
                     Toast.makeText(this, R.string.error_add_measurement, Toast.LENGTH_SHORT).show()
                 }
             }
             MeasurementKey.Ping -> {
                 if (measurement.addMeasurement(PingMeasurementSetup())) {
-                    adapter.notifyItemInserted(adapter.itemCount - 1)
+                    onMeasurementAdded()
                 }
             }
             MeasurementKey.SubscriptionInfo -> {
                 if (measurement.addMeasurement(SubscriptionMeasurementSetup())) {
-                    adapter.notifyItemInserted(adapter.itemCount - 1)
+                    onMeasurementAdded()
                 } else {
                     Toast.makeText(this, R.string.error_add_measurement, Toast.LENGTH_SHORT).show()
                 }
@@ -133,23 +133,27 @@ class MainActivity : BaseActivity0() {
             MeasurementKey.UdpPing -> {
                 showSetupInputDialog(MeasurementKey.UdpPing) {
                     if (measurement.addMeasurement(it)) {
-                        adapter.notifyItemInserted(adapter.itemCount - 1)
+                        onMeasurementAdded()
                     }
                 }
             }
             MeasurementKey.NetworkInfo -> {
                 if (measurement.addMeasurement(NetworkInfoMeasurementSetup())) {
-                    adapter.notifyItemInserted(adapter.itemCount - 1)
+                    onMeasurementAdded()
                 }
             }
             MeasurementKey.Traceroute -> {
                 showSetupInputDialog(MeasurementKey.Traceroute) {
                     if (measurement.addMeasurement(it)) {
-                        adapter.notifyItemInserted(adapter.itemCount - 1)
+                        onMeasurementAdded()
                     }
                 }
             }
         }
+    }
+
+    private fun onMeasurementAdded() {
+        adapter.notifyItemInserted(adapter.itemCount - 1)
         measurement.saveSetup(pref)
     }
 

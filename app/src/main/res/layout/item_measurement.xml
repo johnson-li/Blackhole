@@ -53,6 +53,7 @@
             android:id="@+id/locationInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:visibility="@{records.setup.key == MeasurementKey.LocationInfo ? View.VISIBLE : View.GONE}">
 
             <TextView
@@ -65,6 +66,7 @@
             android:id="@+id/cellInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:visibility="@{records.setup.key == MeasurementKey.CellularInfo ? View.VISIBLE : View.GONE}">
 
             <TextView
@@ -77,6 +79,7 @@
             android:id="@+id/ping"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:visibility="@{records.setup.key == MeasurementKey.Ping ? View.VISIBLE : View.GONE}">
 
             <TextView
@@ -88,6 +91,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:visibility="@{records.setup.key == MeasurementKey.SubscriptionInfo ? View.VISIBLE : View.GONE}">
 
             <TextView
@@ -99,6 +103,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:visibility="@{records.setup.key == MeasurementKey.NetworkInfo ? View.VISIBLE : View.GONE}">
 
             <TextView
@@ -110,12 +115,39 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:visibility="@{records.setup.key == MeasurementKey.UdpPing ? View.VISIBLE : View.GONE}">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{records.setup.description()}"
+                tools:text="Setup description" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{records.lastRecord.toUiString()}" />
+                android:text="@{records.lastRecord.toUiString()}"
+                tools:text="Measurement live data" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="@{records.setup.key == MeasurementKey.Traceroute ? View.VISIBLE : View.GONE}">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{records.setup.description()}"
+                tools:text="Setup description" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{records.lastRecord.toUiString()}"
+                tools:text="Measurement live data" />
         </LinearLayout>
     </LinearLayout>
 </layout>

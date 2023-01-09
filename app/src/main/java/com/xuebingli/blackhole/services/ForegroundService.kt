@@ -29,9 +29,9 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.IOException
-import java.net.DatagramPacket
-import java.net.DatagramSocket
-import java.net.InetAddress
+import java.net.*
+import java.nio.ByteBuffer
+import java.nio.channels.DatagramChannel
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -75,6 +75,7 @@ class ForegroundService : Service() {
     var measurementStarted = false
         private set
     private var measurement: Measurement? = null
+    private var udpPingRunnable: UdpPingRunnable? = null
     private var locationCallback: MyLocationCallback? = null
     private var cellInfoCallback: MyCellInfoCallback? = null
     private var cellInfoObservable: Observable<MutableList<CellInfo>>? = null
@@ -150,9 +151,9 @@ class ForegroundService : Service() {
     }
 
     private fun startUdpPingRecording(records: Records) {
-        val serverIP = "195.148.127.230"
-        val serverPort = 8877
-        measurementThreadPool.execute {
+        (records.setup as UdpPingMeasurementSetup).let {
+            udpPingRunnable = UdpPingRunnable(it.serverIP, it.serverPort, it.interval, records)
+            measurementThreadPool.execute(udpPingRunnable)
         }
     }
 
@@ -263,7 +264,7 @@ class ForegroundService : Service() {
             return
         }
         stopMeasurement0()
-        measurementThreadPool.shutdown()
+        measurementThreadPool.shutdownNow()
         measurementStarted = false
         recordMeasurement0()
     }
@@ -272,6 +273,7 @@ class ForegroundService : Service() {
         hideNotification()
         locationCallback?.let { locationClient.removeLocationUpdates(it) }
         cellInfoCallback?.records = null
+        udpPingRunnable?.stop = true
         disposables.clear()
     }
 
@@ -294,23 +296,60 @@ class ForegroundService : Service() {
     }
 }
 
-class UdpPingThread(private val serverIP: String, private val serverPort: Int) : Runnable {
+class UdpPingRunnable(
+    private val serverIP: String,
+    private val serverPort: Int,
+    private val interval: Int,
+    private val records: Records
+) : Runnable {
+    var stop = false
+    private var pktId = 0
+    private val capacity = 5000
+    private val sendTsRecord = LongArray(capacity)
+
     override fun run() {
-        try {
-            val socket = DatagramSocket()
-            val sendData = "a".toByteArray()
-            val sendPacket = DatagramPacket(
-                sendData, sendData.size, InetAddress.getByName(serverIP), serverPort
-            )
-            val sendTs = System.currentTimeMillis()
-            socket.send(sendPacket)
-            val recvBuffer = ByteArray(100)
-            val recvPacket = DatagramPacket(recvBuffer, recvBuffer.size)
-            socket.receive(recvPacket)
-            val recvTs = System.currentTimeMillis()
-            Log.d("johnson", (recvTs - sendTs).toString())
-        } catch (e: IOException) {
-            Log.e("johnson", e.message, e)
+        var lastTs = System.currentTimeMillis()
+        val channel = DatagramChannel.open()
+        channel.configureBlocking(false)
+        val serverAddress = InetSocketAddress(serverIP, serverPort)
+        val sendBuffer = ByteBuffer.allocate(100)
+        while (!stop && !Thread.currentThread().isInterrupted) {
+            if (pktId > 0) {
+                val recvBuffer = ByteBuffer.allocate(100)
+                channel.receive(recvBuffer)
+                recvBuffer.flip()
+                if (recvBuffer.remaining() > 0) {
+                    val bytes = ByteArray(recvBuffer.remaining())
+                    recvBuffer.get(bytes)
+                    val id = String(bytes).toInt()
+                    records.appendRecord(UdpPingRecord(id, sendTsRecord[id % capacity], System.currentTimeMillis()))
+                    sendTsRecord[id % capacity] = 0
+//                    Log.d("johnson", "Received pkt $id")
+                }
+            }
+            val ts = System.currentTimeMillis()
+            if (ts - lastTs < interval) {
+                continue
+            }
+            lastTs = ts
+//            sendBuffer.clear()
+//            sendBuffer.put(pktId.toString().encodeToByteArray())
+            try {
+                if (sendTsRecord[pktId % capacity] > 0) {
+                    records.appendRecord(UdpPingRecord(pktId - capacity, sendTsRecord[pktId % capacity], -1))
+                }
+                sendTsRecord[pktId % capacity] = System.currentTimeMillis()
+                channel.send(ByteBuffer.wrap(pktId.toString().toByteArray()), serverAddress)
+                pktId += 1
+                Log.d("johnson", "Sent pkt $pktId")
+            } catch (e: IOException) {
+                Log.e("johnson", e.message, e)
+            }
+        }
+        for (i in (pktId - capacity + 1).coerceAtLeast(0)..capacity) {
+            if (sendTsRecord[i % capacity] > 0) {
+                records.appendRecord(UdpPingRecord(i, sendTsRecord[i % capacity], -1))
+            }
         }
     }
 }
