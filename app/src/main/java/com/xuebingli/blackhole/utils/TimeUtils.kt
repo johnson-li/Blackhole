@@ -11,3 +11,7 @@ class TimeUtils {
         return System.currentTimeMillis()
     }
 }
+
+fun getTimeStampAccurate(): Long {
+    return SystemClock.elapsedRealtime()
+}

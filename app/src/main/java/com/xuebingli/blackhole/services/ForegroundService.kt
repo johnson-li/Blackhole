@@ -11,6 +11,7 @@ import android.os.Binder
 import android.os.Handler
 import android.os.IBinder
 import android.os.Message
+import android.os.SystemClock
 import android.telephony.CellInfo
 import android.telephony.SubscriptionInfo
 import android.telephony.SubscriptionManager
@@ -31,7 +32,9 @@ import com.xuebingli.blackhole.activities.BackgroundActivity
 import com.xuebingli.blackhole.models.*
 import com.xuebingli.blackhole.ui.BackgroundService
 import com.xuebingli.blackhole.utils.ConfigUtils
+import com.xuebingli.blackhole.utils.TimeUtils
 import com.xuebingli.blackhole.utils.getDnsServers
+import com.xuebingli.blackhole.utils.getTimeStampAccurate
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -348,7 +351,7 @@ class ForegroundService : Service() {
     private fun startMeasurement0() {
         measurementThreadPool = Executors.newCachedThreadPool()
         showNotification()
-        measurement!!.startedAt = System.currentTimeMillis()
+        measurement!!.startedAt = getTimeStampAccurate()
         measurement!!.recordSet.forEach { (setup, records) ->
             when (setup.key) {
                 MeasurementKey.CellularInfo -> startCellularInfoRecording(records)
@@ -415,7 +418,7 @@ class UdpPingRunnable(
     private val sendTsRecord = LongArray(capacity)
 
     override fun run() {
-        var lastTs = System.currentTimeMillis()
+        var lastTs = getTimeStampAccurate()
         val channel = DatagramChannel.open()
         channel.configureBlocking(false)
         val serverAddress = InetSocketAddress(serverIP, serverPort)
@@ -438,14 +441,14 @@ class UdpPingRunnable(
                         UdpPingRecord(
                             id,
                             sendTsRecord[id % capacity],
-                            System.currentTimeMillis()
+                            getTimeStampAccurate()
                         )
                     )
                     sendTsRecord[id % capacity] = 0
 //                    Log.d("johnson", "Received pkt $id")
                 }
             }
-            val ts = System.currentTimeMillis()
+            val ts = getTimeStampAccurate()
             if (ts - lastTs < interval) {
                 continue
             }
@@ -462,7 +465,7 @@ class UdpPingRunnable(
                         )
                     )
                 }
-                sendTsRecord[pktId % capacity] = System.currentTimeMillis()
+                sendTsRecord[pktId % capacity] = getTimeStampAccurate()
                 channel.send(ByteBuffer.wrap(pktId.toString().toByteArray()), serverAddress)
                 pktId += 1
 //                Log.d("johnson", "Sent pkt $pktId")

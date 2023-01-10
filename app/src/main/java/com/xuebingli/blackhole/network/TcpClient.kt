@@ -77,7 +77,7 @@ class TcpClient(
                 it.onNext(
                     PacketReport(
                         size = bytes,
-                        timestamp = System.currentTimeMillis(),
+                        timestamp = TimeUtils().getTimeStamp(),
                         localTimestamp = TimeUtils().getTimeStampAccurate()
                     )
                 )

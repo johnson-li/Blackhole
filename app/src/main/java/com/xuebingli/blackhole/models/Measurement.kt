@@ -12,15 +12,14 @@ import com.google.gson.reflect.TypeToken
 import com.xuebingli.blackhole.BR
 import com.xuebingli.blackhole.utils.GsonUtils
 import com.xuebingli.blackhole.utils.Preferences
+import com.xuebingli.blackhole.utils.getTimeStampAccurate
 import java.lang.reflect.Type
 import kotlin.reflect.KClass
 
 abstract class GenericRecord {
-    var createdAt = System.currentTimeMillis()
-    var createdAtRealtime = SystemClock.elapsedRealtime()
-    var errorMessage: String? = null
+    var ts = getTimeStampAccurate()
 
-    fun toUiString(): String = errorMessage ?: toUiString0()
+    fun toUiString(): String = toUiString0()
 
     abstract fun toUiString0(): String
 }
@@ -69,7 +68,7 @@ class Measurement : BaseObservable() {
         }
     }
 
-    var createdAt: Long = System.currentTimeMillis()
+    var createdAt: Long = getTimeStampAccurate()
     var startedAt: Long = -1
     val recordSet: MutableMap<MeasurementSetup, Records> = mutableMapOf()
 
@@ -106,8 +105,7 @@ class Measurement : BaseObservable() {
 }
 
 abstract class MeasurementSetup(val key: MeasurementKey) {
-    var createdAt = System.currentTimeMillis()
-    var updatedAt = createdAt
+    var createdAt = getTimeStampAccurate()
     var tmp = false
 
     override fun toString(): String {
