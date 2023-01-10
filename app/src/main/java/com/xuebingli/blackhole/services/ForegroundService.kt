@@ -34,6 +34,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.IOException
+import java.io.InterruptedIOException
 import java.net.*
 import java.nio.ByteBuffer
 import java.nio.channels.DatagramChannel
@@ -88,6 +89,27 @@ class ForegroundService : Service() {
     private var networkInfoObservable: Observable<MutableList<CellNetworkInfo>>? = null
     private var tracerouteObservable: Observable<MutableList<String>>? = null
     private val observationInterval = 300L
+    private val pingProcesses = mutableMapOf<String, Pair<Process, Records>>()
+    private val pingReaderThread = object : Thread() {
+        override fun run() {
+            while (!interrupted()) {
+                pingProcesses.forEach { entry ->
+                    val process = entry.value.first
+                    val records = entry.value.second
+                    try {
+                        val reader = process.inputStream.bufferedReader()
+                        val line = reader.readLine()
+                        val res = "\\d+ bytes from .* time=([0-9.]+) ms".toRegex().matchEntire(line)
+                        res?.groups?.get(1)?.value?.toFloat()?.also {
+                            records.appendRecord(PingRecord(it))
+                        }
+                    } catch (e: InterruptedIOException) {
+                        Log.w("johnson", e.message, e)
+                    }
+                }
+            }
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -134,7 +156,17 @@ class ForegroundService : Service() {
     }
 
     private fun startPingRecording(records: Records) {
-
+        val setup = records.setup as PingMeasurementSetup
+        val server = setup.serverIP
+        if (!pingProcesses.containsKey(server)) {
+            val runtime = Runtime.getRuntime()
+            val process = runtime.exec("/system/bin/ping -i.2 $server")
+            pingProcesses[server] = Pair(process, records)
+            process.inputStream.bufferedReader()
+            if (!pingReaderThread.isAlive) {
+                pingReaderThread.start()
+            }
+        }
     }
 
     private fun startSubscriptionInfoRecording(records: Records) {
@@ -242,7 +274,8 @@ class ForegroundService : Service() {
                     ) {
                         val dnsServers =
                             getDnsServers(getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager)
-                        val dnsServer = if (dnsServers.isEmpty()) null else dnsServers[0].hostAddress
+                        val dnsServer =
+                            if (dnsServers.isEmpty()) null else dnsServers[0].hostAddress
                         CellNetworkInfo(
                             netId, downLink, upLink, telephonyManager.dataNetworkType, dnsServer
                         ).let {
@@ -302,6 +335,10 @@ class ForegroundService : Service() {
         cellInfoCallback?.records = null
         udpPingRunnable?.stop = true
         disposables.clear()
+        pingProcesses.forEach {
+            it.value.first.destroy()
+        }
+        pingProcesses.clear()
     }
 
     private fun recordMeasurement0() {
@@ -381,6 +418,8 @@ class UdpPingRunnable(
                 channel.send(ByteBuffer.wrap(pktId.toString().toByteArray()), serverAddress)
                 pktId += 1
 //                Log.d("johnson", "Sent pkt $pktId")
+            } catch (e: SocketException) {
+
             } catch (e: IOException) {
                 Log.e("johnson", e.message, e)
             }

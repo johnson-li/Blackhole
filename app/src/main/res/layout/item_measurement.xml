@@ -83,6 +83,12 @@
             android:visibility="@{records.setup.key == MeasurementKey.Ping ? View.VISIBLE : View.GONE}">
 
             <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{records.setup.description()}"
+                tools:text="Setup description" />
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{records.lastRecord.toUiString()}" />

@@ -119,8 +119,10 @@ class MainActivity : BaseActivity0() {
                 }
             }
             MeasurementKey.Ping -> {
-                if (measurement.addMeasurement(PingMeasurementSetup())) {
-                    onMeasurementAdded()
+                showSetupInputDialog(MeasurementKey.Ping) {
+                    if (measurement.addMeasurement(it)) {
+                        onMeasurementAdded()
+                    }
                 }
             }
             MeasurementKey.SubscriptionInfo -> {
