@@ -5,4 +5,5 @@ data class CellNetworkInfo(
     val downLink: Int?,
     val upLink: Int?,
     val networkType: Int?,
+    val dnsServer: String?,
 )

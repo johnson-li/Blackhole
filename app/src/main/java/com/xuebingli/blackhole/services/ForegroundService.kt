@@ -20,11 +20,16 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
 import com.google.gson.Gson
+import com.wandroid.traceroute.TraceRoute
+import com.wandroid.traceroute.TraceRouteCallback
+import com.wandroid.traceroute.TraceRouteResult
+import com.xuebingli.blackhole.NetworkUtil
 import com.xuebingli.blackhole.R
 import com.xuebingli.blackhole.activities.BackgroundActivity
 import com.xuebingli.blackhole.models.*
 import com.xuebingli.blackhole.ui.BackgroundService
 import com.xuebingli.blackhole.utils.ConfigUtils
+import com.xuebingli.blackhole.utils.getDnsServers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -81,6 +86,7 @@ class ForegroundService : Service() {
     private var cellInfoObservable: Observable<MutableList<CellInfo>>? = null
     private var subscriptionInfoObservable: Observable<MutableList<SubscriptionInfo>>? = null
     private var networkInfoObservable: Observable<MutableList<CellNetworkInfo>>? = null
+    private var tracerouteObservable: Observable<MutableList<String>>? = null
     private val observationInterval = 300L
 
     override fun onCreate() {
@@ -196,7 +202,25 @@ class ForegroundService : Service() {
     }
 
     private fun startTracerouteRecording(records: Records) {
-
+        val setup = records.setup as TracerouteMeasurementSetup
+        tracerouteObservable =
+            Observable.interval(setup.interval.toLong(), TimeUnit.MILLISECONDS).flatMap {
+                Observable.create {
+                    try {
+                        val tr = TraceRoute()
+                        tr.setCallback(object : TraceRouteCallback() {
+                            override fun onSuccess(traceRouteResult: TraceRouteResult) {
+                                Log.d("johnson", traceRouteResult.toString())
+                            }
+                        })
+                        tr.traceRoute(setup.serverIP)
+                    } catch (e: java.lang.Exception) {
+                        Log.e("johnson", e.message, e)
+                    }
+                }
+            }
+        tracerouteObservable!!.subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
+            .subscribe { }.also { disposables.add(it) }
     }
 
     private fun startNetworkInfoRecording(records: Records) {
@@ -216,8 +240,11 @@ class ForegroundService : Service() {
                             Manifest.permission.READ_PHONE_STATE
                         ) == PackageManager.PERMISSION_GRANTED
                     ) {
+                        val dnsServers =
+                            getDnsServers(getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager)
+                        val dnsServer = if (dnsServers.isEmpty()) null else dnsServers[0].hostAddress
                         CellNetworkInfo(
-                            netId, downLink, upLink, telephonyManager.dataNetworkType
+                            netId, downLink, upLink, telephonyManager.dataNetworkType, dnsServer
                         ).let {
                             records.appendRecord(NetworkInfoRecord(it))
                         }
@@ -322,7 +349,13 @@ class UdpPingRunnable(
                     val bytes = ByteArray(recvBuffer.remaining())
                     recvBuffer.get(bytes)
                     val id = String(bytes).toInt()
-                    records.appendRecord(UdpPingRecord(id, sendTsRecord[id % capacity], System.currentTimeMillis()))
+                    records.appendRecord(
+                        UdpPingRecord(
+                            id,
+                            sendTsRecord[id % capacity],
+                            System.currentTimeMillis()
+                        )
+                    )
                     sendTsRecord[id % capacity] = 0
 //                    Log.d("johnson", "Received pkt $id")
                 }
@@ -336,12 +369,18 @@ class UdpPingRunnable(
 //            sendBuffer.put(pktId.toString().encodeToByteArray())
             try {
                 if (sendTsRecord[pktId % capacity] > 0) {
-                    records.appendRecord(UdpPingRecord(pktId - capacity, sendTsRecord[pktId % capacity], -1))
+                    records.appendRecord(
+                        UdpPingRecord(
+                            pktId - capacity,
+                            sendTsRecord[pktId % capacity],
+                            -1
+                        )
+                    )
                 }
                 sendTsRecord[pktId % capacity] = System.currentTimeMillis()
                 channel.send(ByteBuffer.wrap(pktId.toString().toByteArray()), serverAddress)
                 pktId += 1
-                Log.d("johnson", "Sent pkt $pktId")
+//                Log.d("johnson", "Sent pkt $pktId")
             } catch (e: IOException) {
                 Log.e("johnson", e.message, e)
             }

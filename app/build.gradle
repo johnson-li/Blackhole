@@ -93,5 +93,5 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0"
     implementation "org.jetbrains.kotlin:kotlin-reflect:1.7.20"
     implementation 'androidx.work:work-runtime-ktx:2.7.1'
-
+    implementation project(':library')
 }
