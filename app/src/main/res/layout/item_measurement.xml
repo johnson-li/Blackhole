@@ -26,7 +26,7 @@
         android:paddingEnd="16dp"
         android:paddingBottom="8dp">
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/titleLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -45,9 +45,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+                android:layout_toEndOf="@id/title"
                 android:text="@{@string/measurement_record_status(records.recordSize)}"
-                tools:text="Last modified: 3 mins ago" />
-        </LinearLayout>
+                tools:text="Count: 10" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="@{records.setup.description()}"
+                tools:text="Target: 1.1.1.1" />
+        </RelativeLayout>
 
         <LinearLayout
             android:id="@+id/locationInfo"
@@ -81,12 +89,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="@{records.setup.key == MeasurementKey.Ping ? View.VISIBLE : View.GONE}">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@{records.setup.description()}"
-                tools:text="Setup description" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -125,12 +127,6 @@
             android:visibility="@{records.setup.key == MeasurementKey.UdpPing ? View.VISIBLE : View.GONE}">
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@{records.setup.description()}"
-                tools:text="Setup description" />
-
-            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{records.lastRecord.toUiString()}"
@@ -142,12 +138,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="@{records.setup.key == MeasurementKey.Traceroute ? View.VISIBLE : View.GONE}">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@{records.setup.description()}"
-                tools:text="Setup description" />
 
             <TextView
                 android:layout_width="wrap_content"

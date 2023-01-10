@@ -98,7 +98,7 @@ class Measurement : BaseObservable() {
 
     fun saveSetup(pref: SharedPreferences) {
         pref.edit {
-            val data = GsonUtils.getGson().toJson(setups)
+            val data = GsonUtils.getGson().toJson(setups.filter { !it.tmp })
             putString(Preferences.MEASUREMENT_SETUP_KEY, data)
             apply()
         }
@@ -108,6 +108,7 @@ class Measurement : BaseObservable() {
 abstract class MeasurementSetup(val key: MeasurementKey) {
     var createdAt = System.currentTimeMillis()
     var updatedAt = createdAt
+    var tmp = false
 
     override fun toString(): String {
         return "${key.name}Measurement@$createdAt"

@@ -17,7 +17,7 @@ class NetworkInfoMeasurementSetup: MeasurementSetup(MeasurementKey.NetworkInfo)
 
 class NetworkInfoRecord(private val networkInfo: CellNetworkInfo): GenericRecord() {
     override fun toUiString0(): String = "Downlink: ${networkInfo.downLink}, " +
-            "Uplink: ${networkInfo.upLink}, DNS: ${networkInfo.dnsServer}"
+            "Uplink: ${networkInfo.upLink}\nDNS: ${networkInfo.dnsServer}"
 
     override fun equals(other: Any?): Boolean {
         return other is NetworkInfoRecord && other.networkInfo == networkInfo

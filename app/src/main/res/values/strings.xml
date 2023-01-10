@@ -149,10 +149,11 @@
     <string name="last_modified">Updated %1$ds ago</string>
     <string name="error_add_measurement">The measurement is unique and cannot be added twice.</string>
     <string name="reset_measurement">Reset measurement</string>
+    <string name="default_measurement">Load default measurement</string>
     <string name="delete_measurement_title">Delete measurement</string>
     <string name="delete_measurement_message">Are you sure to delete this measurement?</string>
 
-    <string name="measurement_record_status">Record count: %1$d</string>
+    <string name="measurement_record_status">#%1$d</string>
     <string name="measurement_no_setup">Please add a least one measurement to get started</string>
     <string name="permission_missing">Please grant all permissions</string>
 </resources>

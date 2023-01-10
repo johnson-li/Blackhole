@@ -1,14 +1,13 @@
 package com.xuebingli.blackhole.activities
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.text.InputType
-import android.util.Log
 import android.view.*
-import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -18,7 +17,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.ObservableBoolean
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.xuebingli.blackhole.R
@@ -42,6 +40,13 @@ class MainActivity : BaseActivity0() {
     private var measurementRunning = ObservableBoolean(false)
     private lateinit var measurement: Measurement
     private lateinit var adapter: MeasurementAdapter
+    private val handler = object : Handler(Looper.getMainLooper()) {
+        override fun handleMessage(msg: Message) {
+            binding.container.post {
+                adapter.notifyDataSetChanged()
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,6 +89,7 @@ class MainActivity : BaseActivity0() {
         if (measurement.empty) {
             Toast.makeText(this, R.string.measurement_no_setup, Toast.LENGTH_SHORT).show()
         } else {
+            foregroundService?.handler = handler
             foregroundService?.startMeasurement(measurement)
             measurementRunning.set(isMeasurementRunning())
         }

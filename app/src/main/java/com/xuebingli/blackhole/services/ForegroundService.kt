@@ -8,7 +8,9 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.ConnectivityManager
 import android.os.Binder
+import android.os.Handler
 import android.os.IBinder
+import android.os.Message
 import android.telephony.CellInfo
 import android.telephony.SubscriptionInfo
 import android.telephony.SubscriptionManager
@@ -90,6 +92,7 @@ class ForegroundService : Service() {
     private var subscriptionInfoObservable: Observable<MutableList<SubscriptionInfo>>? = null
     private var networkInfoObservable: Observable<MutableList<CellNetworkInfo>>? = null
     private var tracerouteObservable: Observable<MutableList<String>>? = null
+    var handler: Handler? = null
     private val observationInterval = 300L
     private val pingProcesses = ConcurrentHashMap<String, Pair<Process, Records>>()
     private val pingReaderThread = object : Thread() {
@@ -239,6 +242,21 @@ class ForegroundService : Service() {
         }
     }
 
+    fun maybeAddTmpPingMeasurement(ip: String) {
+        if (!measurement!!.setups.filterIsInstance<PingMeasurementSetup>()
+                .any { it.serverIP == ip }
+        ) {
+            val setup = PingMeasurementSetup().also {
+                it.tmp = true
+                it.serverIP = ip
+            }
+            if (measurement!!.addMeasurement(setup)) {
+                startPingRecording(measurement!!.recordSet[setup]!!)
+                handler?.dispatchMessage(Message())
+            }
+        }
+    }
+
     private fun startTracerouteRecording(records: Records) {
         val setup = records.setup as TracerouteMeasurementSetup
         tracerouteObservable =
@@ -250,15 +268,18 @@ class ForegroundService : Service() {
                             override fun onSuccess(traceRouteResult: TraceRouteResult) {
                                 val trace = mutableListOf<TracerouteRecordItem>()
                                 traceRouteResult.message.split("\n").forEach { line ->
-                                    Log.d("johnson", line)
+//                                    Log.d("johnson", line)
                                     val res = "[0-9.]+ ms".toRegex().findAll(line)
                                     if (res.any()) {
                                         val rtt = res.map {
                                             it.value.substring(0, it.value.length - 3).toFloat()
                                         }.min()
                                         val hop = line.substring(1, 2).toInt()
-                                        val ip = "\\d+\\.\\d+\\.\\d+\\.\\d+".toRegex().find(line)?.value ?: "Unknown"
+                                        val ip =
+                                            "\\d+\\.\\d+\\.\\d+\\.\\d+".toRegex().find(line)?.value
+                                                ?: "Unknown"
                                         trace.add(TracerouteRecordItem(hop, rtt, ip))
+                                        maybeAddTmpPingMeasurement(ip)
                                     }
                                 }
                                 if (trace.isNotEmpty()) {
@@ -297,6 +318,7 @@ class ForegroundService : Service() {
                             getDnsServers(getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager)
                         val dnsServer =
                             if (dnsServers.isEmpty()) null else dnsServers[0].hostAddress
+                        dnsServer?.let { maybeAddTmpPingMeasurement(it) }
                         CellNetworkInfo(
                             netId, downLink, upLink, telephonyManager.dataNetworkType, dnsServer
                         ).let {
