@@ -7,8 +7,10 @@ class TracerouteMeasurementSetup : MeasurementSetup(MeasurementKey.Traceroute) {
     override fun description(): String = "Target: $serverIP"
 }
 
-class TracerouteRecord : GenericRecord() {
+class TracerouteRecordItem(val hop: Int, val rtt: Float, val ip: String)
+
+class TracerouteRecord(private val trace: List<TracerouteRecordItem>) : GenericRecord() {
     override fun toUiString0(): String {
-        return ""
+        return trace.joinToString("\n") { "${it.hop} ${it.ip} ${it.rtt}" }
     }
 }

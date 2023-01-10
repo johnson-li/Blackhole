@@ -37,7 +37,9 @@ import java.io.IOException
 import java.io.InterruptedIOException
 import java.net.*
 import java.nio.ByteBuffer
+import java.nio.channels.ClosedByInterruptException
 import java.nio.channels.DatagramChannel
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -89,11 +91,13 @@ class ForegroundService : Service() {
     private var networkInfoObservable: Observable<MutableList<CellNetworkInfo>>? = null
     private var tracerouteObservable: Observable<MutableList<String>>? = null
     private val observationInterval = 300L
-    private val pingProcesses = mutableMapOf<String, Pair<Process, Records>>()
+    private val pingProcesses = ConcurrentHashMap<String, Pair<Process, Records>>()
     private val pingReaderThread = object : Thread() {
         override fun run() {
             while (!interrupted()) {
-                pingProcesses.forEach { entry ->
+                val iterator = pingProcesses.iterator()
+                while (iterator.hasNext()) {
+                    val entry = iterator.next()
                     val process = entry.value.first
                     val records = entry.value.second
                     try {
@@ -104,6 +108,8 @@ class ForegroundService : Service() {
                             records.appendRecord(PingRecord(it))
                         }
                     } catch (e: InterruptedIOException) {
+                        Log.w("johnson", e.message, e)
+                    } catch (e: IOException) {
                         Log.w("johnson", e.message, e)
                     }
                 }
@@ -242,7 +248,22 @@ class ForegroundService : Service() {
                         val tr = TraceRoute()
                         tr.setCallback(object : TraceRouteCallback() {
                             override fun onSuccess(traceRouteResult: TraceRouteResult) {
-                                Log.d("johnson", traceRouteResult.toString())
+                                val trace = mutableListOf<TracerouteRecordItem>()
+                                traceRouteResult.message.split("\n").forEach { line ->
+                                    Log.d("johnson", line)
+                                    val res = "[0-9.]+ ms".toRegex().findAll(line)
+                                    if (res.any()) {
+                                        val rtt = res.map {
+                                            it.value.substring(0, it.value.length - 3).toFloat()
+                                        }.min()
+                                        val hop = line.substring(1, 2).toInt()
+                                        val ip = "\\d+\\.\\d+\\.\\d+\\.\\d+".toRegex().find(line)?.value ?: "Unknown"
+                                        trace.add(TracerouteRecordItem(hop, rtt, ip))
+                                    }
+                                }
+                                if (trace.isNotEmpty()) {
+                                    records.appendRecord(TracerouteRecord(trace))
+                                }
                             }
                         })
                         tr.traceRoute(setup.serverIP)
@@ -380,7 +401,12 @@ class UdpPingRunnable(
         while (!stop && !Thread.currentThread().isInterrupted) {
             if (pktId > 0) {
                 val recvBuffer = ByteBuffer.allocate(100)
-                channel.receive(recvBuffer)
+                try {
+                    channel.receive(recvBuffer)
+                } catch (e: ClosedByInterruptException) {
+                    Log.w("johnson", e.message, e)
+                    break
+                }
                 recvBuffer.flip()
                 if (recvBuffer.remaining() > 0) {
                     val bytes = ByteArray(recvBuffer.remaining())
