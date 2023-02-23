@@ -2,6 +2,10 @@ package com.xuebingli.blackhole.restful
 
 import com.google.gson.annotations.SerializedName
 
+data class HttpResponse(
+    val status: String
+)
+
 data class Response(
     val id: String,
     val status: Status,

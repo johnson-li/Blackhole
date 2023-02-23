@@ -1,6 +1,7 @@
 package com.xuebingli.blackhole.activities
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
@@ -211,6 +212,10 @@ class MainActivity : BaseActivity0() {
                     }
                     initMeasurement()
                 }
+                true
+            }
+            R.id.laptop_assistant -> {
+                startActivity(Intent(this, LaptopAssistantActivity::class.java))
                 true
             }
             else -> false

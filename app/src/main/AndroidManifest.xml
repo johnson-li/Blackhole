@@ -17,7 +17,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".activities.MainActivity"
+        <activity
+            android:name=".activities.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -58,11 +59,12 @@
         <activity
             android:name=".activities.ProbingActivity"
             android:label="@string/probing_activity_title" />
+        <activity android:name=".activities.LaptopAssistantActivity" />
 
         <service
             android:name=".services.BlackHoleVpnService"
-            android:permission="android.permission.BIND_VPN_SERVICE"
-            android:exported="true">
+            android:exported="true"
+            android:permission="android.permission.BIND_VPN_SERVICE">
             <intent-filter>
                 <action android:name="android.net.VpnService" />
             </intent-filter>
