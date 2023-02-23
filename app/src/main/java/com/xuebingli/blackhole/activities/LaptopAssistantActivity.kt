@@ -111,7 +111,7 @@ class LaptopAssistantActivity : BaseActivity0() {
                                         it.accuracy.toDouble()
                                     )
                                     Log.d("johnson", "Logging GPS: $loc")
-                                    api?.log(loc)?.subscribe({
+                                    api?.log(loc)?.observeOn(AndroidSchedulers.mainThread())?.subscribe({
                                         binding.logInfo.text = "Logging GPS: $loc"
                                     }, {})?.also { localDisposable.add(it) }
                                 }
@@ -119,28 +119,30 @@ class LaptopAssistantActivity : BaseActivity0() {
                         }
                     }, null)
                     val cellInfoObservable: Observable<Void> =
-                        Observable.interval(observationInterval, TimeUnit.MILLISECONDS).flatMap {
-                            Observable.create {
-                                telephonyManager.requestCellInfoUpdate(
-                                    measurementThreadPool,
-                                    object : CellInfoCallback() {
-                                        override fun onCellInfo(cellInfo: MutableList<CellInfo>) {
-                                            if (logging) {
-                                                val data = cellInfo.map {
-                                                    CellularRecord(
-                                                        getCellInfoModel(it)
-                                                    )
+                        Observable.interval(observationInterval, TimeUnit.MILLISECONDS)
+                            .observeOn(AndroidSchedulers.mainThread()).flatMap {
+                                Observable.create {
+                                    telephonyManager.requestCellInfoUpdate(
+                                        measurementThreadPool,
+                                        object : CellInfoCallback() {
+                                            override fun onCellInfo(cellInfo: MutableList<CellInfo>) {
+                                                if (logging) {
+                                                    val data = cellInfo.map {
+                                                        CellularRecord(
+                                                            getCellInfoModel(it)
+                                                        )
+                                                    }
+                                                    Log.d("johnson", "Logging CellInfo: $data")
+                                                    api?.log(data)?.observeOn(AndroidSchedulers.mainThread())?.subscribe({
+                                                        binding.logInfo.text =
+                                                            "Logging CellInfo: $data"
+                                                    }, {})?.also { localDisposable.add(it) }
                                                 }
-                                                Log.d("johnson", "Logging CellInfo: $data")
-                                                api?.log(data)?.subscribe({
-                                                    binding.logInfo.text = "Logging CellInfo: $data"
-                                                }, {})?.also { localDisposable.add(it) }
                                             }
                                         }
-                                    }
-                                )
+                                    )
+                                }
                             }
-                        }
                     cellInfoObservable.subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
                         .subscribe { }.also { localDisposable.add(it) }
                 } else {
