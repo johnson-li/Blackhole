@@ -19,6 +19,7 @@ import com.xuebingli.blackhole.models.CellularRecord
 import com.xuebingli.blackhole.models.LocationRecord
 import com.xuebingli.blackhole.models.getCellInfoModel
 import com.xuebingli.blackhole.restful.LaptopApi
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.functions.BiConsumer
@@ -69,13 +70,15 @@ class LaptopAssistantActivity : BaseActivity0() {
     fun toggle(view: View) {
         if (api == null) {
             val tmpApi = createServerApi()
-            tmpApi.test().subscribeOn(Schedulers.io()).subscribe({
-                api = tmpApi
-                binding.button.text = "Start"
-                logging = false
-            }, {
-                Toast.makeText(this, "Failed to connect to the server", Toast.LENGTH_SHORT).show()
-            }).also { localDisposable.add(it) }
+            tmpApi.test().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    api = tmpApi
+                    binding.button.text = "Start"
+                    logging = false
+                }, {
+                    Toast.makeText(this, "Failed to connect to the server", Toast.LENGTH_SHORT)
+                        .show()
+                }).also { localDisposable.add(it) }
         } else {
             if (logging) {
                 logging = false
