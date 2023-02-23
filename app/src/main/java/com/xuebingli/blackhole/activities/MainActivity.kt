@@ -33,9 +33,6 @@ import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.declaredMemberProperties
 
 class MainActivity : BaseActivity0() {
-    companion object {
-        private const val PERMISSION_REQUEST_CODE = 1
-    }
 
     lateinit var binding: ActivityMainBinding
     private var measurementRunning = ObservableBoolean(false)
@@ -214,6 +211,10 @@ class MainActivity : BaseActivity0() {
                 }
                 true
             }
+            R.id.pour_activity -> {
+                startActivity(Intent(this, PourActivity::class.java))
+                true
+            }
             R.id.laptop_assistant -> {
                 startActivity(Intent(this, LaptopAssistantActivity::class.java))
                 true
@@ -222,20 +223,6 @@ class MainActivity : BaseActivity0() {
         }
     }
 
-    private fun checkPermissions(): Boolean {
-        val permissionList = listOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.READ_PHONE_STATE,
-        )
-        val permissionsToBeGrant = permissionList.filter {
-            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-        }
-        if (permissionsToBeGrant.isEmpty()) {
-            return true
-        }
-        requestPermissions(permissionsToBeGrant.toTypedArray(), PERMISSION_REQUEST_CODE)
-        return false
-    }
 }
 
 class SetupAdapter(

@@ -19,6 +19,9 @@
         android:id="@+id/default_measurement"
         android:title="@string/default_measurement" />
     <item
+        android:id="@+id/pour_activity"
+        android:title="Pour Activity" />
+    <item
         android:id="@+id/laptop_assistant"
         android:title="Laptop Assistant" />
 </menu>

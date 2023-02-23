@@ -61,8 +61,10 @@ class PourActivity : SinkPourActivity(
 
     @ExperimentalUnsignedTypes
     private fun actionUDP(id: String, bitrate: Int, packetSize: Int, duration: Int) {
+        Toast.makeText(this, "ActionUDP", Toast.LENGTH_SHORT).show()
         serverApi.request(ControlMessage(id, Request(RequestType.UDP_POUR, bitrate))).also {
             subscribe(it, { response ->
+                Toast.makeText(this, "Request Succeeded", Toast.LENGTH_SHORT).show()
                 val ip = ConfigUtils(this).targetIP
                 val port = response.port!!
                 UdpClient(id, ip, port, bitrate, packetSize, duration).also { client ->
@@ -84,6 +86,7 @@ class PourActivity : SinkPourActivity(
                     }.also { d -> disposables.add(d) }
                 }
             }, {
+                Toast.makeText(this, "Request Failed", Toast.LENGTH_SHORT).show()
                 working = false
                 actionButton.setText(R.string.pour_button)
             }).also { d -> disposables.add(d) }

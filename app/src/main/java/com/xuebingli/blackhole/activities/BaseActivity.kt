@@ -1,6 +1,8 @@
 package com.xuebingli.blackhole.activities
 
+import android.Manifest
 import android.content.*
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -8,6 +10,7 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import com.xuebingli.blackhole.MyApplication
 import com.xuebingli.blackhole.R
