@@ -12,8 +12,8 @@ class PingRecord(private val rtt: Float) : GenericRecord() {
 }
 
 class UdpPingMeasurementSetup : MeasurementSetup(MeasurementKey.UdpPing) {
-    var serverIP: String = "195.148.127.230"
-    var serverPort: Int = 8877
+    var serverIP: String = "195.148.127.234"
+    var serverPort: Int = 8085
     var interval: Int = 100
 
     override fun description(): String = "@$serverIP:$serverPort"

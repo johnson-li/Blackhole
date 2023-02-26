@@ -4,13 +4,17 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.PowerManager
+import android.os.PowerManager.WakeLock
 import android.telephony.CellInfo
 import android.telephony.TelephonyManager
 import android.telephony.TelephonyManager.CellInfoCallback
 import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.content.getSystemService
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.location.*
 import com.xuebingli.blackhole.R
@@ -41,12 +45,24 @@ class LaptopAssistantActivity : BaseActivity0() {
     private val observationInterval = 300L
     private lateinit var telephonyManager: TelephonyManager
     private var measurementThreadPool = Executors.newCachedThreadPool()
+    private lateinit var wakeLock: WakeLock
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_laptop_assistant)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+            newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Blackhole::LaptopAssistant").apply {
+                acquire(1 * 60 * 60 * 1000L)
+            }
+        }
         locationClient = LocationServices.getFusedLocationProviderClient(this)
         telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+    }
+
+    override fun onStop() {
+        super.onStop()
+        wakeLock.release()
     }
 
     private fun createServerApi(): LaptopApi {
@@ -111,9 +127,10 @@ class LaptopAssistantActivity : BaseActivity0() {
                                         it.accuracy.toDouble()
                                     )
                                     Log.d("johnson", "Logging GPS: $loc")
-                                    api?.log(loc)?.observeOn(AndroidSchedulers.mainThread())?.subscribe({
-                                        binding.logInfo.text = "Logging GPS: $loc"
-                                    }, {})?.also { localDisposable.add(it) }
+                                    api?.log(loc)?.observeOn(AndroidSchedulers.mainThread())
+                                        ?.subscribe({
+                                            binding.logInfo.text = "Logging GPS: $loc"
+                                        }, {})?.also { localDisposable.add(it) }
                                 }
                             }
                         }
@@ -133,10 +150,12 @@ class LaptopAssistantActivity : BaseActivity0() {
                                                         )
                                                     }
                                                     Log.d("johnson", "Logging CellInfo: $data")
-                                                    api?.log(data)?.observeOn(AndroidSchedulers.mainThread())?.subscribe({
-                                                        binding.logInfo.text =
-                                                            "Logging CellInfo: $data"
-                                                    }, {})?.also { localDisposable.add(it) }
+                                                    api?.log(data)
+                                                        ?.observeOn(AndroidSchedulers.mainThread())
+                                                        ?.subscribe({
+                                                            binding.logInfo.text =
+                                                                "Logging CellInfo: $data"
+                                                        }, {})?.also { localDisposable.add(it) }
                                                 }
                                             }
                                         }
